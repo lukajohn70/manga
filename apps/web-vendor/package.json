@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

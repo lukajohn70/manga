@@ -15,11 +15,11 @@
 | **Milestone 0: Foundations & Monorepo** | **COMPLETE** | 7 / 7 (100%) |
 | **Milestone 1: Catalog, Vendors & Inventory** | **COMPLETE** | 10 / 10 (100%) |
 | **Milestone 2: Cart, Checkout, Payments & Ledger** | **COMPLETE** | 8 / 8 (100%) |
-| **Milestone 3: Fulfilment, Shipping & Tracking** | **IN PROGRESS** | 7 / 8 (87%) |
+| **Milestone 3: Fulfilment, Shipping & Tracking** | **COMPLETE** | 8 / 8 (100%) |
 | **Milestone 4: Returns, Disputes & Payouts** | **IN PROGRESS** | 7 / 8 (87%) |
 | **Milestone 5: Hardening, Observability & Beta** | **QUEUED** | 0 / 7 (0%) |
 | **Phase 2: Mobile Apps & Advanced Scale** | **PLANNED** | 0 / 7 (0%) |
-| **Total Core Platform Progress** | | **39 / 55 (71%)** |
+| **Total Core Platform Progress** | | **40 / 55 (73%)** |
 
 ---
 
@@ -74,7 +74,7 @@
 
 ---
 
-### Milestone 3: Fulfilment, Shipping & Tracking (Weeks 14–22)
+### Milestone 3: Fulfilment, Shipping & Tracking (Weeks 14–22) — 100% COMPLETE
 - [x] **M3.1 Shipment Group State Machine:** Enforced state progression (`pending_vendor_accept` \(\rightarrow\) `accepted` \(\rightarrow\) `packing` \(\rightarrow\) `ready_to_ship` \(\rightarrow\) `shipped` \(\rightarrow\) `in_transit` \(\rightarrow\) `out_for_delivery` \(\rightarrow\) `delivered`).
 - [x] **M3.2 Carrier Adapter Interface:** Pluggable carrier interface (`getRates`, `createShipment`, `mapCarrierStatus`).
 - [x] **M3.3 Label & Tracking Generation:** Automated carrier label PDF and tracking number generation.
@@ -87,7 +87,7 @@
   - Credit: `platform_revenue` (commission)
   - Credit: `tax_payable`
   - Credit: `shipping_payable`
-- [ ] **M3.8 Vendor Pack/Scan Console UI:** Camera barcode scanning (`BarcodeDetector`/ZXing) and browser PDF label printing in vendor web app.
+- [x] **M3.8 Vendor Pack/Scan Console UI:** Camera barcode scanning (`BarcodeDetector`/ZXing), parcel weight capture, and browser PDF label printing dialog in vendor web app.
 
 ---
 

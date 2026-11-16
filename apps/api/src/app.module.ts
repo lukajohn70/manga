@@ -12,6 +12,7 @@ import { OffersService } from './modules/offers/offers.service.js';
 import { OffersController } from './modules/offers/offers.controller.js';
 import { SearchService } from './modules/search/search.service.js';
 import { SearchController } from './modules/search/search.controller.js';
+import { ShippingController } from './modules/shipping/shipping.controller.js';
 import { CheckoutService } from './modules/checkout/checkout.service.js';
 import { ShippingService } from './modules/shipping/shipping.service.js';
 import { ReturnsService } from './modules/returns/returns.service.js';
@@ -24,6 +25,7 @@ import { PayoutsService } from './modules/payouts/payouts.service.js';
     CatalogController,
     OffersController,
     SearchController,
+    ShippingController,
   ],
   providers: [
     DatabaseService,

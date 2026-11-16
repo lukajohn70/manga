@@ -54,6 +54,64 @@ export class ShippingService {
   }
 
   /**
+   * Vendor begins packing workflow (§8.2).
+   */
+  public async packShipmentGroup(shipmentGroupId: string, vendorId: string): Promise<any> {
+    const res = await this.db.query(
+      `SELECT * FROM orders.shipment_groups WHERE id = $1 AND vendor_id = $2`,
+      [shipmentGroupId, vendorId]
+    );
+
+    if (res.rows.length === 0) {
+      throw new NotFoundException(`Shipment group ${shipmentGroupId} not found for vendor`);
+    }
+
+    const group = res.rows[0];
+    ShipmentGroupStateMachine.assertCanTransition(group.status, 'packing');
+
+    const updateRes = await this.db.query(
+      `UPDATE orders.shipment_groups SET status = 'packing' WHERE id = $1 RETURNING *`,
+      [shipmentGroupId]
+    );
+
+    return updateRes.rows[0];
+  }
+
+  /**
+   * Lists vendor orders with lines, address, and SLA timers (§5.3).
+   */
+  public async listVendorShipmentGroups(vendorId: string, status?: string): Promise<any[]> {
+    let sql = `
+      SELECT sg.*, o.order_number, o.address_snapshot, o.placed_at,
+             COALESCE(
+               json_agg(
+                 json_build_object(
+                   'id', ol.id,
+                   'title', ol.title_snapshot,
+                   'qty', ol.qty,
+                   'unitPriceMinor', ol.unit_price_minor
+                 )
+               ) FILTER (WHERE ol.id IS NOT NULL), '[]'
+             ) as lines
+      FROM orders.shipment_groups sg
+      JOIN orders.orders o ON sg.order_id = o.id
+      LEFT JOIN orders.order_lines ol ON ol.shipment_group_id = sg.id
+      WHERE sg.vendor_id = $1
+    `;
+    const params: any[] = [vendorId];
+
+    if (status) {
+      sql += ` AND sg.status = $2`;
+      params.push(status);
+    }
+
+    sql += ` GROUP BY sg.id, o.id ORDER BY o.placed_at DESC`;
+
+    const res = await this.db.query(sql, params, { vendorId });
+    return res.rows;
+  }
+
+  /**
    * Generates shipping label and advances status to ready_to_ship (§5.3, §6.3).
    */
   public async createShipmentLabel(shipmentGroupId: string, vendorId: string, weightG: number): Promise<any> {
