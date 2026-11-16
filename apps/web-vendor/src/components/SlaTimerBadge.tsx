@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Clock, AlertTriangle } from 'lucide-react';
 
 export interface SlaTimerBadgeProps {
   label: string;
@@ -56,16 +57,22 @@ export const SlaTimerBadge: React.FC<SlaTimerBadgeProps> = ({ label, deadlineIso
         display: 'inline-flex',
         alignItems: 'center',
         gap: '6px',
-        padding: '4px 10px',
-        borderRadius: '9999px',
-        fontSize: '12px',
+        padding: '3px 9px',
+        borderRadius: '6px',
+        fontSize: '11px',
         fontWeight: 600,
         backgroundColor: bg,
         color: text,
         border: `1px solid ${border}`,
+        fontVariantNumeric: 'tabular-nums',
       }}
     >
-      <span>⏱️ {label}:</span>
+      {urgency === 'urgent' || urgency === 'breached' ? (
+        <AlertTriangle size={12} color={text} />
+      ) : (
+        <Clock size={12} color={text} />
+      )}
+      <span>{label}:</span>
       <span>{timeLeft}</span>
     </div>
   );

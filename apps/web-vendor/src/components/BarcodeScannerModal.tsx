@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Button } from '@manga/ui';
+import { Package, Camera, X, AlertCircle } from 'lucide-react';
 
 export interface BarcodeScannerModalProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
     let stream: MediaStream | null = null;
 
     if (isOpen && cameraActive) {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices
           .getUserMedia({ video: { facingMode: 'environment' } })
           .then((s) => {
@@ -38,10 +39,13 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
               videoRef.current.play().catch(() => {});
             }
           })
-          .catch((err) => {
-            setCameraError('Camera access unavailable. Use manual scanner entry below.');
+          .catch(() => {
+            setCameraError('Camera access unavailable. Please enter the barcode manually below.');
             setCameraActive(false);
           });
+      } else {
+        setCameraError('Camera scanning is not supported in this browser environment.');
+        setCameraActive(false);
       }
     }
 
@@ -64,12 +68,13 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.6)',
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(3px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        padding: '1rem',
+        padding: '1.25rem',
       }}
     >
       <div
@@ -78,46 +83,88 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
           borderRadius: '12px',
           width: '100%',
           maxWidth: '520px',
-          padding: '1.5rem',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+          padding: '1.75rem',
+          boxShadow: '0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1)',
+          border: '1px solid #e2e8f0',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
-            📦 Pack & Scan Order #{orderNumber}
-          </h3>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                backgroundColor: '#ffe4e6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#e11d48',
+              }}
+            >
+              <Package size={18} />
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: '#0f172a' }}>
+                Pack & Verify Order #{orderNumber}
+              </h3>
+              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+                Pre-dispatch barcode scanning and parcel tare weight verification
+              </p>
+            </div>
+          </div>
           <button
             onClick={onClose}
+            aria-label="Close dialog"
             style={{
               background: 'none',
               border: 'none',
-              fontSize: '1.5rem',
               cursor: 'pointer',
               color: '#64748b',
+              padding: '4px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            ×
+            <X size={18} />
           </button>
         </div>
 
-        <p style={{ margin: '0.75rem 0', color: '#475569', fontSize: '14px' }}>
-          Verify item: <strong>{itemTitle}</strong> (Expected SKU: <code>{expectedSku}</code>)
-        </p>
+        {/* Item Summary Card */}
+        <div
+          style={{
+            backgroundColor: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            padding: '10px 14px',
+            marginBottom: '1rem',
+            fontSize: '13px',
+          }}
+        >
+          <div style={{ color: '#0f172a', fontWeight: 600 }}>{itemTitle}</div>
+          <div style={{ color: '#64748b', fontSize: '12px', marginTop: '2px' }}>
+            Expected Catalog SKU: <code style={{ color: '#0f172a', fontWeight: 600 }}>{expectedSku}</code>
+          </div>
+        </div>
 
-        {/* Viewfinder area */}
+        {/* Optical Scanner / Camera Viewfinder */}
         <div
           style={{
             position: 'relative',
             backgroundColor: '#0f172a',
             borderRadius: '8px',
-            height: '200px',
+            height: '180px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#94a3b8',
             overflow: 'hidden',
-            marginBottom: '1rem',
+            marginBottom: '1.25rem',
+            border: '1px solid #1e293b',
           }}
         >
           {cameraActive ? (
@@ -127,22 +174,53 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
               muted
             />
           ) : (
-            <div style={{ textAlign: 'center', padding: '1rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📷</div>
-              <div style={{ fontSize: '13px' }}>
-                {cameraError || 'Camera Scanner (Chrome / Android PWA supported)'}
-              </div>
-              <Button
-                variant="secondary"
-                size="sm"
-                style={{ marginTop: '10px' }}
-                onClick={() => {
-                  setCameraError(null);
-                  setCameraActive(true);
+            <div style={{ textAlign: 'center', padding: '1.25rem' }}>
+              <div
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '24px',
+                  backgroundColor: 'rgba(255,255,255,0.08)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 10px',
+                  color: '#94a3b8',
                 }}
               >
-                Enable Camera
-              </Button>
+                <Camera size={24} />
+              </div>
+              <div style={{ fontSize: '13px', color: '#e2e8f0', fontWeight: 500 }}>
+                {cameraError ? (
+                  <span style={{ color: '#fca5a5', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
+                    <AlertCircle size={14} /> {cameraError}
+                  </span>
+                ) : (
+                  'Optical Barcode Reader (Supported on Camera Devices)'
+                )}
+              </div>
+              {!cameraError && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCameraError(null);
+                    setCameraActive(true);
+                  }}
+                  style={{
+                    marginTop: '10px',
+                    padding: '6px 14px',
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    borderRadius: '6px',
+                    color: '#ffffff',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Enable Device Camera
+                </button>
+              )}
             </div>
           )}
 
@@ -150,21 +228,21 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
             <div
               style={{
                 position: 'absolute',
-                border: '2px solid #22c55e',
+                border: '2px solid #10b981',
                 borderRadius: '8px',
-                width: '70%',
-                height: '50%',
-                boxShadow: '0 0 15px rgba(34, 197, 94, 0.4)',
+                width: '65%',
+                height: '45%',
+                boxShadow: '0 0 16px rgba(16, 185, 129, 0.45)',
               }}
             />
           )}
         </div>
 
-        {/* Form inputs */}
+        {/* Verification Inputs Form */}
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
-              Scanned Item SKU / Barcode:
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a', marginBottom: '6px' }}>
+              Scanned SKU or EAN/UPC Barcode:
             </label>
             <input
               type="text"
@@ -178,13 +256,15 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                 border: '1px solid #cbd5e1',
                 fontSize: '14px',
                 boxSizing: 'border-box',
+                fontFamily: 'monospace',
+                backgroundColor: '#ffffff',
               }}
             />
           </div>
 
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
-              Packed Parcel Weight (Grams):
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a', marginBottom: '6px' }}>
+              Packed Parcel Tare Weight (Grams):
             </label>
             <input
               type="number"
@@ -200,11 +280,15 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                 border: '1px solid #cbd5e1',
                 fontSize: '14px',
                 boxSizing: 'border-box',
+                backgroundColor: '#ffffff',
               }}
             />
+            <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
+              Used for carrier billing reconciliation and delivery manifest dispatch.
+            </span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <Button variant="ghost" onClick={onClose} type="button">
               Cancel
             </Button>

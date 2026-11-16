@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Badge } from '@manga/ui';
+import { Scale, Building2, BookOpen, Wrench, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { DisputeCenter } from './components/DisputeCenter.js';
 import { RepairTools } from './components/RepairTools.js';
 
@@ -7,7 +8,7 @@ export function App() {
   const [activeTab, setActiveTab] = React.useState<'disputes' | 'vendors' | 'ledger' | 'repairs'>('disputes');
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       {/* Top Admin Bar */}
       <header
         style={{
@@ -17,17 +18,21 @@ export function App() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ fontSize: '18px', fontWeight: 800, color: '#e11d48' }}>MANGA ADMIN</div>
-          <span style={{ color: '#475569' }}>|</span>
-          <span style={{ fontSize: '14px', color: '#cbd5e1' }}>Marketplace Governance & Operations</span>
+          <div style={{ fontSize: '18px', fontWeight: 900, color: '#e11d48', letterSpacing: '-0.02em' }}>MANGA ADMIN</div>
+          <span style={{ color: '#334155' }}>|</span>
+          <span style={{ fontSize: '13px', color: '#cbd5e1', fontWeight: 500 }}>Marketplace Governance & Trust Operations</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: '#1e293b', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', color: '#94a3b8' }}>
+            <ShieldCheck size={14} color="#10b981" />
+            <span>Dual-Control Enforced</span>
+          </div>
           <Badge variant="warning">MFA Verified</Badge>
-          <Badge variant="success">Maker-Checker Enforced</Badge>
-          <span style={{ fontSize: '13px', color: '#94a3b8' }}>Admin: <strong>sec_ops@manga.ng</strong></span>
+          <span style={{ fontSize: '13px', color: '#cbd5e1' }}>Operator: <strong>ops_lead@manga.ng</strong></span>
         </div>
       </header>
 
@@ -50,11 +55,14 @@ export function App() {
             fontSize: '14px',
             fontWeight: 600,
             cursor: 'pointer',
-            borderBottom: activeTab === 'disputes' ? '3px solid #e11d48' : '3px solid transparent',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            borderBottom: activeTab === 'disputes' ? '2px solid #e11d48' : '2px solid transparent',
             color: activeTab === 'disputes' ? '#e11d48' : '#64748b',
           }}
         >
-          ⚖️ Dispute Center & Evidence Bundle
+          <Scale size={16} /> Dispute Mediation & Evidence
         </button>
         <button
           onClick={() => setActiveTab('vendors')}
@@ -65,11 +73,14 @@ export function App() {
             fontSize: '14px',
             fontWeight: 600,
             cursor: 'pointer',
-            borderBottom: activeTab === 'vendors' ? '3px solid #e11d48' : '3px solid transparent',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            borderBottom: activeTab === 'vendors' ? '2px solid #e11d48' : '2px solid transparent',
             color: activeTab === 'vendors' ? '#e11d48' : '#64748b',
           }}
         >
-          🏢 Vendor KYC & Tiers
+          <Building2 size={16} /> Merchant Accreditation & Tiers
         </button>
         <button
           onClick={() => setActiveTab('ledger')}
@@ -80,11 +91,14 @@ export function App() {
             fontSize: '14px',
             fontWeight: 600,
             cursor: 'pointer',
-            borderBottom: activeTab === 'ledger' ? '3px solid #e11d48' : '3px solid transparent',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            borderBottom: activeTab === 'ledger' ? '2px solid #e11d48' : '2px solid transparent',
             color: activeTab === 'ledger' ? '#e11d48' : '#64748b',
           }}
         >
-          📑 Double-Entry Ledger & Payouts
+          <BookOpen size={16} /> Financial Ledger & Payouts
         </button>
         <button
           onClick={() => setActiveTab('repairs')}
@@ -95,11 +109,14 @@ export function App() {
             fontSize: '14px',
             fontWeight: 600,
             cursor: 'pointer',
-            borderBottom: activeTab === 'repairs' ? '3px solid #e11d48' : '3px solid transparent',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            borderBottom: activeTab === 'repairs' ? '2px solid #e11d48' : '2px solid transparent',
             color: activeTab === 'repairs' ? '#e11d48' : '#64748b',
           }}
         >
-          🛠️ Operational Repair Tools
+          <Wrench size={16} /> Operations & System Recovery
         </button>
       </nav>
 
@@ -108,16 +125,50 @@ export function App() {
         {activeTab === 'disputes' && <DisputeCenter />}
 
         {activeTab === 'vendors' && (
-          <div style={{ backgroundColor: '#ffffff', padding: '2.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-            <h3>🏢 Vendor KYC & Governance</h3>
-            <p style={{ color: '#64748b' }}>Automated verification active via pluggable KYC providers.</p>
+          <div style={{ backgroundColor: '#ffffff', padding: '3rem', borderRadius: '10px', border: '1px solid #e2e8f0', textAlign: 'center', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)' }}>
+            <div
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '24px',
+                backgroundColor: '#eff6ff',
+                color: '#2563eb',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 12px',
+              }}
+            >
+              <Building2 size={24} />
+            </div>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>Merchant Accreditation & Compliance Registry</h3>
+            <p style={{ color: '#64748b', fontSize: '14px', maxWidth: '520px', margin: '8px auto 0' }}>
+              Automated business verification, CAC registration checks, and performance tier governance are running continuously across registered sellers.
+            </p>
           </div>
         )}
 
         {activeTab === 'ledger' && (
-          <div style={{ backgroundColor: '#ffffff', padding: '2.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-            <h3>📑 Double-Entry Ledger Audit Explorer</h3>
-            <p style={{ color: '#64748b' }}>Zero unbalanced variance detector running continuously.</p>
+          <div style={{ backgroundColor: '#ffffff', padding: '3rem', borderRadius: '10px', border: '1px solid #e2e8f0', textAlign: 'center', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)' }}>
+            <div
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '24px',
+                backgroundColor: '#ecfdf5',
+                color: '#059669',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 12px',
+              }}
+            >
+              <BookOpen size={24} />
+            </div>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>Financial Ledger & Settlement Audit Explorer</h3>
+            <p style={{ color: '#64748b', fontSize: '14px', maxWidth: '520px', margin: '8px auto 0' }}>
+              Immutable transaction records and real-time reconciliation monitoring are active with zero variance detected across all merchant payout batches.
+            </p>
           </div>
         )}
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Button, Badge } from '@manga/ui';
+import { Camera, Printer, Building2, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { SlaTimerBadge } from './components/SlaTimerBadge.js';
 import { BarcodeScannerModal } from './components/BarcodeScannerModal.js';
 import { ShippingLabelModal } from './components/ShippingLabelModal.js';
@@ -42,7 +43,7 @@ export function App() {
       shipDeadline: new Date(Date.now() + 38 * 3600 * 1000).toISOString(),
       recipientAddress: {
         recipientName: 'Chidi Okonkwo',
-        phone: '+2348031234567',
+        phone: '+234 803 123 4567',
         streetAddress: '24 Admiralty Way, Lekki Phase 1',
         city: 'Lagos',
         stateOrProvince: 'Lagos State',
@@ -60,7 +61,7 @@ export function App() {
       shipDeadline: new Date(Date.now() + 8 * 3600 * 1000).toISOString(),
       recipientAddress: {
         recipientName: 'Amina Bello',
-        phone: '+2348099887766',
+        phone: '+234 809 988 7766',
         streetAddress: '15 Gana Street, Maitama',
         city: 'Abuja',
         stateOrProvince: 'FCT',
@@ -78,7 +79,7 @@ export function App() {
       shipDeadline: new Date(Date.now() + 18 * 3600 * 1000).toISOString(),
       recipientAddress: {
         recipientName: 'Tunde Bakare',
-        phone: '+2348022334455',
+        phone: '+234 802 233 4455',
         streetAddress: '8 Commercial Avenue, Yaba',
         city: 'Lagos',
         stateOrProvince: 'Lagos State',
@@ -134,26 +135,31 @@ export function App() {
   });
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       {/* Top Navbar */}
       <header
         style={{
           backgroundColor: '#ffffff',
           borderBottom: '1px solid #e2e8f0',
-          padding: '1rem 2rem',
+          padding: '0.875rem 2rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#e11d48' }}>MANGA</div>
-          <span style={{ color: '#94a3b8' }}>|</span>
-          <span style={{ fontWeight: 600, color: '#334155' }}>Vendor Operations Console</span>
-          <Badge variant="success">Apex Electronics Ltd (Tier 2)</Badge>
+          <div style={{ fontSize: '18px', fontWeight: 900, color: '#e11d48', letterSpacing: '-0.02em' }}>MANGA</div>
+          <span style={{ color: '#cbd5e1' }}>|</span>
+          <span style={{ fontWeight: 600, color: '#0f172a', fontSize: '14px' }}>Vendor Operations Portal</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#ecfdf5', color: '#065f46', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, border: '1px solid #a7f3d0' }}>
+            <Building2 size={13} />
+            Apex Electronics Ltd (Tier 2 Verified)
+          </div>
         </div>
-        <div>
-          <Badge variant="info">Live SLA Timers Active</Badge>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Badge variant="success">Fulfillment SLA Active</Badge>
+          <span style={{ fontSize: '13px', color: '#64748b' }}>Hub: Lagos Central</span>
         </div>
       </header>
 
@@ -161,28 +167,34 @@ export function App() {
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '2rem' }}>
         {/* KPI Summary Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-          <div style={{ backgroundColor: '#ffffff', padding: '1.25rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>NEEDS ACCEPT ACTION</div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#e11d48', marginTop: '4px' }}>
+          <div style={{ backgroundColor: '#ffffff', padding: '1.25rem', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>PENDING ACCEPTANCE</div>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#e11d48', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
               {orders.filter((o) => o.status === 'pending_vendor_accept').length}
             </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>Requires merchant acknowledgment</div>
           </div>
-          <div style={{ backgroundColor: '#ffffff', padding: '1.25rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>READY FOR PACK & SCAN</div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#f59e0b', marginTop: '4px' }}>
+          <div style={{ backgroundColor: '#ffffff', padding: '1.25rem', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>READY FOR PACK & SCAN</div>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#d97706', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
               {orders.filter((o) => o.status === 'accepted').length}
             </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>Accepted orders awaiting item scan</div>
           </div>
-          <div style={{ backgroundColor: '#ffffff', padding: '1.25rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>READY TO SHIP (LABELED)</div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#3b82f6', marginTop: '4px' }}>
+          <div style={{ backgroundColor: '#ffffff', padding: '1.25rem', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>READY FOR CARRIER PICKUP</div>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#2563eb', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
               {orders.filter((o) => o.status === 'ready_to_ship').length}
             </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>Labeled parcels staged for handover</div>
           </div>
-          <div style={{ backgroundColor: '#ffffff', padding: '1.25rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>ON-TIME DISPATCH SLA</div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#10b981', marginTop: '4px' }}>
+          <div style={{ backgroundColor: '#ffffff', padding: '1.25rem', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, letterSpacing: '0.05em' }}>ON-TIME DISPATCH RATE</div>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#059669', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
               98.4%
+            </div>
+            <div style={{ fontSize: '12px', color: '#059669', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <CheckCircle2 size={13} /> Tier 2 SLA Standard Met
             </div>
           </div>
         </div>
@@ -254,7 +266,7 @@ export function App() {
         {/* Order Cards Grid */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {filteredOrders.length === 0 ? (
-            <div style={{ backgroundColor: '#ffffff', padding: '3rem', textAlign: 'center', borderRadius: '8px', color: '#64748b' }}>
+            <div style={{ backgroundColor: '#ffffff', padding: '3rem', textAlign: 'center', borderRadius: '10px', border: '1px solid #e2e8f0', color: '#64748b' }}>
               No shipments found in this queue.
             </div>
           ) : (
@@ -263,26 +275,27 @@ export function App() {
                 key={order.id}
                 style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   border: '1px solid #e2e8f0',
                   padding: '1.25rem',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
                 }}
               >
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                    <span style={{ fontWeight: 700, fontSize: '15px' }}>Order #{order.orderNumber}</span>
+                    <span style={{ fontWeight: 700, fontSize: '15px', color: '#0f172a' }}>Order #{order.orderNumber}</span>
                     <Badge variant={order.status === 'ready_to_ship' ? 'success' : order.status === 'accepted' ? 'warning' : 'info'}>
                       {order.status.replace(/_/g, ' ').toUpperCase()}
                     </Badge>
                   </div>
-                  <div style={{ fontSize: '14px', color: '#334155', fontWeight: 500 }}>
+                  <div style={{ fontSize: '14px', color: '#334155', fontWeight: 600 }}>
                     {order.qty}x {order.itemTitle}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                    SKU: <code>{order.sku}</code> • Destination: {order.recipientAddress.city}, {order.recipientAddress.stateOrProvince}
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px' }}>
+                    Catalog SKU: <code style={{ color: '#0f172a', fontWeight: 600 }}>{order.sku}</code> • Destination: {order.recipientAddress.city}, {order.recipientAddress.stateOrProvince}
                   </div>
                 </div>
 
@@ -300,8 +313,13 @@ export function App() {
                   {order.status === 'accepted' && (
                     <>
                       <SlaTimerBadge label="Ship SLA" deadlineIso={order.shipDeadline} />
-                      <Button variant="primary" size="sm" onClick={() => setScanningOrder(order)}>
-                        📷 Pack & Scan Barcode
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => setScanningOrder(order)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <Camera size={14} /> Pack & Scan SKU
                       </Button>
                     </>
                   )}
@@ -309,10 +327,15 @@ export function App() {
                   {order.status === 'ready_to_ship' && (
                     <>
                       <span style={{ fontSize: '12px', color: '#64748b' }}>
-                        Tracking: <strong>{order.trackingNumber}</strong>
+                        Tracking: <strong style={{ color: '#0f172a' }}>{order.trackingNumber}</strong>
                       </span>
-                      <Button variant="secondary" size="sm" onClick={() => setLabelOrder(order)}>
-                        🏷️ Print Label
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setLabelOrder(order)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <Printer size={14} /> Print Label
                       </Button>
                     </>
                   )}

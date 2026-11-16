@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Button, Badge } from '@manga/ui';
+import { Scale, FileText, X, ExternalLink, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 export interface DisputeCaseModel {
   id: string;
@@ -39,18 +40,18 @@ export const DisputeCenter: React.FC = () => {
       type: 'damaged_goods',
       status: 'opened',
       claimedAmountFormatted: '₦125,000.00',
-      reason: 'Package arrived with broken screen. Inner packaging lacked bubble wrap protection.',
+      reason: 'Package arrived with cracked display panel upon unboxing. Inner cushioning appeared insufficient.',
       deadlineIso: new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString(),
       evidenceCount: 3,
       trackingNumber: 'TRK-881294-MNG',
-      trackingStatus: 'Delivered (Signed by Security)',
+      trackingStatus: 'Delivered (Handover Signed by Security)',
       evidenceItems: [
         {
           id: 'ev-1',
           party: 'buyer',
           kind: 'photo',
           uri: 'https://cdn.manga.internal/evidence/dsp-101/broken-screen.jpg',
-          notes: 'High-res photo showing cracked OLED panel upon box opening.',
+          notes: 'High-resolution photo showing damaged OLED glass immediately after opening.',
           date: '2 hours ago',
         },
         {
@@ -58,7 +59,7 @@ export const DisputeCenter: React.FC = () => {
           party: 'carrier',
           kind: 'document',
           uri: 'https://cdn.manga.internal/evidence/dsp-101/pod-slip.pdf',
-          notes: 'Carrier POD slip noted external box dent upon delivery handover.',
+          notes: 'Carrier proof of delivery slip noted outer transit box indentation upon arrival.',
           date: '5 hours ago',
         },
         {
@@ -66,7 +67,7 @@ export const DisputeCenter: React.FC = () => {
           party: 'vendor',
           kind: 'photo',
           uri: 'https://cdn.manga.internal/evidence/dsp-101/pre-pack-qc.jpg',
-          notes: 'Vendor pre-dispatch QC photo showing intact screen before packing.',
+          notes: 'Pre-dispatch quality assurance photograph showing intact merchandise before packaging.',
           date: '1 day ago',
         },
       ],
@@ -79,7 +80,7 @@ export const DisputeCenter: React.FC = () => {
       type: 'wrong_item',
       status: 'awaiting_evidence',
       claimedAmountFormatted: '₦45,000.00',
-      reason: 'Received Logitech MX Anywhere instead of requested MX Master 3S.',
+      reason: 'Received Logitech MX Anywhere instead of the requested MX Master 3S model.',
       deadlineIso: new Date(Date.now() + 18 * 3600 * 1000).toISOString(),
       evidenceCount: 1,
       trackingNumber: 'TRK-552190-MNG',
@@ -90,7 +91,7 @@ export const DisputeCenter: React.FC = () => {
           party: 'buyer',
           kind: 'photo',
           uri: 'https://cdn.manga.internal/evidence/dsp-102/wrong-barcode.jpg',
-          notes: 'Photo of retail box showing model MX Anywhere 3.',
+          notes: 'Photograph of delivered retail package showing MX Anywhere 3 barcode.',
           date: '1 day ago',
         },
       ],
@@ -118,30 +119,46 @@ export const DisputeCenter: React.FC = () => {
       {/* Header & Filter Controls */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#0f172a' }}>
-            ⚖️ Marketplace Dispute Center & Mediation
-          </h2>
-          <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '14px' }}>
-            Audited mediation workflow with automated evidence bundling and double-entry ledger execution.
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                backgroundColor: '#ffe4e6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#e11d48',
+              }}
+            >
+              <Scale size={18} />
+            </div>
+            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#0f172a' }}>
+              Marketplace Dispute Mediation Center
+            </h2>
+          </div>
+          <p style={{ margin: '4px 0 0 40px', color: '#64748b', fontSize: '14px' }}>
+            Audited mediation workflow with verified buyer-merchant evidence bundles and automated financial settlement.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <Badge variant="warning">
-            {disputes.filter((d) => d.status === 'opened' || d.status === 'awaiting_evidence').length} Active Cases
+            {disputes.filter((d) => d.status === 'opened' || d.status === 'awaiting_evidence').length} Active Inquiries
           </Badge>
-          <Badge variant="success">SLA: 48h Resolution Target</Badge>
+          <Badge variant="success">Resolution SLA: 48 Hours</Badge>
         </div>
       </div>
 
       {/* Main Table */}
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+      <div style={{ backgroundColor: '#ffffff', borderRadius: '10px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', textAlign: 'left' }}>
           <thead>
             <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
               <th style={{ padding: '12px 16px', fontWeight: 600 }}>Case ID & Order</th>
-              <th style={{ padding: '12px 16px', fontWeight: 600 }}>Type & Claim</th>
+              <th style={{ padding: '12px 16px', fontWeight: 600 }}>Claim Type & Amount</th>
               <th style={{ padding: '12px 16px', fontWeight: 600 }}>Parties Involved</th>
-              <th style={{ padding: '12px 16px', fontWeight: 600 }}>Evidence</th>
+              <th style={{ padding: '12px 16px', fontWeight: 600 }}>Documentation</th>
               <th style={{ padding: '12px 16px', fontWeight: 600 }}>Status</th>
               <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>Action</th>
             </tr>
@@ -154,16 +171,17 @@ export const DisputeCenter: React.FC = () => {
                   <div style={{ fontSize: '12px', color: '#64748b' }}>Order #{dsp.orderNumber}</div>
                 </td>
                 <td style={{ padding: '14px 16px' }}>
-                  <div style={{ fontWeight: 600 }}>{dsp.type.replace(/_/g, ' ').toUpperCase()}</div>
-                  <div style={{ fontSize: '13px', color: '#be123c', fontWeight: 700 }}>{dsp.claimedAmountFormatted}</div>
+                  <div style={{ fontWeight: 600, color: '#0f172a' }}>{dsp.type.replace(/_/g, ' ').toUpperCase()}</div>
+                  <div style={{ fontSize: '13px', color: '#be123c', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{dsp.claimedAmountFormatted}</div>
                 </td>
                 <td style={{ padding: '14px 16px' }}>
-                  <div><strong>Buyer:</strong> {dsp.buyerName}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}><strong>Vendor:</strong> {dsp.vendorName}</div>
+                  <div style={{ color: '#0f172a' }}><strong>Customer:</strong> {dsp.buyerName}</div>
+                  <div style={{ fontSize: '12px', color: '#64748b' }}><strong>Merchant:</strong> {dsp.vendorName}</div>
                 </td>
                 <td style={{ padding: '14px 16px' }}>
-                  <span style={{ backgroundColor: '#e2e8f0', padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600 }}>
-                    📁 {dsp.evidenceCount} Files Uploaded
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#f1f5f9', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 600, color: '#475569' }}>
+                    <FileText size={13} />
+                    {dsp.evidenceCount} Files Attached
                   </span>
                 </td>
                 <td style={{ padding: '14px 16px' }}>
@@ -205,7 +223,8 @@ export const DisputeCenter: React.FC = () => {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.65)',
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(3px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -222,35 +241,55 @@ export const DisputeCenter: React.FC = () => {
               maxHeight: '90vh',
               overflowY: 'auto',
               padding: '1.75rem',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+              boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+              border: '1px solid #e2e8f0',
             }}
           >
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px', marginBottom: '16px' }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700 }}>
-                  ⚖️ Dispute Review: #{selectedCase.id}
-                </h3>
-                <span style={{ fontSize: '13px', color: '#64748b' }}>Order #{selectedCase.orderNumber} • Claim: {selectedCase.claimedAmountFormatted}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '14px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
+                    backgroundColor: '#eff6ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#2563eb',
+                  }}
+                >
+                  <Scale size={20} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: '#0f172a' }}>
+                    Case Adjudication #{selectedCase.id}
+                  </h3>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                    Order #{selectedCase.orderNumber} • Disputed Value: <strong>{selectedCase.claimedAmountFormatted}</strong>
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => setDecisionModalOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}
+                aria-label="Close dialog"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px', borderRadius: '6px' }}
               >
-                ×
+                <X size={18} />
               </button>
             </div>
 
             {/* Evidence Bundle Section */}
-            <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px solid #e2e8f0' }}>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>
-                Automated Evidence Bundle (§8.6)
+            <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '8px', marginBottom: '1.25rem', border: '1px solid #e2e8f0' }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', color: '#475569', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Verified Evidence Portfolio
               </h4>
-              <div style={{ fontSize: '13px', marginBottom: '6px' }}>
-                <strong>Buyer Stated Claim:</strong> "{selectedCase.reason}"
+              <div style={{ fontSize: '13px', marginBottom: '6px', color: '#334155' }}>
+                <strong>Customer Claim:</strong> "{selectedCase.reason}"
               </div>
-              <div style={{ fontSize: '13px', marginBottom: '10px' }}>
-                <strong>Carrier Scan & POD:</strong> {selectedCase.trackingStatus} (Tracking: <code>{selectedCase.trackingNumber}</code>)
+              <div style={{ fontSize: '13px', marginBottom: '12px', color: '#334155' }}>
+                <strong>Carrier Delivery Record:</strong> {selectedCase.trackingStatus} (Tracking: <code style={{ fontWeight: 600 }}>{selectedCase.trackingNumber}</code>)
               </div>
 
               {/* Uploaded Evidence Gallery */}
@@ -270,18 +309,18 @@ export const DisputeCenter: React.FC = () => {
                     }}
                   >
                     <div>
-                      <span style={{ fontWeight: 700, textTransform: 'uppercase', marginRight: '6px' }}>
+                      <span style={{ fontWeight: 700, textTransform: 'uppercase', marginRight: '6px', color: '#0f172a' }}>
                         [{ev.party} - {ev.kind}]:
                       </span>
-                      <span>{ev.notes}</span>
+                      <span style={{ color: '#475569' }}>{ev.notes}</span>
                     </div>
                     <a
                       href={ev.uri}
                       target="_blank"
                       rel="noreferrer"
-                      style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}
+                      style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}
                     >
-                      View File ↗
+                      View File <ExternalLink size={12} />
                     </a>
                   </div>
                 ))}
@@ -290,11 +329,11 @@ export const DisputeCenter: React.FC = () => {
 
             {/* Adjudication Outcome Decision Radio */}
             <div style={{ marginBottom: '1.25rem' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#1e293b', marginBottom: '8px' }}>
-                Select Binding Mediation Ruling (§8.6):
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
+                Select Binding Adjudication Ruling:
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer', backgroundColor: selectedOutcome === 'buyer' ? '#fff1f2' : '#ffffff' }}>
                   <input
                     type="radio"
                     name="outcome"
@@ -302,12 +341,12 @@ export const DisputeCenter: React.FC = () => {
                     onChange={() => setSelectedOutcome('buyer')}
                   />
                   <div>
-                    <div style={{ fontWeight: 600, color: '#be123c' }}>Rule in Buyer's Favor (Full Refund from Vendor)</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>Executes ledger debit on vendor_payable, credits buyer. Deducts vendor health score.</div>
+                    <div style={{ fontWeight: 600, color: '#be123c' }}>Rule in Customer's Favor (Full Merchant Refund)</div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>Releases refund to buyer from merchant balance. Updates merchant compliance score.</div>
                   </div>
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer', backgroundColor: selectedOutcome === 'guarantee' ? '#eff6ff' : '#ffffff' }}>
                   <input
                     type="radio"
                     name="outcome"
@@ -315,12 +354,12 @@ export const DisputeCenter: React.FC = () => {
                     onChange={() => setSelectedOutcome('guarantee')}
                   />
                   <div>
-                    <div style={{ fontWeight: 600, color: '#3b82f6' }}>Settle via Platform Guarantee Fund</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>Compensates buyer from platform reserves without penalizing vendor (e.g. carrier damaged in transit).</div>
+                    <div style={{ fontWeight: 600, color: '#2563eb' }}>Settle via Manga Buyer Protection Guarantee</div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>Compensates buyer from platform guarantee reserves when transit damage occurred outside vendor fault.</div>
                   </div>
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer', backgroundColor: selectedOutcome === 'vendor' ? '#f0fdf4' : '#ffffff' }}>
                   <input
                     type="radio"
                     name="outcome"
@@ -328,8 +367,8 @@ export const DisputeCenter: React.FC = () => {
                     onChange={() => setSelectedOutcome('vendor')}
                   />
                   <div>
-                    <div style={{ fontWeight: 600, color: '#15803d' }}>Rule in Vendor's Favor (Dismiss Claim)</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>Valid POD verified; buyer remorse or unfounded defect. Releases hold to vendor.</div>
+                    <div style={{ fontWeight: 600, color: '#15803d' }}>Rule in Merchant's Favor (Dismiss Claim)</div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>Valid proof of delivery verified without defect. Releases withheld payment to merchant.</div>
                   </div>
                 </label>
               </div>
@@ -337,14 +376,14 @@ export const DisputeCenter: React.FC = () => {
 
             {/* Rationale Input */}
             <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#1e293b', marginBottom: '4px' }}>
-                Audited Mediation Rationale (Required for Ledger Execution):
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#0f172a', marginBottom: '6px' }}>
+                Official Rationale & Policy Reference:
               </label>
               <textarea
                 rows={3}
                 value={resolutionRationale}
                 onChange={(e) => setResolutionRationale(e.target.value)}
-                placeholder="Explain the factual basis for this ruling and policy cited..."
+                placeholder="Detail the factual findings, evidence examined, and specific marketplace policy cited for this determination..."
                 required
                 style={{
                   width: '100%',
@@ -358,7 +397,7 @@ export const DisputeCenter: React.FC = () => {
             </div>
 
             {/* Footer Buttons */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
               <Button variant="ghost" onClick={() => setDecisionModalOpen(false)}>
                 Cancel
               </Button>
@@ -367,7 +406,7 @@ export const DisputeCenter: React.FC = () => {
                 disabled={!resolutionRationale.trim()}
                 onClick={handleResolve}
               >
-                Execute Ledger Settlement & Close Case
+                Execute Settlement & Close Case
               </Button>
             </div>
           </div>

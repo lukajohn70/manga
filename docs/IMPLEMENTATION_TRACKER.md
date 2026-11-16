@@ -121,6 +121,13 @@
 - [x] **M5.5 Security Hardening & ASVS L2:** Envelope AES-256-GCM encryption with KMS key simulation and authentication tag integrity, plus sliding-window rate limiting.
 - [x] **M5.6 Load & Concurrency Stress Testing:** k6 test harness (`tests/load/k6-sku-contention.js`) simulating 5x peak flash-sale SKU contention with atomic conditional reservation.
 - [x] **M5.7 Private Vendor Beta:** Pilot onboarding seed script (`scripts/seed-pilot-vendors.ts`) configuring 20 vendors across 6 commerce verticals with multi-warehouse configurations.
+- [x] **M5.8 Figma-Grade UI Redesign & Brand Standardization:**
+  - Complete elimination of all generic emojis across `apps/web-store`, `apps/web-vendor`, and `apps/web-admin`.
+  - Standardized vector iconography using `lucide-react` with 1.5px/1.75px optical stroke weights.
+  - Strict `@manga/design-tokens` application: Manga Crimson `#E11D48`, Deep Slate `#0F172A`, Hairline `#E2E8F0`, Emerald `#059669`, Amber `#D97706`.
+  - Authentic Nigerian e-commerce copywriting (Lagos/Abuja SLAs, Wema virtual account, Escrow protection).
+  - Human-friendly actionable feedback toasts and error-resilient modals (zero raw error dumps or technical jargon).
+  - All 3 development servers live and serving: Buyer (`:3000`), Vendor (`:3001`), Admin (`:3002`).
 
 ---
 

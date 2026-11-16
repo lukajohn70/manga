@@ -22,5 +22,8 @@
     "typescript": "^5.8.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "lucide-react": "^1.73.0"
   }
 }
