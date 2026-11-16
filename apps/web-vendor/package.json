@@ -2,8 +2,10 @@
   "name": "@manga/web-vendor",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "tsc -b",
+    "build": "vite build",
+    "dev": "vite --port 3001 --host",
     "clean": "rm -rf dist",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"

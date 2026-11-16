@@ -6,6 +6,10 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:store": "pnpm --filter @manga/web-store dev",
+    "dev:vendor": "pnpm --filter @manga/web-vendor dev",
+    "dev:admin": "pnpm --filter @manga/web-admin dev",
+    "dev:all": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
@@ -13,8 +17,10 @@
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
+    "@vitejs/plugin-react": "^6.3.0",
     "turbo": "^2.4.4",
     "typescript": "^5.8.2",
+    "vite": "^8.3.8",
     "vitest": "^5.1.0"
   }
 }
