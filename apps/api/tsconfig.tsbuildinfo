@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/modules/inventory/inventory.service.ts","./src/modules/ledger/ledger.service.ts","./src/modules/outbox/outbox.service.ts"],"version":"5.9.3"}

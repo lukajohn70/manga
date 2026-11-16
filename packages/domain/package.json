@@ -1,0 +1,17 @@
+{
+  "name": "@manga/domain",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@manga/config": "workspace:*",
+    "fast-check": "^4.10.2",
+    "typescript": "^5.8.2"
+  }
+}

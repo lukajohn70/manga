@@ -1,0 +1,28 @@
+{
+  "name": "@manga/web-store",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "clean": "rm -rf .next dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@manga/api-client": "workspace:*",
+    "@manga/domain": "workspace:*",
+    "@manga/i18n": "workspace:*",
+    "@manga/ui": "workspace:*",
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@manga/config": "workspace:*",
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.8.2"
+  }
+}

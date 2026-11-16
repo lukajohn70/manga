@@ -1,0 +1,20 @@
+{
+  "name": "@manga/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist",
+    "dev": "tsc -w",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@manga/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@manga/config": "workspace:*",
+    "@types/node": "^22.13.0",
+    "typescript": "^5.8.2"
+  }
+}
