@@ -11,11 +11,13 @@ export interface OutboxRecord {
 }
 
 export class OutboxService {
+  private staged: OutboxRecord[] = [];
+
   /**
    * Persists domain events atomically within the primary business transaction.
    */
   public async stageEvent<T>(event: DomainEvent<T>): Promise<OutboxRecord> {
-    return {
+    const record: OutboxRecord = {
       id: event.id,
       eventName: event.name,
       aggregateType: event.aggregateType,
@@ -24,5 +26,11 @@ export class OutboxService {
       status: 'pending',
       createdAt: event.timestamp,
     };
+    this.staged.push(record);
+    return record;
+  }
+
+  public getStagedEvents(): OutboxRecord[] {
+    return [...this.staged];
   }
 }

@@ -91,6 +91,20 @@ export class LedgerService {
       entries: fullEntries,
     };
 
+    await this.db.query(
+      `INSERT INTO ledger.transactions (id, ref_type, ref_id, description, idempotency_key, posted_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [transactionId, cmd.refType, cmd.refId, cmd.description, cmd.idempotencyKey, transaction.postedAt]
+    );
+
+    for (const entry of fullEntries) {
+      await this.db.query(
+        `INSERT INTO ledger.entries (id, transaction_id, account_id, direction, amount_minor, currency)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [entry.id, transactionId, entry.accountId, entry.direction, entry.amountMinor, entry.currency]
+      );
+    }
+
     // Stage outbox event
     await this.outbox.stageEvent({
       id: crypto.randomUUID(),

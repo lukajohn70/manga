@@ -13,6 +13,8 @@ import { OffersController } from './modules/offers/offers.controller.js';
 import { SearchService } from './modules/search/search.service.js';
 import { SearchController } from './modules/search/search.controller.js';
 import { ShippingController } from './modules/shipping/shipping.controller.js';
+import { DisputesService } from './modules/disputes/disputes.service.js';
+import { DisputesController } from './modules/disputes/disputes.controller.js';
 import { CheckoutService } from './modules/checkout/checkout.service.js';
 import { ShippingService } from './modules/shipping/shipping.service.js';
 import { ReturnsService } from './modules/returns/returns.service.js';
@@ -26,6 +28,7 @@ import { PayoutsService } from './modules/payouts/payouts.service.js';
     OffersController,
     SearchController,
     ShippingController,
+    DisputesController,
   ],
   providers: [
     DatabaseService,
@@ -41,6 +44,7 @@ import { PayoutsService } from './modules/payouts/payouts.service.js';
     ShippingService,
     ReturnsService,
     PayoutsService,
+    DisputesService,
   ],
   exports: [
     DatabaseService,
@@ -55,6 +59,7 @@ import { PayoutsService } from './modules/payouts/payouts.service.js';
     ShippingService,
     ReturnsService,
     PayoutsService,
+    DisputesService,
   ],
 })
 export class AppModule {}

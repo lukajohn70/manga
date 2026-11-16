@@ -16,10 +16,10 @@
 | **Milestone 1: Catalog, Vendors & Inventory** | **COMPLETE** | 10 / 10 (100%) |
 | **Milestone 2: Cart, Checkout, Payments & Ledger** | **COMPLETE** | 8 / 8 (100%) |
 | **Milestone 3: Fulfilment, Shipping & Tracking** | **COMPLETE** | 8 / 8 (100%) |
-| **Milestone 4: Returns, Disputes & Payouts** | **IN PROGRESS** | 7 / 8 (87%) |
+| **Milestone 4: Returns, Disputes & Payouts** | **COMPLETE** | 8 / 8 (100%) |
 | **Milestone 5: Hardening, Observability & Beta** | **QUEUED** | 0 / 7 (0%) |
 | **Phase 2: Mobile Apps & Advanced Scale** | **PLANNED** | 0 / 7 (0%) |
-| **Total Core Platform Progress** | | **40 / 55 (73%)** |
+| **Total Core Platform Progress** | | **41 / 55 (75%)** |
 
 ---
 
@@ -91,7 +91,7 @@
 
 ---
 
-### Milestone 4: Returns, Disputes & Payouts (Weeks 20–28)
+### Milestone 4: Returns, Disputes & Payouts (Weeks 20–28) — 100% COMPLETE
 - [x] **M4.1 Returns Policy Engine:** Return requests validated against delivery state and frozen order policy snapshot.
 - [x] **M4.2 Condition Grading & Inspection:** Support agent grading flow (`like_new`, `used`, `damaged`, `ineligible`).
 - [x] **M4.3 Automated PSP Refund:** Gateway refund API execution linked to return request.
@@ -104,7 +104,7 @@
 - [x] **M4.7 Ledger Posting Rule 3 (Payout Execution):**
   - Debit: `vendor_payable`
   - Credit: `bank` (via payout clearing)
-- [ ] **M4.8 Dispute Center UI:** Evidence submission and mediation dashboard in admin console.
+- [x] **M4.8 Dispute Center UI:** Evidence submission and mediation dashboard in admin console with automated evidence bundle compilation, binding resolution, and double-entry refund ledger posting.
 
 ---
 

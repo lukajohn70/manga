@@ -24,6 +24,8 @@ export class MockDatabaseService extends DatabaseService {
     'ledger.transactions': [],
     'ledger.entries': [],
     'outbox.events': [],
+    'disputes.cases': [],
+    'disputes.evidence': [],
   };
 
   constructor() {
@@ -566,6 +568,164 @@ export class MockDatabaseService extends DatabaseService {
     if (text.includes("FROM vendor.vendors v WHERE v.status = 'active'")) {
       const rows = this.tables['vendor.vendors'].filter((v) => v.status === 'active');
       return { rows };
+    }
+
+    // INSERT INTO ledger.transactions
+    if (text.includes('INSERT INTO ledger.transactions')) {
+      const row = {
+        id: params[0],
+        ref_type: params[1],
+        ref_id: params[2],
+        description: params[3],
+        idempotency_key: params[4],
+        posted_at: params[5],
+      };
+      this.tables['ledger.transactions'].push(row);
+      return { rows: [row] };
+    }
+
+    // INSERT INTO ledger.entries
+    if (text.includes('INSERT INTO ledger.entries')) {
+      const row = {
+        id: params[0],
+        transaction_id: params[1],
+        account_id: params[2],
+        direction: params[3],
+        amount_minor: params[4],
+        currency: params[5],
+      };
+      this.tables['ledger.entries'].push(row);
+      return { rows: [row] };
+    }
+
+    // 42. INSERT INTO disputes.cases
+    if (text.includes('INSERT INTO disputes.cases')) {
+      const row = {
+        id: crypto.randomUUID(),
+        order_id: params[0],
+        shipment_group_id: params[1],
+        opened_by: params[2],
+        type: params[3],
+        status: 'opened',
+        deadline_at: params[4],
+        outcome: params[5],
+        created_at: new Date(),
+      };
+      this.tables['disputes.cases'].push(row);
+      return { rows: [row] };
+    }
+
+    // 43. SELECT * FROM disputes.cases WHERE id = $1
+    if (text.includes('SELECT * FROM disputes.cases WHERE id = $1')) {
+      const rows = this.tables['disputes.cases'].filter((c) => c.id === params[0]);
+      return { rows };
+    }
+
+    // 44. INSERT INTO disputes.evidence
+    if (text.includes('INSERT INTO disputes.evidence')) {
+      const row = {
+        id: crypto.randomUUID(),
+        case_id: params[0],
+        party: params[1],
+        kind: params[2],
+        uri: params[3],
+        notes: params[4],
+        created_at: new Date(),
+      };
+      this.tables['disputes.evidence'].push(row);
+      return { rows: [row] };
+    }
+
+    // 45. SELECT * FROM disputes.evidence WHERE case_id = $1
+    if (text.includes('FROM disputes.evidence WHERE case_id = $1')) {
+      const rows = this.tables['disputes.evidence'].filter((e) => e.case_id === params[0]);
+      return { rows };
+    }
+
+    // 46. SELECT dispute detail bundle with joins
+    if (text.includes('FROM disputes.cases d') && text.includes('WHERE d.id = $1')) {
+      const dispute = this.tables['disputes.cases'].find((c) => c.id === params[0]);
+      if (!dispute) return { rows: [] };
+
+      const order = this.tables['orders.orders'].find((o) => o.id === dispute.order_id) || {
+        order_number: 'MNG-TEST-001',
+        currency: 'NGN',
+        totals: { grandTotalMinor: 5000000n },
+        address_snapshot: { city: 'Lagos' },
+      };
+      const sg = this.tables['orders.shipment_groups'].find((s) => s.id === dispute.shipment_group_id) || {
+        vendor_id: 'v-100',
+      };
+      const vendor = this.tables['vendor.vendors'].find((v) => v.id === sg.vendor_id) || {
+        business_name: 'Apex Superstore',
+      };
+
+      const joined = {
+        ...dispute,
+        order_number: order.order_number,
+        currency: order.currency || 'NGN',
+        totals: order.totals,
+        address_snapshot: order.address_snapshot,
+        vendor_id: sg.vendor_id,
+        vendor_name: vendor.business_name,
+      };
+      return { rows: [joined] };
+    }
+
+    // 47. SELECT disputes list with joins
+    if (text.includes('FROM disputes.cases d') && !text.includes('WHERE d.id = $1')) {
+      const rows = this.tables['disputes.cases'].map((dispute) => {
+        const order = this.tables['orders.orders'].find((o) => o.id === dispute.order_id) || {
+          order_number: 'MNG-TEST-001',
+          currency: 'NGN',
+          totals: { grandTotalMinor: 5000000n },
+        };
+        const sg = this.tables['orders.shipment_groups'].find((s) => s.id === dispute.shipment_group_id) || {
+          vendor_id: 'v-100',
+        };
+        const vendor = this.tables['vendor.vendors'].find((v) => v.id === sg.vendor_id) || {
+          business_name: 'Apex Superstore',
+        };
+        return {
+          ...dispute,
+          order_number: order.order_number,
+          currency: order.currency || 'NGN',
+          totals: order.totals,
+          vendor_id: sg.vendor_id,
+          vendor_name: vendor.business_name,
+        };
+      });
+
+      if (params.length > 0) {
+        return { rows: rows.filter((r) => r.status === params[0]) };
+      }
+      return { rows };
+    }
+
+    // 48. SELECT t.*, s.tracking_number, s.carrier_id FROM shipping.tracking_events t
+    if (text.includes('FROM shipping.tracking_events t') && text.includes('WHERE s.shipment_group_id = $1')) {
+      const shipment = this.tables['shipping.shipments'].find((s) => s.shipment_group_id === params[0]);
+      if (!shipment) return { rows: [] };
+      const trackingEvents = this.tables['shipping.tracking_events']
+        .filter((t) => t.shipment_id === shipment.id)
+        .map((t) => ({
+          ...t,
+          tracking_number: shipment.tracking_number || 'TRK-TEST',
+          carrier_id: shipment.carrier_id || 'gigm',
+        }));
+      return { rows: trackingEvents };
+    }
+
+    // 49. UPDATE disputes.cases SET status = $1, outcome = $2, ledger_tx_id = $3 WHERE id = $4
+    if (text.includes('UPDATE disputes.cases SET status = $1, outcome = $2, ledger_tx_id = $3 WHERE id = $4')) {
+      const dispute = this.tables['disputes.cases'].find((c) => c.id === params[3]);
+      if (dispute) {
+        dispute.status = params[0];
+        dispute.outcome = params[1];
+        dispute.ledger_tx_id = params[2];
+        return { rows: [dispute] };
+      }
+      return { rows: [] };
     }
 
     return { rows: [] };

@@ -370,6 +370,16 @@ CREATE TABLE IF NOT EXISTS disputes.cases (
     ledger_tx_id UUID REFERENCES ledger.transactions(id)
 );
 
+CREATE TABLE IF NOT EXISTS disputes.evidence (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    case_id UUID NOT NULL REFERENCES disputes.cases(id) ON DELETE CASCADE,
+    party VARCHAR(32) NOT NULL, -- 'buyer', 'vendor', 'carrier', 'platform'
+    kind VARCHAR(32) NOT NULL, -- 'photo', 'video', 'document', 'message_transcript'
+    uri TEXT NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- ========================================================
 -- 10. TRANSACTIONAL OUTBOX
 -- ========================================================
