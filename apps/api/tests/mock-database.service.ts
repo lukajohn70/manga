@@ -26,6 +26,8 @@ export class MockDatabaseService extends DatabaseService {
     'outbox.events': [],
     'disputes.cases': [],
     'disputes.evidence': [],
+    'admin.audit_logs': [],
+    'trust.risk_evaluations': [],
   };
 
   constructor() {
@@ -726,6 +728,104 @@ export class MockDatabaseService extends DatabaseService {
         return { rows: [dispute] };
       }
       return { rows: [] };
+    }
+
+    // 50. INSERT INTO admin.audit_logs
+    if (text.includes('INSERT INTO admin.audit_logs')) {
+      const row = {
+        id: crypto.randomUUID(),
+        actor_id: params[0],
+        actor_role: params[1],
+        action: params[2],
+        target_type: params[3],
+        target_id: params[4],
+        before_state: JSON.parse(params[5] || '{}'),
+        after_state: JSON.parse(params[6] || '{}'),
+        reason: params[7],
+        created_at: new Date(),
+      };
+      this.tables['admin.audit_logs'].push(row);
+      return { rows: [row] };
+    }
+
+    // 51. SELECT * FROM admin.audit_logs
+    if (text.includes('FROM admin.audit_logs')) {
+      return { rows: [...this.tables['admin.audit_logs']].reverse() };
+    }
+
+    // 52. SELECT * FROM outbox.events WHERE id = $1
+    if (text.includes('FROM outbox.events WHERE id = $1')) {
+      const rows = this.tables['outbox.events'].filter((e) => e.id === params[0]);
+      return { rows };
+    }
+
+    // 53. UPDATE outbox.events SET status = 'pending' WHERE id = $1
+    if (text.includes("UPDATE outbox.events SET status = 'pending' WHERE id = $1")) {
+      const ev = this.tables['outbox.events'].find((e) => e.id === params[0]);
+      if (ev) ev.status = 'pending';
+      return { rows: ev ? [ev] : [] };
+    }
+
+    // 54. SELECT * FROM inventory.reservations WHERE id = $1
+    if (text.includes('FROM inventory.reservations WHERE id = $1')) {
+      const rows = this.tables['inventory.reservations'].filter((r) => r.id === params[0]);
+      return { rows };
+    }
+
+    // 55. SELECT * FROM ledger.transactions WHERE id = $1
+    if (text.includes('FROM ledger.transactions WHERE id = $1')) {
+      const rows = this.tables['ledger.transactions'].filter((t) => t.id === params[0]);
+      return { rows };
+    }
+
+    // 56. SELECT * FROM ledger.entries WHERE transaction_id = $1
+    if (text.includes('FROM ledger.entries WHERE transaction_id = $1')) {
+      const rows = this.tables['ledger.entries'].filter((e) => e.transaction_id === params[0]);
+      return { rows };
+    }
+
+    // 57. SELECT transaction_id, direction, amount_minor, currency FROM ledger.entries
+    if (text.includes('SELECT transaction_id, direction, amount_minor, currency FROM ledger.entries')) {
+      return { rows: this.tables['ledger.entries'] };
+    }
+
+    // 58. INSERT INTO trust.risk_evaluations
+    if (text.includes('INSERT INTO trust.risk_evaluations')) {
+      const row = {
+        id: params[0],
+        order_id: params[1],
+        buyer_id: params[2],
+        risk_score: params[3],
+        action: params[4],
+        matched_rules: JSON.parse(params[5] || '[]'),
+        device_fingerprint: params[6],
+        ip_address: params[7],
+        shadow_mode: params[8],
+        created_at: params[9],
+      };
+      this.tables['trust.risk_evaluations'].push(row);
+      return { rows: [row] };
+    }
+
+    // 59. SELECT * FROM shipping.shipments WHERE id = $1
+    if (text.includes('FROM shipping.shipments WHERE id = $1')) {
+      const rows = this.tables['shipping.shipments'].filter((s) => s.id === params[0]);
+      return { rows };
+    }
+
+    // 60. Business SLO counts
+    if (text.includes("SELECT count(*) as count FROM orders.orders WHERE status = 'pending_payment'")) {
+      const count = this.tables['orders.orders'].filter((o) => o.status === 'pending_payment').length;
+      return { rows: [{ count }] };
+    }
+    if (text.includes('SELECT count(*) as count FROM shipping.shipments')) {
+      const count = this.tables['shipping.shipments'].filter((s) => s.status === 'shipped').length;
+      return { rows: [{ count }] };
+    }
+    if (text.includes("COUNT(CASE WHEN status = 'captured' THEN 1 END)")) {
+      const total = this.tables['payments.payments'].length;
+      const successful = this.tables['payments.payments'].filter((p) => p.status === 'captured').length;
+      return { rows: [{ total, successful }] };
     }
 
     return { rows: [] };

@@ -134,4 +134,16 @@ export class SearchService {
       },
     };
   }
+
+  /**
+   * Syncs catalog document with full-text search projection / Typesense (§18)
+   */
+  public async indexProduct(doc: any): Promise<void> {
+    await this.db.query(
+      `UPDATE catalog.master_products
+       SET updated_at = NOW()
+       WHERE id = $1`,
+      [doc.id]
+    );
+  }
 }

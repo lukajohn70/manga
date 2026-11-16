@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Badge } from '@manga/ui';
 import { DisputeCenter } from './components/DisputeCenter.js';
+import { RepairTools } from './components/RepairTools.js';
 
 export function App() {
   const [activeTab, setActiveTab] = React.useState<'disputes' | 'vendors' | 'ledger' | 'repairs'>('disputes');
@@ -120,12 +121,7 @@ export function App() {
           </div>
         )}
 
-        {activeTab === 'repairs' && (
-          <div style={{ backgroundColor: '#ffffff', padding: '2.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-            <h3>🛠️ Operational Repair Tools</h3>
-            <p style={{ color: '#64748b' }}>Outbox event replay and manual saga interventions.</p>
-          </div>
-        )}
+        {activeTab === 'repairs' && <RepairTools />}
       </main>
     </div>
   );

@@ -19,6 +19,7 @@ CREATE SCHEMA IF NOT EXISTS ledger;
 CREATE SCHEMA IF NOT EXISTS payouts;
 CREATE SCHEMA IF NOT EXISTS config;
 CREATE SCHEMA IF NOT EXISTS trust;
+CREATE SCHEMA IF NOT EXISTS admin;
 CREATE SCHEMA IF NOT EXISTS outbox;
 CREATE SCHEMA IF NOT EXISTS notifications;
 
@@ -431,4 +432,46 @@ CREATE TABLE IF NOT EXISTS notifications.dispatched_messages (
     error_message TEXT,
     sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (event_id, recipient, channel) -- Strict Delivery Idempotency (§11)
+);
+
+-- ========================================================
+-- 12. ADMIN AUDIT & OPERATIONAL REPAIR (§18)
+-- ========================================================
+CREATE TABLE IF NOT EXISTS admin.audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    actor_id VARCHAR(64) NOT NULL,
+    actor_role VARCHAR(32) NOT NULL,
+    action VARCHAR(64) NOT NULL,
+    target_type VARCHAR(64) NOT NULL,
+    target_id VARCHAR(64) NOT NULL,
+    before_state JSONB,
+    after_state JSONB,
+    reason TEXT,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ========================================================
+-- 13. TRUST, RISK & VENDOR HEALTH (§13, §14)
+-- ========================================================
+CREATE TABLE IF NOT EXISTS trust.risk_evaluations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID REFERENCES orders.orders(id),
+    buyer_id UUID,
+    risk_score INT NOT NULL, -- 0-100
+    action VARCHAR(32) NOT NULL, -- 'allow', 'require_3ds_otp', 'hold_review', 'deny'
+    matched_rules JSONB NOT NULL DEFAULT '[]',
+    device_fingerprint VARCHAR(128),
+    ip_address VARCHAR(45),
+    shadow_mode BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS trust.vendor_health (
+    vendor_id UUID REFERENCES vendor.vendors(id),
+    date DATE NOT NULL,
+    score INT NOT NULL, -- 0-100
+    components JSONB NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (vendor_id, date)
 );

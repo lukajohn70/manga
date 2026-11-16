@@ -19,6 +19,13 @@ import { CheckoutService } from './modules/checkout/checkout.service.js';
 import { ShippingService } from './modules/shipping/shipping.service.js';
 import { ReturnsService } from './modules/returns/returns.service.js';
 import { PayoutsService } from './modules/payouts/payouts.service.js';
+import { AdminRepairService } from './modules/admin/repair/admin-repair.service.js';
+import { AdminRepairController } from './modules/admin/repair/admin-repair.controller.js';
+import { LedgerHealthDetectorService } from './modules/ledger/ledger-health.service.js';
+import { RiskEngineService } from './modules/trust/risk-engine.service.js';
+import { RiskEngineController } from './modules/trust/risk-engine.controller.js';
+import { TelemetryService } from './modules/observability/telemetry.service.js';
+import { SecurityService } from './modules/security/security.service.js';
 
 @Module({
   imports: [],
@@ -29,6 +36,8 @@ import { PayoutsService } from './modules/payouts/payouts.service.js';
     SearchController,
     ShippingController,
     DisputesController,
+    AdminRepairController,
+    RiskEngineController,
   ],
   providers: [
     DatabaseService,
@@ -45,6 +54,11 @@ import { PayoutsService } from './modules/payouts/payouts.service.js';
     ReturnsService,
     PayoutsService,
     DisputesService,
+    AdminRepairService,
+    LedgerHealthDetectorService,
+    RiskEngineService,
+    TelemetryService,
+    SecurityService,
   ],
   exports: [
     DatabaseService,
@@ -60,6 +74,11 @@ import { PayoutsService } from './modules/payouts/payouts.service.js';
     ReturnsService,
     PayoutsService,
     DisputesService,
+    AdminRepairService,
+    LedgerHealthDetectorService,
+    RiskEngineService,
+    TelemetryService,
+    SecurityService,
   ],
 })
 export class AppModule {}

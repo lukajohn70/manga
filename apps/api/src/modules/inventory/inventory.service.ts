@@ -137,7 +137,7 @@ export class InventoryService {
       }
 
       const reservation = resQuery.rows[0];
-      if (reservation.status !== 'pending') {
+      if (reservation.status !== 'pending' && reservation.status !== 'active') {
         // Idempotent: already released, confirmed, or expired
         return;
       }
