@@ -1,14 +1,14 @@
-import { LedgerService } from './modules/ledger/ledger.service.js';
-import { InventoryService } from './modules/inventory/inventory.service.js';
-import { OutboxService } from './modules/outbox/outbox.service.js';
+import 'reflect-metadata';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module.js';
 
-export async function bootstrap(): Promise<void> {
-  console.log('Starting Manga Platform Modular Monolith API...');
-  const ledgerService = new LedgerService();
-  const inventoryService = new InventoryService();
-  const outboxService = new OutboxService();
-
-  console.log('Manga Core Services initialized successfully.');
+export async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.enableCors();
+  const port = process.env.PORT || 4000;
+  await app.listen(port);
+  console.log(`Manga Modular Monolith API running on port ${port}`);
+  return app;
 }
 
 if (process.env.NODE_ENV !== 'test') {
