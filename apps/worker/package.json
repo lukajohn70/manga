@@ -7,14 +7,18 @@
     "clean": "rm -rf dist",
     "dev": "tsc -w",
     "start": "node dist/main.js",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@manga/domain": "workspace:*"
+    "@manga/domain": "workspace:*",
+    "@manga/i18n": "workspace:*",
+    "pg": "^8.23.1"
   },
   "devDependencies": {
     "@manga/config": "workspace:*",
     "@types/node": "^22.13.0",
+    "@types/pg": "^8.23.1",
     "typescript": "^5.8.2"
   }
 }

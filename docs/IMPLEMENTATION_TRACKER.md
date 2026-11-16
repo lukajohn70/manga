@@ -14,12 +14,12 @@
 |---|---|:---:|
 | **Milestone 0: Foundations & Monorepo** | **COMPLETE** | 7 / 7 (100%) |
 | **Milestone 1: Catalog, Vendors & Inventory** | **COMPLETE** | 10 / 10 (100%) |
-| **Milestone 2: Cart, Checkout, Payments & Ledger** | **IN PROGRESS** | 7 / 8 (87%) |
+| **Milestone 2: Cart, Checkout, Payments & Ledger** | **COMPLETE** | 8 / 8 (100%) |
 | **Milestone 3: Fulfilment, Shipping & Tracking** | **IN PROGRESS** | 7 / 8 (87%) |
 | **Milestone 4: Returns, Disputes & Payouts** | **IN PROGRESS** | 7 / 8 (87%) |
 | **Milestone 5: Hardening, Observability & Beta** | **QUEUED** | 0 / 7 (0%) |
 | **Phase 2: Mobile Apps & Advanced Scale** | **PLANNED** | 0 / 7 (0%) |
-| **Total Core Platform Progress** | | **38 / 55 (69%)** |
+| **Total Core Platform Progress** | | **39 / 55 (71%)** |
 
 ---
 
@@ -60,7 +60,7 @@
 
 ---
 
-### Milestone 2: Cart, Checkout, Payments & Ledger (Weeks 8–16)
+### Milestone 2: Cart, Checkout, Payments & Ledger (Weeks 8–16) — 100% COMPLETE
 - [x] **M2.1 Multi-Vendor Checkout Saga:** Parcel-level order model grouping cart items into `ShipmentGroup` containers by vendor.
 - [x] **M2.2 Snapshot Pricing:** Frozen price snapshots, 7.5% VAT tax snapshots, and dynamic commission snapshots (500 bps = 5%).
 - [x] **M2.3 Atomic Saga Reservation:** All-or-nothing stock reservation across all vendors with automatic compensation on payment failure.
@@ -70,7 +70,7 @@
   - Debit: `psp_clearing`
   - Credit: `buyer_funds_held` (gross)
 - [x] **M2.7 Transactional Outbox:** Atomic staging of `order.confirmed` event within primary database transaction.
-- [ ] **M2.8 Notifications Fan-Out:** Outbox worker dispatching order confirmation emails, SMS, and WhatsApp alerts.
+- [x] **M2.8 Notifications Fan-Out:** Outbox worker dispatching order confirmation emails, SMS, and WhatsApp alerts with fallback routing and preference enforcement.
 
 ---
 

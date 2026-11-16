@@ -1,1 +1,1 @@
-{"root":["./src/main.ts"],"version":"5.9.3"}
+{"root":["./src/main.ts","./src/worker.service.ts","./src/channels/channel.adapter.ts","./src/notifications/notification.service.ts"],"version":"5.9.3"}

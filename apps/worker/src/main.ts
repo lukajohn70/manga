@@ -1,15 +1,13 @@
-import { DomainEvent } from '@manga/domain';
-
-export class OutboxConsumerWorker {
-  public async processPendingEvents(): Promise<void> {
-    console.log('[Worker] Polling transactional outbox for pending domain events...');
-  }
-}
+import { NotificationService } from './notifications/notification.service.js';
+import { OutboxProcessorWorker } from './worker.service.js';
 
 export async function bootstrapWorker(): Promise<void> {
-  console.log('Starting Manga Platform Background Workers (Outbox / Sagas / Schedulers)...');
-  const worker = new OutboxConsumerWorker();
-  await worker.processPendingEvents();
+  console.log('Starting Manga Platform Background Workers (Transactional Outbox & Notifications)...');
+  const notificationService = new NotificationService();
+  const worker = new OutboxProcessorWorker(notificationService);
+
+  console.log('Notification Channels initialized: [Email, SMS, WhatsApp Business, Web Push].');
+  console.log('Outbox Consumer Worker ready.');
 }
 
 if (process.env.NODE_ENV !== 'test') {

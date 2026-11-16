@@ -20,6 +20,7 @@ CREATE SCHEMA IF NOT EXISTS payouts;
 CREATE SCHEMA IF NOT EXISTS config;
 CREATE SCHEMA IF NOT EXISTS trust;
 CREATE SCHEMA IF NOT EXISTS outbox;
+CREATE SCHEMA IF NOT EXISTS notifications;
 
 -- ========================================================
 -- 1. IDENTITY & ACCESS
@@ -381,4 +382,43 @@ CREATE TABLE IF NOT EXISTS outbox.events (
     payload JSONB NOT NULL,
     status VARCHAR(32) NOT NULL DEFAULT 'pending',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ========================================================
+-- 11. NOTIFICATIONS & DEVICE REGISTRY (§11)
+-- ========================================================
+CREATE TABLE IF NOT EXISTS notifications.device_registry (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
+    device_id VARCHAR(128) NOT NULL,
+    platform VARCHAR(32) NOT NULL, -- 'web', 'ios', 'android'
+    push_token TEXT NOT NULL,
+    app_version VARCHAR(32),
+    locale VARCHAR(16) NOT NULL DEFAULT 'en-NG',
+    last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (user_id, device_id)
+);
+
+CREATE TABLE IF NOT EXISTS notifications.user_preferences (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
+    channel VARCHAR(32) NOT NULL, -- 'email', 'sms', 'whatsapp', 'push'
+    category VARCHAR(64) NOT NULL, -- 'order_updates', 'promotions', 'security_alerts'
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (user_id, channel, category)
+);
+
+CREATE TABLE IF NOT EXISTS notifications.dispatched_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL,
+    recipient VARCHAR(255) NOT NULL,
+    channel VARCHAR(32) NOT NULL,
+    template_id VARCHAR(64) NOT NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'delivered',
+    provider_receipt_ref VARCHAR(128),
+    error_message TEXT,
+    sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (event_id, recipient, channel) -- Strict Delivery Idempotency (§11)
 );
