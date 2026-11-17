@@ -42,6 +42,69 @@ import {
   CheckCheck,
 } from 'lucide-react';
 
+// ==========================================
+// NOK MOTIFS (Section 1.5 of Design Prompt)
+// ==========================================
+const NokTriangleEye: React.FC<{ size?: number; color?: string; style?: React.CSSProperties }> = ({
+  size = 20,
+  color = '#B5532E',
+  style,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ display: 'inline-block', verticalAlign: 'middle', ...style }}
+  >
+    <path
+      d="M12 3L21 19H3L12 3Z"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+    <circle cx="12" cy="13.5" r="2.5" fill={color} />
+    <path d="M7 16H17" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const NokCoilPattern: React.FC<{ size?: number; color?: string; style?: React.CSSProperties }> = ({
+  size = 24,
+  color = '#D9A441',
+  style,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ display: 'inline-block', verticalAlign: 'middle', ...style }}
+  >
+    <path
+      d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"
+      stroke={color}
+      strokeWidth="1.75"
+    />
+    <path
+      d="M12 6a6 6 0 1 1 -5.6 8.2"
+      stroke={color}
+      strokeWidth="1.75"
+      strokeLinecap="round"
+    />
+    <path
+      d="M12 2a10 10 0 1 1 -9.5 13.2"
+      stroke={color}
+      strokeWidth="1.75"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+// ==========================================
+// DATA MODELS
+// ==========================================
 export interface MerchantOffer {
   vendorId: string;
   vendorName: string;
@@ -68,6 +131,7 @@ export interface ProductItem {
   isFlashDeal?: boolean;
   flashClaimedPercent?: number;
   scarcityCount?: number;
+  deliveryPromiseDate: string;
   winningOffer: MerchantOffer;
   otherOffers: MerchantOffer[];
 }
@@ -85,10 +149,11 @@ export interface CartItem {
   carrier: string;
 }
 
+// Curated Nigerian Catalog with Nok Heritage & Authentic Electronics
 export const CATALOG_PRODUCTS: ProductItem[] = [
   {
     id: 'prod-001',
-    title: 'Apple iPhone 15 Pro Max 256GB - Natural Titanium (100% Genuine Apple)',
+    title: 'Apple iPhone 15 Pro Max 256GB - Natural Titanium (Direct Distributor)',
     category: 'smartphones',
     brand: 'Apple',
     imageUrl: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80',
@@ -99,6 +164,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     isFlashDeal: true,
     flashClaimedPercent: 86,
     scarcityCount: 3,
+    deliveryPromiseDate: 'Arrives Tomorrow by 2:00 PM',
     winningOffer: {
       vendorId: 'ven-slot',
       vendorName: 'Slot Systems Direct',
@@ -151,6 +217,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     isFlashDeal: true,
     flashClaimedPercent: 74,
     scarcityCount: 4,
+    deliveryPromiseDate: 'Arrives Tomorrow by 4:00 PM',
     winningOffer: {
       vendorId: 'ven-apex',
       vendorName: 'Apex Electronics Nigeria',
@@ -190,6 +257,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     discountPercent: 20,
     isFlashDeal: false,
     scarcityCount: 5,
+    deliveryPromiseDate: 'Arrives Thursday by 12:00 PM',
     winningOffer: {
       vendorId: 'ven-afro',
       vendorName: 'AfroThreads Couture',
@@ -217,6 +285,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     isFlashDeal: true,
     flashClaimedPercent: 91,
     scarcityCount: 2,
+    deliveryPromiseDate: 'Arrives Tomorrow by 1:00 PM',
     winningOffer: {
       vendorId: 'ven-slot',
       vendorName: 'Slot Systems Direct',
@@ -255,6 +324,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     originalPriceFormatted: '₦28,000.00',
     discountPercent: 21,
     isFlashDeal: false,
+    deliveryPromiseDate: 'Arrives Wednesday by 3:00 PM',
     winningOffer: {
       vendorId: 'ven-olori',
       vendorName: 'Olori Botanicals Skin Lab',
@@ -282,6 +352,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     isFlashDeal: true,
     flashClaimedPercent: 68,
     scarcityCount: 8,
+    deliveryPromiseDate: 'Arrives Tomorrow by 11:00 AM',
     winningOffer: {
       vendorId: 'ven-supermart',
       vendorName: 'SuperMart Direct Fresh',
@@ -312,7 +383,7 @@ export const StorefrontClient: React.FC = () => {
   // Cart & Wishlist States
   const [cart, setCart] = React.useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = React.useState<boolean>(false);
-  const [wishlist, setWishlist] = React.useState<string[]>(['prod-001']);
+  const [wishlist, setWishlist] = React.useState<string[]>(['prod-001', 'prod-003']);
   const [isWishlistOpen, setIsWishlistOpen] = React.useState<boolean>(false);
   const [voucherCode, setVoucherCode] = React.useState<string>('');
   const [appliedDiscountMinor, setAppliedDiscountMinor] = React.useState<bigint>(0n);
@@ -463,7 +534,7 @@ export const StorefrontClient: React.FC = () => {
     return map;
   }, [cart]);
 
-  // Financial Calculations
+  // Financial Calculations (Exact minor units)
   const cartSubtotalMinor = React.useMemo(() => {
     return cart.reduce((acc, item) => acc + item.priceMinor * BigInt(item.quantity), 0n);
   }, [cart]);
@@ -543,17 +614,49 @@ export const StorefrontClient: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC', color: '#0F172A', fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-      
-      {/* 1. TOP PROMOTIONAL ANNOUNCEMENT TICKER (Borrowed from Glows Collection & Zavora) */}
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: '#F6EDE0', // Clay Cream (§1.2)
+        color: '#2A2320',           // Iron (§1.2)
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+    >
+      {/* Toast Feedback Notification */}
+      {toastMessage && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 100,
+            backgroundColor: '#2A2320',
+            color: '#F6EDE0',
+            padding: '12px 18px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            boxShadow: '0 8px 24px rgba(42, 35, 32, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            border: '1px solid #8F3B1F',
+          }}
+        >
+          <CheckCircle2 size={16} color="#4F6B3A" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* 1. TOP PROMOTIONAL ANNOUNCEMENT TICKER (Section 1.2 & Section 3.1) */}
       {!announcementDismissed && (
         <div
           style={{
-            backgroundColor: '#0F172A',
-            color: '#FFFFFF',
+            backgroundColor: '#2A2320', // Iron
+            color: '#F6EDE0',           // Clay Cream
             fontSize: '12px',
             padding: '7px 16px',
-            borderBottom: '1px solid #1E293B',
+            borderBottom: '1px solid rgba(231, 213, 188, 0.15)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -563,7 +666,7 @@ export const StorefrontClient: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <span
               style={{
-                backgroundColor: '#E11D48',
+                backgroundColor: '#B5532E', // Terracotta
                 color: '#FFFFFF',
                 padding: '2px 8px',
                 borderRadius: '4px',
@@ -573,17 +676,17 @@ export const StorefrontClient: React.FC = () => {
                 letterSpacing: '0.05em',
               }}
             >
-              FLASH OFFER
+              NOK HERITAGE SALE
             </span>
-            <span style={{ color: '#E2E8F0' }}>
+            <span>
               Save <strong>₦3,500</strong> on orders above ₦50,000 + Free Express Delivery across Lagos & Abuja with code:
             </span>
             <button
               onClick={copyPromoCode}
               style={{
-                backgroundColor: 'rgba(255,255,255,0.12)',
-                border: '1px dashed #F59E0B',
-                color: '#FDE68A',
+                backgroundColor: 'rgba(217, 164, 65, 0.15)', // Ochre tint
+                border: '1px dashed #D9A441',
+                color: '#D9A441',
                 padding: '2px 8px',
                 borderRadius: '4px',
                 cursor: 'pointer',
@@ -595,7 +698,7 @@ export const StorefrontClient: React.FC = () => {
                 gap: '4px',
               }}
             >
-              {codeCopied ? <CheckCheck size={12} color="#10B981" /> : <Copy size={12} />}
+              {codeCopied ? <CheckCheck size={12} color="#4F6B3A" /> : <Copy size={12} />}
               MANGAEXPRESS
             </button>
           </div>
@@ -607,7 +710,7 @@ export const StorefrontClient: React.FC = () => {
               right: '16px',
               background: 'none',
               border: 'none',
-              color: '#94A3B8',
+              color: '#8C8279',
               cursor: 'pointer',
               padding: '2px',
               display: 'flex',
@@ -619,13 +722,13 @@ export const StorefrontClient: React.FC = () => {
         </div>
       )}
 
-      {/* 2. TOP UTILITY TRUST & SERVICE BAR (Amazon / Konga / Jumia / Zavora Style) */}
+      {/* 2. TOP UTILITY TRUST & SERVICE BAR (Section 1.2 & Section 3.1) */}
       <div
         style={{
-          backgroundColor: '#020617',
-          color: '#94A3B8',
+          backgroundColor: '#1E1815', // Dark Iron
+          color: '#E7D5BC',           // Dry Sand
           fontSize: '11px',
-          borderBottom: '1px solid #1E293B',
+          borderBottom: '1px solid rgba(231, 213, 188, 0.1)',
           padding: '6px 24px',
           display: 'flex',
           justifyContent: 'space-between',
@@ -635,17 +738,17 @@ export const StorefrontClient: React.FC = () => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#FDE68A', fontWeight: 700 }}>
-            <Award size={13} color="#F59E0B" /> Manga Official Mall (100% Genuine Certified)
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#D9A441', fontWeight: 700 }}>
+            <NokTriangleEye size={14} color="#D9A441" /> Manga Official Mall (100% Genuine Certified)
           </span>
-          <span style={{ color: '#334155' }}>|</span>
+          <span style={{ color: '#4A3F39' }}>|</span>
           <div style={{ position: 'relative', display: 'inline-block' }}>
             <button
               onClick={() => setLocationPickerOpen(!locationPickerOpen)}
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#CBD5E1',
+                color: '#E7D5BC',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -654,7 +757,7 @@ export const StorefrontClient: React.FC = () => {
                 padding: 0,
               }}
             >
-              <MapPin size={12} color="#E11D48" />
+              <MapPin size={12} color="#B5532E" />
               <span>Deliver to:</span>
               <strong style={{ color: '#FFFFFF' }}>{deliveryLocation}</strong>
               <ChevronDown size={11} />
@@ -667,10 +770,10 @@ export const StorefrontClient: React.FC = () => {
                   left: 0,
                   marginTop: '6px',
                   backgroundColor: '#FFFFFF',
-                  color: '#0F172A',
+                  color: '#2A2320',
                   borderRadius: '8px',
-                  boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)',
-                  border: '1px solid #E2E8F0',
+                  boxShadow: '0 8px 24px rgba(42, 35, 32, 0.15)',
+                  border: '1px solid #E7D5BC',
                   padding: '6px',
                   zIndex: 60,
                   minWidth: '220px',
@@ -694,13 +797,13 @@ export const StorefrontClient: React.FC = () => {
                       width: '100%',
                       textAlign: 'left',
                       padding: '8px 10px',
-                      background: loc === deliveryLocation ? '#F1F5F9' : 'none',
+                      background: loc === deliveryLocation ? '#F6EDE0' : 'none',
                       border: 'none',
                       borderRadius: '5px',
                       fontSize: '12px',
                       fontWeight: loc === deliveryLocation ? 700 : 500,
                       cursor: 'pointer',
-                      color: loc === deliveryLocation ? '#E11D48' : '#334155',
+                      color: loc === deliveryLocation ? '#B5532E' : '#2A2320',
                     }}
                   >
                     {loc}
@@ -717,7 +820,7 @@ export const StorefrontClient: React.FC = () => {
             style={{
               background: 'none',
               border: 'none',
-              color: '#CBD5E1',
+              color: '#E7D5BC',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -726,110 +829,102 @@ export const StorefrontClient: React.FC = () => {
               padding: 0,
             }}
           >
-            <Truck size={12} color="#38BDF8" />
+            <Truck size={12} color="#D9A441" />
             <span>Track Order</span>
           </button>
-          <span style={{ color: '#334155' }}>|</span>
+          <span style={{ color: '#4A3F39' }}>|</span>
           <a
             href="tel:07006264264"
-            style={{ color: '#CBD5E1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+            style={{ color: '#E7D5BC', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
           >
-            <Headphones size={12} color="#10B981" />
+            <Headphones size={12} color="#4F6B3A" />
             <span>Help: 0700-MANGA-NG</span>
           </a>
-          <span style={{ color: '#334155' }}>|</span>
+          <span style={{ color: '#4A3F39' }}>|</span>
           <a
             href="http://localhost:3001"
             target="_blank"
             rel="noreferrer"
-            style={{ color: '#FDE68A', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
+            style={{ color: '#D9A441', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
           >
             <Building size={12} />
             <span>Sell on Manga</span>
           </a>
-          <span style={{ color: '#334155' }}>|</span>
+          <span style={{ color: '#4A3F39' }}>|</span>
           <a
             href="http://localhost:3002"
             target="_blank"
             rel="noreferrer"
-            style={{ color: '#E11D48', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
+            style={{ color: '#B5532E', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
           >
             <ShieldCheck size={12} />
             <span>Admin</span>
           </a>
-          <span style={{ color: '#334155' }}>•</span>
+          <span style={{ color: '#4A3F39' }}>•</span>
           <span style={{ color: '#FFFFFF', fontWeight: 800 }}>NGN (₦)</span>
         </div>
       </div>
 
-      {/* 3. MAIN NAVIGATION BAR (Amazon / Zavora Mega Search & Cart) */}
+      {/* 3. MAIN NAVIGATION BAR (Paper Surface with Terracotta & Iron Accents) */}
       <header
         style={{
           position: 'sticky',
           top: 0,
           zIndex: 40,
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #E2E8F0',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
+          backgroundColor: '#FFFFFF', // Paper
+          borderBottom: '1px solid #E7D5BC',
+          boxShadow: '0 1px 2px rgba(42, 35, 32, 0.06)',
           padding: '12px 24px',
         }}
       >
         <div style={{ maxWidth: '1360px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
           
-          {/* Logo & Mall Certification */}
+          {/* Logo & Nok Heritage Lockup */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <span
-              style={{
-                fontSize: '24px',
-                fontWeight: 900,
-                color: '#E11D48',
-                letterSpacing: '-0.03em',
-                lineHeight: 1,
-              }}
-            >
-              MANGA
-            </span>
-            <span
-              style={{
-                backgroundColor: '#0F172A',
-                color: '#FFFFFF',
-                fontSize: '10px',
-                fontWeight: 800,
-                padding: '2px 6px',
-                borderRadius: '4px',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-              }}
-            >
-              MALL
-            </span>
+            <NokTriangleEye size={24} color="#B5532E" />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span
+                style={{
+                  fontFamily: 'Fraunces, Georgia, serif',
+                  fontSize: '26px',
+                  fontWeight: 900,
+                  color: '#2A2320', // Iron
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1,
+                }}
+              >
+                Manga<span style={{ color: '#B5532E' }}>.</span>
+              </span>
+              <span style={{ fontSize: '9px', fontWeight: 700, color: '#8C8279', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                NOK HERITAGE MALL
+              </span>
+            </div>
           </div>
 
-          {/* Mega Search Bar with Category Scope & Instant Suggestions */}
+          {/* Search Bar with Department Scope & Autocomplete */}
           <div style={{ flex: 1, maxWidth: '720px', position: 'relative' }}>
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                backgroundColor: '#F1F5F9',
+                backgroundColor: '#F6EDE0', // Clay Cream
                 borderRadius: '8px',
-                border: '1.5px solid #CBD5E1',
+                border: '1.5px solid #E7D5BC',
                 overflow: 'hidden',
                 transition: 'border-color 0.15s ease',
               }}
             >
-              {/* Category Scope Selector */}
               <select
                 value={searchDepartmentScope}
                 onChange={(e) => setSearchDepartmentScope(e.target.value)}
                 style={{
-                  backgroundColor: '#E2E8F0',
+                  backgroundColor: '#E7D5BC',
                   border: 'none',
-                  borderRight: '1px solid #CBD5E1',
+                  borderRight: '1px solid #D8C3A5',
                   padding: '10px 12px',
                   fontSize: '12px',
                   fontWeight: 600,
-                  color: '#334155',
+                  color: '#2A2320',
                   outline: 'none',
                   cursor: 'pointer',
                   maxWidth: '140px',
@@ -839,12 +934,11 @@ export const StorefrontClient: React.FC = () => {
                 <option value="smartphones">Phones & Tablets</option>
                 <option value="computing">Laptops & PC</option>
                 <option value="audio">Audio & Sound</option>
-                <option value="fashion">Fashion & Style</option>
+                <option value="fashion">Fashion & Textiles</option>
                 <option value="beauty">Beauty & Glow</option>
                 <option value="groceries">Supermarket</option>
               </select>
 
-              {/* Text Input */}
               <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
                 <input
                   type="text"
@@ -854,7 +948,7 @@ export const StorefrontClient: React.FC = () => {
                     setSearchSuggestionsOpen(true);
                   }}
                   onFocus={() => setSearchSuggestionsOpen(true)}
-                  placeholder="Search over 50,000 genuine products, verified brands, electronics, fashion..."
+                  placeholder="Search authentic electronics, Nok craft, verified textiles, smartphones..."
                   style={{
                     width: '100%',
                     padding: '10px 14px',
@@ -862,24 +956,23 @@ export const StorefrontClient: React.FC = () => {
                     backgroundColor: 'transparent',
                     fontSize: '13px',
                     outline: 'none',
-                    color: '#0F172A',
+                    color: '#2A2320',
                   }}
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '0 8px' }}
+                    style={{ background: 'none', border: 'none', color: '#8C8279', cursor: 'pointer', padding: '0 8px' }}
                   >
                     <X size={14} />
                   </button>
                 )}
               </div>
 
-              {/* Search Submit Button */}
               <button
                 type="button"
                 style={{
-                  backgroundColor: '#E11D48',
+                  backgroundColor: '#B5532E', // Terracotta
                   color: '#FFFFFF',
                   border: 'none',
                   padding: '10px 18px',
@@ -893,7 +986,7 @@ export const StorefrontClient: React.FC = () => {
               </button>
             </div>
 
-            {/* Instant Search Suggestions Dropdown */}
+            {/* Instant Search Suggestions */}
             {searchSuggestionsOpen && searchSuggestions.length > 0 && (
               <div
                 style={{
@@ -904,14 +997,14 @@ export const StorefrontClient: React.FC = () => {
                   marginTop: '6px',
                   backgroundColor: '#FFFFFF',
                   borderRadius: '10px',
-                  boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)',
-                  border: '1px solid #E2E8F0',
+                  boxShadow: '0 8px 24px rgba(42, 35, 32, 0.12)',
+                  border: '1px solid #E7D5BC',
                   padding: '8px',
                   zIndex: 70,
                 }}
               >
-                <div style={{ padding: '4px 8px', fontSize: '11px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>
-                  Matching Catalog Products
+                <div style={{ padding: '4px 8px', fontSize: '11px', fontWeight: 700, color: '#8C8279', textTransform: 'uppercase' }}>
+                  Matching Verified Products
                 </div>
                 {searchSuggestions.map((prod) => (
                   <div
@@ -928,17 +1021,14 @@ export const StorefrontClient: React.FC = () => {
                       borderRadius: '6px',
                       cursor: 'pointer',
                       backgroundColor: '#FFFFFF',
-                      transition: 'background 0.15s ease',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <img src={prod.imageUrl} alt={prod.title} style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '4px' }} />
                       <div>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>{prod.title}</div>
-                        <div style={{ fontSize: '11px', color: '#64748B' }}>
-                          {prod.winningOffer.vendorName} • <strong style={{ color: '#E11D48' }}>{prod.winningOffer.priceFormatted}</strong>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#2A2320' }}>{prod.title}</div>
+                        <div style={{ fontSize: '11px', color: '#8C8279' }}>
+                          {prod.winningOffer.vendorName} • <strong style={{ color: '#B5532E' }}>{prod.winningOffer.priceFormatted}</strong>
                         </div>
                       </div>
                     </div>
@@ -949,8 +1039,8 @@ export const StorefrontClient: React.FC = () => {
                       }}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#0F172A',
-                        color: '#FFFFFF',
+                        backgroundColor: '#2A2320',
+                        color: '#F6EDE0',
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '11px',
@@ -975,18 +1065,18 @@ export const StorefrontClient: React.FC = () => {
                   width: '34px',
                   height: '34px',
                   borderRadius: '17px',
-                  backgroundColor: '#F1F5F9',
+                  backgroundColor: '#F6EDE0',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#475569',
+                  color: '#4F6B3A',
                 }}
               >
-                <CheckCircle2 size={16} color="#10B981" />
+                <CheckCircle2 size={16} color="#4F6B3A" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '10px', color: '#64748B' }}>Welcome, Chidi</span>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                <span style={{ fontSize: '10px', color: '#8C8279' }}>Welcome, Chidi</span>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#2A2320', display: 'flex', alignItems: 'center', gap: '2px' }}>
                   My Account <ChevronDown size={11} />
                 </span>
               </div>
@@ -1002,13 +1092,13 @@ export const StorefrontClient: React.FC = () => {
                 cursor: 'pointer',
                 padding: '8px',
                 borderRadius: '8px',
-                color: '#334155',
+                color: '#2A2320',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
               }}
             >
-              <Heart size={20} color={wishlist.length > 0 ? '#E11D48' : '#64748B'} fill={wishlist.length > 0 ? '#E11D48' : 'none'} />
+              <Heart size={20} color={wishlist.length > 0 ? '#B5532E' : '#8C8279'} fill={wishlist.length > 0 ? '#B5532E' : 'none'} />
               <span style={{ fontSize: '12px', fontWeight: 600 }} className="hidden md:inline">Saved</span>
               {wishlist.length > 0 && (
                 <span
@@ -1016,7 +1106,7 @@ export const StorefrontClient: React.FC = () => {
                     position: 'absolute',
                     top: '2px',
                     left: '20px',
-                    backgroundColor: '#E11D48',
+                    backgroundColor: '#B5532E',
                     color: '#FFFFFF',
                     borderRadius: '10px',
                     fontSize: '10px',
@@ -1037,13 +1127,12 @@ export const StorefrontClient: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                backgroundColor: '#0F172A',
-                color: '#FFFFFF',
+                backgroundColor: '#2A2320', // Iron
+                color: '#F6EDE0',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '8px 14px',
                 cursor: 'pointer',
-                transition: 'background 0.15s ease',
               }}
             >
               <div style={{ position: 'relative' }}>
@@ -1054,7 +1143,7 @@ export const StorefrontClient: React.FC = () => {
                       position: 'absolute',
                       top: '-6px',
                       right: '-8px',
-                      backgroundColor: '#E11D48',
+                      backgroundColor: '#B5532E',
                       color: '#FFFFFF',
                       borderRadius: '10px',
                       fontSize: '10px',
@@ -1068,7 +1157,7 @@ export const StorefrontClient: React.FC = () => {
                 )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-                <span style={{ fontSize: '10px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Cart</span>
+                <span style={{ fontSize: '10px', color: '#D9A441', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Cart</span>
                 <span style={{ fontSize: '12px', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
                   {formatNaira(cartSubtotalMinor)}
                 </span>
@@ -1078,26 +1167,25 @@ export const StorefrontClient: React.FC = () => {
         </div>
       </header>
 
-      {/* 4. DEPARTMENT & PROMOTIONAL BAR (Konga / Jumia / Amazon Megamenu) */}
+      {/* 4. DEPARTMENT BAR (Warm Clay & Iron Sub-Header) */}
       <nav
         style={{
-          backgroundColor: '#0F172A',
-          color: '#FFFFFF',
-          borderBottom: '1px solid #1E293B',
+          backgroundColor: '#2A2320', // Iron
+          color: '#F6EDE0',
+          borderBottom: '1px solid rgba(231, 213, 188, 0.1)',
           padding: '0 24px',
         }}
       >
         <div style={{ maxWidth: '1360px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', overflowX: 'auto' }}>
-          {/* Department Pills */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             {[
-              { id: 'all', label: 'All Products', icon: Layers },
+              { id: 'all', label: 'All Craft & Goods', icon: Layers },
               { id: 'smartphones', label: 'Phones & Tablets', icon: Smartphone },
               { id: 'computing', label: 'Laptops & Computing', icon: Laptop },
               { id: 'audio', label: 'Audio & Sound', icon: Headphones },
-              { id: 'fashion', label: 'Fashion & Style', icon: Shirt },
-              { id: 'beauty', label: 'Beauty & Glow', icon: Sparkle },
-              { id: 'groceries', label: 'Supermarket & Bulk', icon: ShoppingBasket },
+              { id: 'fashion', label: 'Textiles & Aso-Oke', icon: Shirt },
+              { id: 'beauty', label: 'Oils & Shea Botanicals', icon: Sparkle },
+              { id: 'groceries', label: 'Supermarket Provisions', icon: ShoppingBasket },
             ].map((cat) => {
               const IconComp = cat.icon;
               const isActive = selectedCategory === cat.id;
@@ -1115,22 +1203,21 @@ export const StorefrontClient: React.FC = () => {
                     padding: '11px 14px',
                     background: 'none',
                     border: 'none',
-                    color: isActive ? '#FFFFFF' : '#94A3B8',
+                    color: isActive ? '#FFFFFF' : '#E7D5BC',
                     fontSize: '12px',
                     fontWeight: isActive ? 700 : 500,
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
-                    borderBottom: isActive ? '3px solid #E11D48' : '3px solid transparent',
+                    borderBottom: isActive ? '3px solid #B5532E' : '3px solid transparent',
                   }}
                 >
-                  <IconComp size={13} color={isActive ? '#E11D48' : '#64748B'} />
+                  <IconComp size={13} color={isActive ? '#B5532E' : '#8C8279'} />
                   <span>{cat.label}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Special Promotional Badges (Lightning Deals / Official Stores) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '16px' }}>
             <button
               onClick={() => {
@@ -1138,9 +1225,9 @@ export const StorefrontClient: React.FC = () => {
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
               style={{
-                backgroundColor: 'rgba(225, 29, 72, 0.2)',
-                border: '1px solid rgba(225, 29, 72, 0.4)',
-                color: '#FDA4AF',
+                backgroundColor: 'rgba(181, 83, 46, 0.25)',
+                border: '1px solid rgba(181, 83, 46, 0.5)',
+                color: '#F8ECE7',
                 padding: '4px 10px',
                 borderRadius: '6px',
                 fontSize: '11px',
@@ -1152,76 +1239,83 @@ export const StorefrontClient: React.FC = () => {
                 whiteSpace: 'nowrap',
               }}
             >
-              <Zap size={12} color="#E11D48" />
-              <span>Flash Sales</span>
+              <Zap size={12} color="#D9A441" />
+              <span>Kiln Flash Deals</span>
             </button>
-            <span style={{ fontSize: '11px', color: '#38BDF8', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              Express Delivery (24-48h)
+            <span style={{ fontSize: '11px', color: '#D9A441', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              Express 24-48h Delivery
             </span>
           </div>
         </div>
       </nav>
 
-      {/* 5. HERO PROMOTIONAL SHOWCASE BANNER (Amazon / Jumia / Zavora High-Impact Showcase) */}
+      {/* 5. HERO SHOWCASE: "From the Kiln to Your Door" (Section 1.1 & Section 3.3) */}
       <section
         style={{
           position: 'relative',
-          background: 'linear-gradient(135deg, #020617 0%, #0F172A 50%, #1E1B4B 100%)',
+          background: 'linear-gradient(135deg, #1E1815 0%, #2A2320 60%, #4A2216 100%)', // Fired clay & Iron
           color: '#FFFFFF',
-          padding: '40px 24px',
+          padding: '44px 24px',
           overflow: 'hidden',
-          borderBottom: '1px solid #1E293B',
+          borderBottom: '2px solid #8F3B1F',
         }}
       >
-        <div style={{ maxWidth: '1360px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', alignItems: 'center' }}>
-          {/* Left Hero Pitch */}
+        {/* Subtle Nok Coil Ambient Ornament */}
+        <div style={{ position: 'absolute', top: '-40px', right: '-40px', opacity: 0.06, pointerEvents: 'none' }}>
+          <NokCoilPattern size={400} color="#F6EDE0" />
+        </div>
+
+        <div style={{ maxWidth: '1360px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '36px', alignItems: 'center', position: 'relative', zIndex: 10 }}>
+          {/* Left Hero Story & Value Proposition */}
           <div>
             <div
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                backgroundColor: 'rgba(225, 29, 72, 0.15)',
-                border: '1px solid rgba(225, 29, 72, 0.35)',
+                backgroundColor: 'rgba(181, 83, 46, 0.2)',
+                border: '1px solid rgba(217, 164, 65, 0.4)',
                 padding: '4px 12px',
                 borderRadius: '20px',
-                color: '#FDA4AF',
+                color: '#D9A441', // Ochre Gold
                 fontSize: '12px',
                 fontWeight: 700,
                 marginBottom: '16px',
               }}
             >
-              <Sparkles size={13} color="#E11D48" />
-              <span>Nigeria's Authentic Multi-Vendor Digital Marketplace</span>
+              <NokTriangleEye size={13} color="#D9A441" />
+              <span>Manga — Originating from Ancient Nok Metal & Clay Heritage</span>
             </div>
 
             <h1
               style={{
-                fontSize: '38px',
-                fontWeight: 900,
+                fontFamily: 'Fraunces, Georgia, serif',
+                fontSize: '40px',
+                fontWeight: 800,
                 lineHeight: 1.15,
                 margin: '0 0 16px 0',
                 letterSpacing: '-0.02em',
+                color: '#F6EDE0', // Clay Cream
               }}
             >
-              Everything you need.<br />
-              <span style={{ color: '#FDE68A' }}>One authentic place.</span>
+              From the kiln to your door.<br />
+              <span style={{ color: '#D9A441' }}>Craft, technology & trust.</span>
             </h1>
 
-            <p style={{ fontSize: '15px', color: '#CBD5E1', lineHeight: 1.6, margin: '0 0 24px 0', maxWidth: '540px' }}>
-              Shop genuine flagship smartphones, ultra-fast laptops, premium audio, lifestyle fashion, and bulk provisions — delivered nationwide with instant escrow buyer protection.
+            <p style={{ fontSize: '15px', color: '#E7D5BC', lineHeight: 1.65, margin: '0 0 24px 0', maxWidth: '520px' }}>
+              Shop genuine flagship devices, hand-woven luxury textiles, organic shea botanicals, and certified computing — delivered nationwide with immutable escrow buyer protection.
             </p>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <button
                 onClick={() => {
                   setSelectedCategory('all');
-                  window.scrollTo({ top: 600, behavior: 'smooth' });
+                  window.scrollTo({ top: 680, behavior: 'smooth' });
                 }}
                 style={{
-                  backgroundColor: '#E11D48',
+                  backgroundColor: '#B5532E', // Terracotta
                   color: '#FFFFFF',
-                  border: 'none',
+                  border: '1px solid #8F3B1F',
                   borderRadius: '8px',
                   padding: '12px 24px',
                   fontSize: '14px',
@@ -1230,7 +1324,7 @@ export const StorefrontClient: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  boxShadow: '0 10px 15px -3px rgba(225, 29, 72, 0.3)',
+                  boxShadow: '0 4px 12px rgba(181, 83, 46, 0.3)',
                 }}
               >
                 <span>Explore All Departments</span>
@@ -1239,13 +1333,13 @@ export const StorefrontClient: React.FC = () => {
 
               <button
                 onClick={() => {
-                  const el = document.getElementById('flash-deals-strip');
+                  const el = document.getElementById('heritage-story');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }}
                 style={{
-                  backgroundColor: 'rgba(255,255,255,0.08)',
-                  color: '#FFFFFF',
-                  border: '1px solid rgba(255,255,255,0.2)',
+                  backgroundColor: 'rgba(246, 237, 224, 0.08)',
+                  color: '#F6EDE0',
+                  border: '1px solid rgba(231, 213, 188, 0.3)',
                   borderRadius: '8px',
                   padding: '12px 20px',
                   fontSize: '14px',
@@ -1256,24 +1350,24 @@ export const StorefrontClient: React.FC = () => {
                   gap: '6px',
                 }}
               >
-                <Zap size={14} color="#F59E0B" />
-                <span>Today's Flash Deals</span>
+                <NokTriangleEye size={14} color="#D9A441" />
+                <span>The Manga Heritage Story</span>
               </button>
             </div>
 
             {/* Micro Trust Proofs */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '32px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '32px', paddingTop: '20px', borderTop: '1px solid rgba(231, 213, 188, 0.15)' }}>
               <div>
-                <div style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF' }}>100%</div>
-                <div style={{ fontSize: '11px', color: '#94A3B8' }}>Genuine Brands Only</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF', fontFamily: 'Fraunces, serif' }}>100%</div>
+                <div style={{ fontSize: '11px', color: '#E7D5BC' }}>Genuine Certified Brands</div>
               </div>
               <div>
-                <div style={{ fontSize: '18px', fontWeight: 800, color: '#FDE68A' }}>24 - 48 Hrs</div>
-                <div style={{ fontSize: '11px', color: '#94A3B8' }}>Express Dispatch</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: '#D9A441', fontFamily: 'Fraunces, serif' }}>24 - 48 Hrs</div>
+                <div style={{ fontSize: '11px', color: '#E7D5BC' }}>Express Nationwide Dispatch</div>
               </div>
               <div>
-                <div style={{ fontSize: '18px', fontWeight: 800, color: '#10B981' }}>7 Days</div>
-                <div style={{ fontSize: '11px', color: '#94A3B8' }}>Escrow Return Window</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: '#4F6B3A', fontFamily: 'Fraunces, serif' }}>7 Days</div>
+                <div style={{ fontSize: '11px', color: '#E7D5BC' }}>Escrow Return Protection</div>
               </div>
             </div>
           </div>
@@ -1282,17 +1376,17 @@ export const StorefrontClient: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <div
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
+                backgroundColor: '#FFFFFF', // Paper
                 borderRadius: '16px',
                 padding: '20px',
                 maxWidth: '420px',
                 width: '100%',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                boxShadow: '0 12px 32px rgba(42, 35, 32, 0.25)',
+                border: '1px solid #E7D5BC',
+                color: '#2A2320',
               }}
             >
-              <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', marginBottom: '16px', height: '220px', backgroundColor: '#020617' }}>
+              <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', marginBottom: '16px', height: '220px', backgroundColor: '#F6EDE0' }}>
                 <img
                   src={CATALOG_PRODUCTS[0].imageUrl}
                   alt={CATALOG_PRODUCTS[0].title}
@@ -1303,7 +1397,7 @@ export const StorefrontClient: React.FC = () => {
                     position: 'absolute',
                     top: '10px',
                     left: '10px',
-                    backgroundColor: '#E11D48',
+                    backgroundColor: '#B5532E', // Terracotta
                     color: '#FFFFFF',
                     fontSize: '10px',
                     fontWeight: 800,
@@ -1319,34 +1413,34 @@ export const StorefrontClient: React.FC = () => {
                     position: 'absolute',
                     top: '10px',
                     right: '10px',
-                    backgroundColor: '#0F172A',
-                    color: '#38BDF8',
+                    backgroundColor: '#2A2320',
+                    color: '#D9A441',
                     fontSize: '10px',
                     fontWeight: 700,
                     padding: '3px 8px',
                     borderRadius: '4px',
-                    border: '1px solid rgba(56, 189, 248, 0.3)',
+                    border: '1px solid #8F3B1F',
                   }}
                 >
                   Manga Express
                 </span>
               </div>
 
-              <div style={{ fontSize: '12px', color: '#38BDF8', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>
+              <div style={{ fontSize: '11px', color: '#B5532E', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>
                 {CATALOG_PRODUCTS[0].brand}
               </div>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 10px 0', color: '#FFFFFF', lineHeight: 1.3 }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 700, margin: '0 0 10px 0', color: '#2A2320', lineHeight: 1.35 }}>
                 {CATALOG_PRODUCTS[0].title}
               </h3>
 
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '14px' }}>
-                <span style={{ fontSize: '22px', fontWeight: 900, color: '#FDE68A', fontVariantNumeric: 'tabular-nums' }}>
+                <span style={{ fontSize: '22px', fontWeight: 900, color: '#B5532E', fontVariantNumeric: 'tabular-nums' }}>
                   {CATALOG_PRODUCTS[0].winningOffer.priceFormatted}
                 </span>
-                <span style={{ fontSize: '13px', color: '#94A3B8', textDecoration: 'line-through' }}>
+                <span style={{ fontSize: '13px', color: '#8C8279', textDecoration: 'line-through' }}>
                   {CATALOG_PRODUCTS[0].originalPriceFormatted}
                 </span>
-                <span style={{ fontSize: '11px', color: '#10B981', fontWeight: 700 }}>
+                <span style={{ fontSize: '11px', color: '#4F6B3A', fontWeight: 700 }}>
                   -{CATALOG_PRODUCTS[0].discountPercent}%
                 </span>
               </div>
@@ -1357,9 +1451,9 @@ export const StorefrontClient: React.FC = () => {
                   style={{
                     flex: 1,
                     padding: '10px',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    color: '#FFFFFF',
+                    backgroundColor: '#F6EDE0',
+                    border: '1px solid #D8C3A5',
+                    color: '#2A2320',
                     borderRadius: '8px',
                     fontSize: '12px',
                     fontWeight: 600,
@@ -1373,7 +1467,7 @@ export const StorefrontClient: React.FC = () => {
                   style={{
                     flex: 1,
                     padding: '10px',
-                    backgroundColor: '#E11D48',
+                    backgroundColor: '#B5532E',
                     border: 'none',
                     color: '#FFFFFF',
                     borderRadius: '8px',
@@ -1390,7 +1484,7 @@ export const StorefrontClient: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. LIGHTNING DEALS & FLASH SALES STRIP (Zavora & Jumia Flash Sales Portal) */}
+      {/* 6. FLASH SALES / KILN DEALS STRIP (Section 1.2 Status: Ember & Terracotta) */}
       <section
         id="flash-deals-strip"
         style={{
@@ -1401,23 +1495,23 @@ export const StorefrontClient: React.FC = () => {
       >
         <div
           style={{
-            backgroundColor: '#FFFFFF',
+            backgroundColor: '#FFFFFF', // Paper
             borderRadius: '12px',
-            border: '1px solid #E2E8F0',
+            border: '1px solid #E7D5BC',
             padding: '20px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 3px rgba(42, 35, 32, 0.05)',
           }}
         >
-          {/* Flash Sales Header with Countdown Clock */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid #F1F5F9', paddingBottom: '14px' }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid #F6EDE0', paddingBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div
                 style={{
-                  width: '32px',
-                  height: '32px',
+                  width: '34px',
+                  height: '34px',
                   borderRadius: '8px',
-                  backgroundColor: '#FFF1F2',
-                  color: '#E11D48',
+                  backgroundColor: '#FBE8E7', // Ember tint
+                  color: '#B3261E',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1426,70 +1520,69 @@ export const StorefrontClient: React.FC = () => {
                 <Zap size={18} />
               </div>
               <div>
-                <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0F172A' }}>
-                  Lightning Flash Deals
+                <h2 style={{ fontFamily: 'Fraunces, serif', margin: 0, fontSize: '19px', fontWeight: 800, color: '#2A2320' }}>
+                  Fired Kiln Flash Deals
                 </h2>
-                <span style={{ fontSize: '12px', color: '#64748B' }}>
-                  Limited-quantity stock directly authorized by national distributors
+                <span style={{ fontSize: '12px', color: '#8C8279' }}>
+                  Limited allocations directly released from certified national hubs
                 </span>
               </div>
             </div>
 
-            {/* Countdown Timer Display */}
+            {/* Countdown Timer */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Clock size={14} color="#E11D48" /> Time Remaining:
+              <span style={{ fontSize: '12px', fontWeight: 600, color: '#8F3B1F', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={14} color="#B5532E" /> Ending in:
               </span>
               <div style={{ display: 'flex', gap: '4px' }}>
-                <span style={{ backgroundColor: '#0F172A', color: '#FFFFFF', padding: '3px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                <span style={{ backgroundColor: '#2A2320', color: '#F6EDE0', padding: '3px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
                   {String(timeLeft.hours).padStart(2, '0')}h
                 </span>
-                <span style={{ color: '#0F172A', fontWeight: 800 }}>:</span>
-                <span style={{ backgroundColor: '#0F172A', color: '#FFFFFF', padding: '3px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                <span style={{ color: '#2A2320', fontWeight: 800 }}>:</span>
+                <span style={{ backgroundColor: '#2A2320', color: '#F6EDE0', padding: '3px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
                   {String(timeLeft.minutes).padStart(2, '0')}m
                 </span>
-                <span style={{ color: '#0F172A', fontWeight: 800 }}>:</span>
-                <span style={{ backgroundColor: '#E11D48', color: '#FFFFFF', padding: '3px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                <span style={{ color: '#2A2320', fontWeight: 800 }}>:</span>
+                <span style={{ backgroundColor: '#B5532E', color: '#FFFFFF', padding: '3px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
                   {String(timeLeft.seconds).padStart(2, '0')}s
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Flash Deals Horizontal Carousel/Grid */}
+          {/* Flash Deals Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
             {CATALOG_PRODUCTS.filter((p) => p.isFlashDeal).map((item) => (
               <div
                 key={`flash-${item.id}`}
                 style={{
-                  border: '1px solid #E2E8F0',
+                  border: '1px solid #E7D5BC',
                   borderRadius: '10px',
                   padding: '12px',
                   backgroundColor: '#FFFFFF',
-                  position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}
               >
                 <div>
-                  <div style={{ position: 'relative', height: '140px', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#F8FAFC', marginBottom: '10px' }}>
+                  <div style={{ position: 'relative', height: '140px', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#F6EDE0', marginBottom: '10px' }}>
                     <img src={item.imageUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <span style={{ position: 'absolute', top: '6px', left: '6px', backgroundColor: '#E11D48', color: '#FFFFFF', fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>
+                    <span style={{ position: 'absolute', top: '6px', left: '6px', backgroundColor: '#B3261E', color: '#FFFFFF', fontSize: '10px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>
                       -{item.discountPercent}%
                     </span>
                   </div>
 
-                  <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>{item.brand}</div>
-                  <h4 style={{ fontSize: '13px', fontWeight: 700, margin: '2px 0 8px 0', color: '#0F172A', lineHeight: 1.3, height: '34px', overflow: 'hidden' }}>
+                  <div style={{ fontSize: '11px', color: '#8C8279', fontWeight: 600 }}>{item.brand}</div>
+                  <h4 style={{ fontSize: '13px', fontWeight: 700, margin: '2px 0 8px 0', color: '#2A2320', lineHeight: 1.3, height: '34px', overflow: 'hidden' }}>
                     {item.title}
                   </h4>
 
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '16px', fontWeight: 800, color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
+                    <span style={{ fontSize: '16px', fontWeight: 800, color: '#B5532E', fontVariantNumeric: 'tabular-nums' }}>
                       {item.winningOffer.priceFormatted}
                     </span>
-                    <span style={{ fontSize: '11px', color: '#94A3B8', textDecoration: 'line-through' }}>
+                    <span style={{ fontSize: '11px', color: '#8C8279', textDecoration: 'line-through' }}>
                       {item.originalPriceFormatted}
                     </span>
                   </div>
@@ -1497,16 +1590,16 @@ export const StorefrontClient: React.FC = () => {
                   {/* Claim Progress Bar */}
                   {item.flashClaimedPercent && (
                     <div style={{ marginBottom: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#64748B', marginBottom: '3px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#8C8279', marginBottom: '3px' }}>
                         <span>Claimed: <strong>{item.flashClaimedPercent}%</strong></span>
-                        <span style={{ color: '#E11D48', fontWeight: 700 }}>Only {item.scarcityCount} left</span>
+                        <span style={{ color: '#B3261E', fontWeight: 700 }}>Only {item.scarcityCount} left</span>
                       </div>
-                      <div style={{ height: '5px', backgroundColor: '#E2E8F0', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{ height: '5px', backgroundColor: '#E7D5BC', borderRadius: '3px', overflow: 'hidden' }}>
                         <div
                           style={{
                             height: '100%',
                             width: `${item.flashClaimedPercent}%`,
-                            backgroundColor: '#E11D48',
+                            backgroundColor: '#B5532E',
                             borderRadius: '3px',
                           }}
                         />
@@ -1520,7 +1613,7 @@ export const StorefrontClient: React.FC = () => {
                   style={{
                     width: '100%',
                     padding: '8px',
-                    backgroundColor: '#0F172A',
+                    backgroundColor: '#B5532E',
                     color: '#FFFFFF',
                     border: 'none',
                     borderRadius: '6px',
@@ -1537,113 +1630,133 @@ export const StorefrontClient: React.FC = () => {
         </div>
       </section>
 
-      {/* 7. OFFICIAL BRAND STORES MALL (Jumia Official Stores & Konga Mall) */}
-      <section style={{ maxWidth: '1360px', margin: '28px auto 0', padding: '0 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <div>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
-              Official Brand Stores
-            </h3>
-            <span style={{ fontSize: '12px', color: '#64748B' }}>
-              Direct distributor accreditation with full manufacturer warranties
-            </span>
-          </div>
-          <span style={{ fontSize: '12px', color: '#E11D48', fontWeight: 700, cursor: 'pointer' }}>
-            View All Brands →
-          </span>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
-          {[
-            { name: 'Apple Authorized', category: 'Smartphones & Tablets', color: '#0F172A' },
-            { name: 'Sony Nigeria', category: 'Audio & Visual', color: '#1E293B' },
-            { name: 'Samsung Official', category: 'Galaxy Series & Home', color: '#1E3A8A' },
-            { name: 'Logitech Workspace', category: 'Ergonomic Computing', color: '#064E3B' },
-            { name: 'Olori Botanicals', category: 'African Skincare', color: '#831843' },
-            { name: 'AfroThreads Couture', category: 'African Luxury Wear', color: '#701A75' },
-          ].map((brand) => (
-            <div
-              key={brand.name}
-              style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: '8px',
-                border: '1px solid #E2E8F0',
-                padding: '14px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'border-color 0.15s ease',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#E11D48')}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
-            >
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#0F172A', marginBottom: '3px' }}>
-                {brand.name}
-              </div>
-              <div style={{ fontSize: '11px', color: '#64748B' }}>{brand.category}</div>
-              <div style={{ marginTop: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', color: '#10B981', fontWeight: 700 }}>
-                <CheckCircle2 size={11} /> 100% Genuine
-              </div>
+      {/* 7. THE MANGA ORIGIN STORY (Section 3.16 of Design Prompt) */}
+      <section
+        id="heritage-story"
+        style={{
+          maxWidth: '1360px',
+          margin: '36px auto 0',
+          padding: '0 24px',
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: '#2A2320', // Iron
+            color: '#F6EDE0',
+            borderRadius: '16px',
+            padding: '36px 32px',
+            border: '2px solid #8F3B1F',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center', marginBottom: '32px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#D9A441', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
+              <NokCoilPattern size={16} color="#D9A441" /> The Manga Origin
             </div>
-          ))}
+            <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: '28px', fontWeight: 800, margin: '0 0 12px 0', color: '#F6EDE0' }}>
+              Crafted in Nok. Verified for Nigeria.
+            </h2>
+            <p style={{ fontSize: '14px', color: '#E7D5BC', lineHeight: 1.6, margin: 0 }}>
+              Over two thousand years ago, the Nok civilization of Central Nigeria pioneered world-famous terracotta sculpture and iron metallurgy. Manga draws upon this ancient standard of precision: every vendor is vetted, every transaction is safeguarded by escrow, and every parcel is tracked from the artisan's hands to your doorstep.
+            </p>
+          </div>
+
+          {/* 5 Journey Milestones */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+            {[
+              { step: '01', title: 'Authentic Makers', desc: 'Direct accreditation of authorized electronics distributors and certified textile artisans.', icon: Building },
+              { step: '02', title: 'Double-Entry Escrow', desc: 'Your payment remains locked in automated escrow until confirmed delivery and physical inspection.', icon: ShieldCheck },
+              { step: '03', title: 'Regional Sorting Hubs', desc: 'Pre-dispatch barcode scanning and physical QC in Lekki, Ikeja, and Abuja.', icon: Package },
+              { step: '04', title: 'Monitored Corridors', desc: 'Nationwide transit with live milestones via GIG Logistics, Red Star, and Fez Delivery.', icon: Truck },
+              { step: '05', title: 'Signed Handover', desc: 'Proof-of-delivery confirmed via security pin or signature with 7-day return guarantee.', icon: Award },
+            ].map((milestone) => {
+              const Icon = milestone.icon;
+              return (
+                <div
+                  key={milestone.step}
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(231, 213, 188, 0.2)',
+                    borderRadius: '10px',
+                    padding: '18px',
+                    textAlign: 'left',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <span style={{ fontFamily: 'Fraunces, serif', fontSize: '18px', fontWeight: 800, color: '#D9A441' }}>
+                      {milestone.step}
+                    </span>
+                    <Icon size={18} color="#B5532E" />
+                  </div>
+                  <h4 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 6px 0', color: '#FFFFFF' }}>
+                    {milestone.title}
+                  </h4>
+                  <p style={{ fontSize: '12px', color: '#E7D5BC', lineHeight: 1.45, margin: 0 }}>
+                    {milestone.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* 8. MAIN PRODUCT CATALOG GRID WITH AMAZON-STYLE BUY-BOX CARDS */}
-      <main style={{ maxWidth: '1360px', margin: '32px auto', padding: '0 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+      {/* 8. MAIN PRODUCT CATALOG GRID WITH HONEST PROMISES (§3.4 & §3.6) */}
+      <main style={{ maxWidth: '1360px', margin: '36px auto', padding: '0 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>
+            <h2 style={{ fontFamily: 'Fraunces, serif', margin: 0, fontSize: '24px', fontWeight: 800, color: '#2A2320' }}>
               {selectedCategory === 'all'
-                ? 'Curated Products & Verified Offers'
+                ? 'Curated Marketplace Goods'
                 : `Department: ${selectedCategory.toUpperCase()}`}
             </h2>
-            <span style={{ fontSize: '13px', color: '#64748B' }}>
-              Showing {filteredProducts.length} items ranked by Manga Buy-Box Landed Price Algorithm
+            <span style={{ fontSize: '13px', color: '#8C8279' }}>
+              Showing {filteredProducts.length} verified products ranked by Manga Landed Price Algorithm
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '12px', color: '#64748B' }}>Delivery City:</span>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#0F172A', backgroundColor: '#FFFFFF', padding: '6px 12px', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '12px', color: '#8C8279' }}>Destination:</span>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#2A2320', backgroundColor: '#FFFFFF', padding: '6px 12px', borderRadius: '6px', border: '1px solid #E7D5BC' }}>
               {deliveryLocation}
             </span>
           </div>
         </div>
 
-        {/* Product Cards Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '20px' }}>
+        {/* Product Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '22px' }}>
           {filteredProducts.map((product) => {
             const isWishlisted = wishlist.includes(product.id);
             return (
               <div
                 key={product.id}
                 style={{
-                  backgroundColor: '#FFFFFF',
+                  backgroundColor: '#FFFFFF', // Paper
                   borderRadius: '12px',
-                  border: '1px solid #E2E8F0',
+                  border: '1px solid #E7D5BC',
                   overflow: 'hidden',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
-                  transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+                  boxShadow: '0 1px 3px rgba(42, 35, 32, 0.05)',
+                  transition: 'transform 0.15s ease, box-shadow 0.15s ease',
                 }}
               >
                 <div>
-                  {/* Image Container with Wishlist & Badges */}
-                  <div style={{ position: 'relative', height: '220px', backgroundColor: '#F8FAFC', overflow: 'hidden' }}>
+                  {/* Image Container with Badges */}
+                  <div style={{ position: 'relative', height: '220px', backgroundColor: '#F6EDE0', overflow: 'hidden' }}>
                     <img
                       src={product.imageUrl}
                       alt={product.title}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                    {/* Discount Tag */}
                     <span
                       style={{
                         position: 'absolute',
                         top: '10px',
                         left: '10px',
-                        backgroundColor: '#E11D48',
+                        backgroundColor: '#B5532E',
                         color: '#FFFFFF',
                         fontSize: '11px',
                         fontWeight: 800,
@@ -1654,27 +1767,26 @@ export const StorefrontClient: React.FC = () => {
                       -{product.discountPercent}%
                     </span>
 
-                    {/* Manga Express Tag */}
+                    {/* Delivery Promise Chip (§2 Commerce Components) */}
                     <span
                       style={{
                         position: 'absolute',
                         bottom: '10px',
                         left: '10px',
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        color: '#38BDF8',
+                        backgroundColor: 'rgba(42, 35, 32, 0.9)',
+                        color: '#D9A441',
                         fontSize: '10px',
                         fontWeight: 700,
-                        padding: '2px 6px',
+                        padding: '3px 8px',
                         borderRadius: '4px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '3px',
+                        gap: '4px',
                       }}
                     >
-                      <Truck size={11} /> Next-Day Delivery
+                      <Truck size={11} color="#D9A441" /> {product.deliveryPromiseDate}
                     </span>
 
-                    {/* Wishlist Heart Button */}
                     <button
                       onClick={() => toggleWishlist(product.id)}
                       aria-label="Save item to wishlist"
@@ -1683,7 +1795,7 @@ export const StorefrontClient: React.FC = () => {
                         top: '10px',
                         right: '10px',
                         backgroundColor: '#FFFFFF',
-                        border: '1px solid #E2E8F0',
+                        border: '1px solid #E7D5BC',
                         borderRadius: '20px',
                         width: '32px',
                         height: '32px',
@@ -1691,63 +1803,63 @@ export const StorefrontClient: React.FC = () => {
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        boxShadow: '0 2px 4px rgba(42, 35, 32, 0.1)',
                       }}
                     >
-                      <Heart size={16} color={isWishlisted ? '#E11D48' : '#64748B'} fill={isWishlisted ? '#E11D48' : 'none'} />
+                      <Heart size={16} color={isWishlisted ? '#B5532E' : '#8C8279'} fill={isWishlisted ? '#B5532E' : 'none'} />
                     </button>
                   </div>
 
-                  {/* Product Details */}
+                  {/* Details */}
                   <div style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#8C8279', textTransform: 'uppercase' }}>
                         {product.brand}
                       </span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#D97706', fontWeight: 700 }}>
-                        <Star size={12} fill="#D97706" color="#D97706" />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#D9A441', fontWeight: 700 }}>
+                        <Star size={12} fill="#D9A441" color="#D9A441" />
                         <span>{product.rating} ({product.reviewsCount})</span>
                       </div>
                     </div>
 
-                    <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', margin: '0 0 10px 0', lineHeight: 1.4, minHeight: '40px' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#2A2320', margin: '0 0 10px 0', lineHeight: 1.4, minHeight: '40px' }}>
                       {product.title}
                     </h3>
 
-                    {/* Price Breakdown */}
+                    {/* Price Block */}
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '20px', fontWeight: 900, color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
+                      <span style={{ fontSize: '20px', fontWeight: 900, color: '#B5532E', fontVariantNumeric: 'tabular-nums' }}>
                         {product.winningOffer.priceFormatted}
                       </span>
-                      <span style={{ fontSize: '12px', color: '#94A3B8', textDecoration: 'line-through' }}>
+                      <span style={{ fontSize: '12px', color: '#8C8279', textDecoration: 'line-through' }}>
                         {product.originalPriceFormatted}
                       </span>
                     </div>
 
-                    {/* Amazon-Style Buy-Box Winner Badge */}
+                    {/* Seller Trust & Promise Box */}
                     <div
                       style={{
-                        backgroundColor: '#F8FAFC',
-                        border: '1px solid #E2E8F0',
+                        backgroundColor: '#F6EDE0',
+                        border: '1px solid #E7D5BC',
                         borderRadius: '8px',
                         padding: '10px',
                         fontSize: '11px',
                         marginBottom: '14px',
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <span style={{ color: '#475569' }}>
-                          Sold by: <strong style={{ color: '#0F172A' }}>{product.winningOffer.vendorName}</strong>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                        <span style={{ color: '#2A2320' }}>
+                          Sold by: <strong style={{ color: '#8F3B1F' }}>{product.winningOffer.vendorName}</strong>
                         </span>
-                        <span style={{ color: '#10B981', fontWeight: 700, fontSize: '10px' }}>
+                        <span style={{ color: '#4F6B3A', fontWeight: 700 }}>
                           {product.winningOffer.fulfillmentScorePercent}% Rating
                         </span>
                       </div>
-                      <div style={{ color: '#64748B' }}>
-                        Dispatched from: {product.winningOffer.warehouseLocation}
+                      <div style={{ color: '#8C8279' }}>
+                        Origin: {product.winningOffer.warehouseLocation}
                       </div>
-                      <div style={{ color: '#059669', fontWeight: 600, marginTop: '3px' }}>
-                        SLA: Dispatches within {product.winningOffer.dispatchHours} hours
+                      <div style={{ color: '#4F6B3A', fontWeight: 600, marginTop: '2px' }}>
+                        ✓ Dispatch guaranteed in {product.winningOffer.dispatchHours}h
                       </div>
                     </div>
                   </div>
@@ -1762,8 +1874,8 @@ export const StorefrontClient: React.FC = () => {
                         flex: 1,
                         padding: '9px',
                         backgroundColor: '#FFFFFF',
-                        border: '1px solid #CBD5E1',
-                        color: '#334155',
+                        border: '1px solid #D8C3A5',
+                        color: '#2A2320',
                         borderRadius: '6px',
                         fontSize: '11px',
                         fontWeight: 600,
@@ -1778,7 +1890,7 @@ export const StorefrontClient: React.FC = () => {
                     style={{
                       flex: 1,
                       padding: '9px',
-                      backgroundColor: '#E11D48',
+                      backgroundColor: '#B5532E',
                       border: 'none',
                       color: '#FFFFFF',
                       borderRadius: '6px',
@@ -1800,13 +1912,13 @@ export const StorefrontClient: React.FC = () => {
         </div>
       </main>
 
-      {/* 9. AMAZON-STYLE BUY-BOX MULTI-VENDOR COMPARISON MODAL */}
+      {/* 9. BUY-BOX MODAL: Expandable Multi-Merchant Matrix (§2 & §3.6) */}
       {selectedProductForOffers && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backgroundColor: 'rgba(42, 35, 32, 0.65)',
             backdropFilter: 'blur(3px)',
             display: 'flex',
             alignItems: 'center',
@@ -1824,55 +1936,55 @@ export const StorefrontClient: React.FC = () => {
               maxHeight: '90vh',
               overflowY: 'auto',
               padding: '24px',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-              border: '1px solid #E2E8F0',
+              boxShadow: '0 20px 40px rgba(42, 35, 32, 0.25)',
+              border: '1px solid #E7D5BC',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #E7D5BC', paddingBottom: '12px' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0F172A' }}>
+                <h3 style={{ fontFamily: 'Fraunces, serif', margin: 0, fontSize: '18px', fontWeight: 800, color: '#2A2320' }}>
                   Merchant Offer Matrix & Buy-Box Breakdown
                 </h3>
-                <span style={{ fontSize: '12px', color: '#64748B' }}>{selectedProductForOffers.title}</span>
+                <span style={{ fontSize: '12px', color: '#8C8279' }}>{selectedProductForOffers.title}</span>
               </div>
               <button
                 onClick={() => setSelectedProductForOffers(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: '4px' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8C8279', padding: '4px' }}
               >
                 <X size={18} />
               </button>
             </div>
 
-            <p style={{ fontSize: '13px', color: '#475569', marginBottom: '16px' }}>
+            <p style={{ fontSize: '13px', color: '#2A2320', marginBottom: '16px' }}>
               Manga independently ranks offers based on <strong>landed price</strong>, <strong>dispatch SLA</strong>, and <strong>merchant fulfillment history</strong>. You can choose any competing seller below:
             </p>
 
             {/* Winning Offer Card */}
             <div
               style={{
-                border: '2px solid #E11D48',
+                border: '2px solid #B5532E',
                 borderRadius: '10px',
                 padding: '16px',
-                backgroundColor: '#FFF1F2',
+                backgroundColor: '#F8ECE7',
                 marginBottom: '14px',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ backgroundColor: '#E11D48', color: '#FFFFFF', padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
+                <span style={{ backgroundColor: '#B5532E', color: '#FFFFFF', padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
                   ★ Recommended Buy-Box Winner
                 </span>
-                <span style={{ fontSize: '18px', fontWeight: 900, color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
+                <span style={{ fontSize: '18px', fontWeight: 900, color: '#B5532E', fontVariantNumeric: 'tabular-nums' }}>
                   {selectedProductForOffers.winningOffer.priceFormatted}
                 </span>
               </div>
-              <div style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A' }}>
+              <div style={{ fontWeight: 700, fontSize: '14px', color: '#2A2320' }}>
                 {selectedProductForOffers.winningOffer.vendorName}
               </div>
-              <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
+              <div style={{ fontSize: '12px', color: '#8C8279', marginTop: '2px' }}>
                 Origin: {selectedProductForOffers.winningOffer.warehouseLocation} • Carrier: {selectedProductForOffers.winningOffer.shippingCarrier}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
-                <span style={{ fontSize: '12px', color: '#059669', fontWeight: 600 }}>
+                <span style={{ fontSize: '12px', color: '#4F6B3A', fontWeight: 600 }}>
                   ✓ Guaranteed dispatch in {selectedProductForOffers.winningOffer.dispatchHours} hours
                 </span>
                 <button
@@ -1882,7 +1994,7 @@ export const StorefrontClient: React.FC = () => {
                   }}
                   style={{
                     padding: '8px 16px',
-                    backgroundColor: '#E11D48',
+                    backgroundColor: '#B5532E',
                     color: '#FFFFFF',
                     border: 'none',
                     borderRadius: '6px',
@@ -1902,7 +2014,7 @@ export const StorefrontClient: React.FC = () => {
                 <div
                   key={offer.vendorId}
                   style={{
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid #E7D5BC',
                     borderRadius: '8px',
                     padding: '14px',
                     backgroundColor: '#FFFFFF',
@@ -1912,16 +2024,16 @@ export const StorefrontClient: React.FC = () => {
                   }}
                 >
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '13px', color: '#0F172A' }}>{offer.vendorName}</div>
-                    <div style={{ fontSize: '11px', color: '#64748B' }}>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: '#2A2320' }}>{offer.vendorName}</div>
+                    <div style={{ fontSize: '11px', color: '#8C8279' }}>
                       {offer.warehouseLocation} • {offer.fulfillmentScorePercent}% Fulfillment Score
                     </div>
-                    <div style={{ fontSize: '11px', color: '#334155', marginTop: '2px' }}>
-                      Dispatches in {offer.dispatchHours} hours via {offer.shippingCarrier}
+                    <div style={{ fontSize: '11px', color: '#2A2320', marginTop: '2px' }}>
+                      Dispatches in {offer.dispatchHours}h via {offer.shippingCarrier}
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#0F172A', fontVariantNumeric: 'tabular-nums', marginBottom: '6px' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#B5532E', fontVariantNumeric: 'tabular-nums', marginBottom: '6px' }}>
                       {offer.priceFormatted}
                     </div>
                     <button
@@ -1931,8 +2043,8 @@ export const StorefrontClient: React.FC = () => {
                       }}
                       style={{
                         padding: '6px 14px',
-                        backgroundColor: '#0F172A',
-                        color: '#FFFFFF',
+                        backgroundColor: '#2A2320',
+                        color: '#F6EDE0',
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '11px',
@@ -1950,13 +2062,13 @@ export const StorefrontClient: React.FC = () => {
         </div>
       )}
 
-      {/* 10. MULTI-VENDOR SLIDE-OVER CART DRAWER (Amazon / Zavora / Glows Collection) */}
+      {/* 10. MULTI-VENDOR CART DRAWER (§3.8) */}
       {isCartOpen && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backgroundColor: 'rgba(42, 35, 32, 0.65)',
             backdropFilter: 'blur(3px)',
             zIndex: 90,
             display: 'flex',
@@ -1971,81 +2083,79 @@ export const StorefrontClient: React.FC = () => {
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: '-10px 0 25px -5px rgba(0,0,0,0.2)',
+              boxShadow: '-8px 0 24px rgba(42, 35, 32, 0.2)',
             }}
           >
-            {/* Cart Header */}
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {/* Header */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #E7D5BC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ShoppingBag size={20} color="#E11D48" />
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
+                <ShoppingBag size={20} color="#B5532E" />
+                <h3 style={{ fontFamily: 'Fraunces, serif', margin: 0, fontSize: '17px', fontWeight: 800, color: '#2A2320' }}>
                   Your Shopping Cart ({cart.reduce((s, i) => s + i.quantity, 0)})
                 </h3>
               </div>
               <button
                 onClick={() => setIsCartOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: '4px' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8C8279', padding: '4px' }}
               >
                 <X size={20} />
               </button>
             </div>
 
-            {/* Free Shipping Progress Indicator (Amazon / Zavora Style) */}
-            <div style={{ padding: '12px 20px', backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+            {/* Free Shipping Progress Indicator */}
+            <div style={{ padding: '12px 20px', backgroundColor: '#F6EDE0', borderBottom: '1px solid #E7D5BC' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
-                <span style={{ color: '#334155', fontWeight: 600 }}>
+                <span style={{ color: '#2A2320', fontWeight: 600 }}>
                   {isFreeDeliveryQualified ? (
-                    <span style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ color: '#4F6B3A', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <CheckCircle2 size={13} /> You unlocked FREE Express Delivery!
                     </span>
                   ) : (
                     <span>Add <strong>{formatNaira(amountNeededForFreeDelivery)}</strong> more for <strong>FREE Delivery</strong></span>
                   )}
                 </span>
-                <span style={{ fontWeight: 700, color: '#64748B' }}>{freeDeliveryProgressPercent}%</span>
+                <span style={{ fontWeight: 700, color: '#8C8279' }}>{freeDeliveryProgressPercent}%</span>
               </div>
-              <div style={{ height: '6px', backgroundColor: '#E2E8F0', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ height: '6px', backgroundColor: '#E7D5BC', borderRadius: '3px', overflow: 'hidden' }}>
                 <div
                   style={{
                     height: '100%',
                     width: `${freeDeliveryProgressPercent}%`,
-                    backgroundColor: isFreeDeliveryQualified ? '#10B981' : '#E11D48',
+                    backgroundColor: isFreeDeliveryQualified ? '#4F6B3A' : '#B5532E',
                     transition: 'width 0.3s ease',
                   }}
                 />
               </div>
             </div>
 
-            {/* Cart Items Segregated by Merchant Parcel Containers (§6.1) */}
+            {/* Cart Items Segregated by Parcel Containers */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
               {cart.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '48px 0', color: '#64748B' }}>
-                  <ShoppingBag size={48} color="#CBD5E1" style={{ margin: '0 auto 12px' }} />
-                  <p style={{ margin: 0, fontWeight: 600, fontSize: '15px' }}>Your shopping cart is empty.</p>
-                  <p style={{ fontSize: '13px', marginTop: '4px' }}>Explore authentic products across our official brand mall.</p>
+                <div style={{ textAlign: 'center', padding: '48px 0', color: '#8C8279' }}>
+                  <ShoppingBag size={48} color="#D8C3A5" style={{ margin: '0 auto 12px' }} />
+                  <p style={{ margin: 0, fontWeight: 600, fontSize: '15px', color: '#2A2320' }}>Your cart is empty.</p>
+                  <p style={{ fontSize: '13px', marginTop: '4px' }}>Explore authentic goods crafted across Nigeria.</p>
                 </div>
               ) : (
                 Object.entries(shipmentGroups).map(([vendorId, group], index) => (
                   <div
                     key={vendorId}
                     style={{
-                      border: '1px solid #E2E8F0',
+                      border: '1px solid #E7D5BC',
                       borderRadius: '10px',
                       marginBottom: '16px',
                       overflow: 'hidden',
                       backgroundColor: '#FFFFFF',
                     }}
                   >
-                    {/* Parcel Group Header */}
-                    <div style={{ backgroundColor: '#F1F5F9', padding: '8px 12px', borderBottom: '1px solid #E2E8F0', fontSize: '11px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ backgroundColor: '#F6EDE0', padding: '8px 12px', borderBottom: '1px solid #E7D5BC', fontSize: '11px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <span style={{ fontWeight: 700, color: '#0F172A' }}>Package {index + 1} of {parcelCount}:</span>{' '}
-                        <span style={{ color: '#475569' }}>Dispatched by {group.vendorName}</span>
+                        <span style={{ fontWeight: 700, color: '#2A2320' }}>Package {index + 1} of {parcelCount}:</span>{' '}
+                        <span style={{ color: '#8F3B1F' }}>{group.vendorName}</span>
                       </div>
-                      <span style={{ color: '#059669', fontWeight: 600 }}>{group.carrier}</span>
+                      <span style={{ color: '#4F6B3A', fontWeight: 600 }}>{group.carrier}</span>
                     </div>
 
-                    {/* Parcel Items */}
                     <div style={{ padding: '12px' }}>
                       {group.items.map((item) => (
                         <div
@@ -2055,17 +2165,17 @@ export const StorefrontClient: React.FC = () => {
                             gap: '12px',
                             marginBottom: '12px',
                             paddingBottom: '12px',
-                            borderBottom: '1px solid #F8FAFC',
+                            borderBottom: '1px solid #F6EDE0',
                           }}
                         >
                           <img src={item.imageUrl} alt={item.title} style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '6px' }} />
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A', lineHeight: 1.3 }}>{item.title}</div>
-                            <div style={{ fontSize: '12px', fontWeight: 800, color: '#E11D48', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#2A2320', lineHeight: 1.3 }}>{item.title}</div>
+                            <div style={{ fontSize: '12px', fontWeight: 800, color: '#B5532E', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
                               {item.priceFormatted}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #CBD5E1', borderRadius: '4px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #D8C3A5', borderRadius: '4px' }}>
                                 <button
                                   onClick={() => handleUpdateQuantity(item.productId, item.vendorId, -1)}
                                   style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}
@@ -2082,7 +2192,7 @@ export const StorefrontClient: React.FC = () => {
                               </div>
                               <button
                                 onClick={() => handleUpdateQuantity(item.productId, item.vendorId, -item.quantity)}
-                                style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+                                style={{ background: 'none', border: 'none', color: '#8C8279', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
                               >
                                 Remove
                               </button>
@@ -2095,29 +2205,30 @@ export const StorefrontClient: React.FC = () => {
                 ))
               )}
 
-              {/* Promo Voucher Input */}
+              {/* Promo Voucher */}
               {cart.length > 0 && (
                 <form onSubmit={handleApplyVoucher} style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                   <input
                     type="text"
                     value={voucherCode}
                     onChange={(e) => setVoucherCode(e.target.value)}
-                    placeholder="Enter coupon (e.g. MANGAEXPRESS)"
+                    placeholder="Coupon code (e.g. MANGAEXPRESS)"
                     style={{
                       flex: 1,
                       padding: '8px 12px',
                       borderRadius: '6px',
-                      border: '1px solid #CBD5E1',
+                      border: '1px solid #E7D5BC',
                       fontSize: '12px',
                       textTransform: 'uppercase',
+                      backgroundColor: '#FFFFFF',
                     }}
                   />
                   <button
                     type="submit"
                     style={{
                       padding: '8px 14px',
-                      backgroundColor: '#0F172A',
-                      color: '#FFFFFF',
+                      backgroundColor: '#2A2320',
+                      color: '#F6EDE0',
                       border: 'none',
                       borderRadius: '6px',
                       fontSize: '12px',
@@ -2131,32 +2242,32 @@ export const StorefrontClient: React.FC = () => {
               )}
             </div>
 
-            {/* Cart Footer Financial Breakdown */}
+            {/* Financial Summary */}
             {cart.length > 0 && (
-              <div style={{ padding: '16px 20px', borderTop: '1px solid #E2E8F0', backgroundColor: '#F8FAFC' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px', color: '#64748B' }}>
+              <div style={{ padding: '16px 20px', borderTop: '1px solid #E7D5BC', backgroundColor: '#F6EDE0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px', color: '#8C8279' }}>
                   <span>Items Subtotal:</span>
-                  <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#0F172A' }}>{formatNaira(cartSubtotalMinor)}</span>
+                  <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#2A2320' }}>{formatNaira(cartSubtotalMinor)}</span>
                 </div>
                 {appliedDiscountMinor > 0n && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px', color: '#059669' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px', color: '#4F6B3A' }}>
                     <span>Promo Discount (MANGAEXPRESS):</span>
                     <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>-{formatNaira(appliedDiscountMinor)}</span>
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px', color: '#64748B' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px', color: '#8C8279' }}>
                   <span>Statutory VAT (7.5%):</span>
-                  <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#0F172A' }}>{formatNaira(statutoryVatMinor)}</span>
+                  <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#2A2320' }}>{formatNaira(statutoryVatMinor)}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '10px', color: '#64748B' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '10px', color: '#8C8279' }}>
                   <span>Shipping ({parcelCount} {parcelCount === 1 ? 'Package' : 'Packages'}):</span>
-                  <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: isFreeDeliveryQualified ? '#059669' : '#0F172A' }}>
+                  <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: isFreeDeliveryQualified ? '#4F6B3A' : '#2A2320' }}>
                     {isFreeDeliveryQualified ? 'FREE' : formatNaira(shippingFeeMinor)}
                   </span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 900, borderTop: '1px solid #E2E8F0', paddingTop: '10px', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 900, borderTop: '1px solid #E7D5BC', paddingTop: '10px', marginBottom: '14px' }}>
                   <span>Grand Total:</span>
-                  <span style={{ color: '#E11D48', fontVariantNumeric: 'tabular-nums' }}>{formatNaira(grandTotalMinor)}</span>
+                  <span style={{ color: '#B5532E', fontVariantNumeric: 'tabular-nums' }}>{formatNaira(grandTotalMinor)}</span>
                 </div>
 
                 <button
@@ -2167,7 +2278,7 @@ export const StorefrontClient: React.FC = () => {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    backgroundColor: '#E11D48',
+                    backgroundColor: '#B5532E',
                     color: '#FFFFFF',
                     border: 'none',
                     borderRadius: '8px',
@@ -2180,7 +2291,7 @@ export const StorefrontClient: React.FC = () => {
                     gap: '6px',
                   }}
                 >
-                  <Lock size={15} /> Proceed to Secure Checkout
+                  <Lock size={15} /> Proceed to Escrow Checkout
                 </button>
               </div>
             )}
@@ -2188,13 +2299,13 @@ export const StorefrontClient: React.FC = () => {
         </div>
       )}
 
-      {/* 11. 3-STEP ACCORDION CHECKOUT MODAL (Zavora / Glows Collection Style) */}
+      {/* 11. 3-STEP ACCORDION CHECKOUT (§3.9) */}
       {isCheckoutOpen && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backgroundColor: 'rgba(42, 35, 32, 0.65)',
             backdropFilter: 'blur(3px)',
             zIndex: 100,
             display: 'flex',
@@ -2212,35 +2323,35 @@ export const StorefrontClient: React.FC = () => {
               maxHeight: '92vh',
               overflowY: 'auto',
               padding: '24px',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-              border: '1px solid #E2E8F0',
+              boxShadow: '0 20px 40px rgba(42, 35, 32, 0.25)',
+              border: '1px solid #E7D5BC',
             }}
           >
-            {/* Checkout Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E2E8F0', paddingBottom: '14px', marginBottom: '18px' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E7D5BC', paddingBottom: '14px', marginBottom: '18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Lock size={18} color="#E11D48" />
-                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0F172A' }}>
-                  Manga Escrow Checkout
+                <Lock size={18} color="#B5532E" />
+                <h3 style={{ fontFamily: 'Fraunces, serif', margin: 0, fontSize: '18px', fontWeight: 800, color: '#2A2320' }}>
+                  Manga Escrow Protected Checkout
                 </h3>
               </div>
               <button
                 onClick={() => setIsCheckoutOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: '4px' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8C8279', padding: '4px' }}
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Stepper Progress */}
+            {/* Stepper */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
-              <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: checkoutStep >= 1 ? '#0F172A' : '#F1F5F9', color: checkoutStep >= 1 ? '#FFFFFF' : '#64748B', fontSize: '11px', fontWeight: 700, textAlign: 'center' }}>
+              <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: checkoutStep >= 1 ? '#2A2320' : '#F6EDE0', color: checkoutStep >= 1 ? '#F6EDE0' : '#8C8279', fontSize: '11px', fontWeight: 700, textAlign: 'center' }}>
                 1. Delivery Address
               </div>
-              <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: checkoutStep >= 2 ? '#0F172A' : '#F1F5F9', color: checkoutStep >= 2 ? '#FFFFFF' : '#64748B', fontSize: '11px', fontWeight: 700, textAlign: 'center' }}>
+              <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: checkoutStep >= 2 ? '#2A2320' : '#F6EDE0', color: checkoutStep >= 2 ? '#F6EDE0' : '#8C8279', fontSize: '11px', fontWeight: 700, textAlign: 'center' }}>
                 2. Shipping Speed
               </div>
-              <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: checkoutStep === 3 ? '#0F172A' : '#F1F5F9', color: checkoutStep === 3 ? '#FFFFFF' : '#64748B', fontSize: '11px', fontWeight: 700, textAlign: 'center' }}>
+              <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: checkoutStep === 3 ? '#2A2320' : '#F6EDE0', color: checkoutStep === 3 ? '#F6EDE0' : '#8C8279', fontSize: '11px', fontWeight: 700, textAlign: 'center' }}>
                 3. Secure Payment
               </div>
             </div>
@@ -2248,46 +2359,46 @@ export const StorefrontClient: React.FC = () => {
             {/* STEP 1: DELIVERY ADDRESS */}
             {checkoutStep === 1 && (
               <div>
-                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 700, color: '#2A2320' }}>
                   Recipient & Nationwide Delivery Details
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
                       Full Name:
                     </label>
                     <input
                       type="text"
                       defaultValue="Chidi Okonkwo"
-                      style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px', boxSizing: 'border-box' }}
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
                       Phone Number (For Carrier SMS / Driver Handover):
                     </label>
                     <input
                       type="tel"
                       defaultValue="+234 803 123 4567"
-                      style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px', boxSizing: 'border-box' }}
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
                       Street Address & Landmark:
                     </label>
                     <input
                       type="text"
                       defaultValue="24 Admiralty Way, Lekki Phase 1 (Opposite Filmhouse Cinema)"
-                      style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px', boxSizing: 'border-box' }}
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
                     />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
                         State:
                       </label>
-                      <select style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}>
+                      <select style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px' }}>
                         <option>Lagos State</option>
                         <option>Abuja FCT</option>
                         <option>Rivers State</option>
@@ -2295,13 +2406,13 @@ export const StorefrontClient: React.FC = () => {
                       </select>
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
                         Delivery Option:
                       </label>
                       <select
                         value={deliveryMethod}
                         onChange={(e) => setDeliveryMethod(e.target.value as any)}
-                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px' }}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px' }}
                       >
                         <option value="doorstep">Doorstep Delivery (Home/Office)</option>
                         <option value="pickup">Nearest Carrier Pickup Station</option>
@@ -2314,7 +2425,7 @@ export const StorefrontClient: React.FC = () => {
                       onClick={() => setCheckoutStep(2)}
                       style={{
                         padding: '10px 20px',
-                        backgroundColor: '#E11D48',
+                        backgroundColor: '#B5532E',
                         color: '#FFFFFF',
                         border: 'none',
                         borderRadius: '6px',
@@ -2333,24 +2444,24 @@ export const StorefrontClient: React.FC = () => {
             {/* STEP 2: SHIPPING SPEED & CONSIGNMENT REVIEW */}
             {checkoutStep === 2 && (
               <div>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 700, color: '#2A2320' }}>
                   Review {parcelCount} Dispatched Consignment Packages
                 </h4>
-                <p style={{ fontSize: '12px', color: '#64748B', margin: '0 0 14px 0' }}>
-                  Because Manga is a multi-vendor marketplace, items will arrive in secure, independent packages directly from each merchant's regional distribution hub:
+                <p style={{ fontSize: '12px', color: '#8C8279', margin: '0 0 14px 0' }}>
+                  Items arrive in secure, independent packages directly from each merchant's regional distribution hub:
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
                   {Object.entries(shipmentGroups).map(([vId, group], idx) => (
-                    <div key={vId} style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '12px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 700, color: '#0F172A', marginBottom: '4px' }}>
+                    <div key={vId} style={{ backgroundColor: '#F6EDE0', border: '1px solid #E7D5BC', borderRadius: '8px', padding: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
                         <span>Package {idx + 1}: {group.vendorName}</span>
-                        <span style={{ color: '#059669' }}>Estimated: Tomorrow by 2:00 PM</span>
+                        <span style={{ color: '#4F6B3A' }}>Estimated: Tomorrow by 2:00 PM</span>
                       </div>
-                      <div style={{ fontSize: '11px', color: '#64748B' }}>
+                      <div style={{ fontSize: '11px', color: '#8C8279' }}>
                         Origin: {group.location} • Carrier: {group.carrier}
                       </div>
-                      <div style={{ fontSize: '12px', marginTop: '6px', color: '#334155' }}>
+                      <div style={{ fontSize: '12px', marginTop: '6px', color: '#2A2320' }}>
                         {group.items.map((i) => `${i.quantity}x ${i.title}`).join(', ')}
                       </div>
                     </div>
@@ -2360,13 +2471,13 @@ export const StorefrontClient: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <button
                     onClick={() => setCheckoutStep(1)}
-                    style={{ padding: '8px 16px', background: 'none', border: '1px solid #CBD5E1', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}
+                    style={{ padding: '8px 16px', background: 'none', border: '1px solid #E7D5BC', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}
                   >
                     ← Back to Address
                   </button>
                   <button
                     onClick={() => setCheckoutStep(3)}
-                    style={{ padding: '10px 20px', backgroundColor: '#E11D48', color: '#FFFFFF', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+                    style={{ padding: '10px 20px', backgroundColor: '#B5532E', color: '#FFFFFF', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
                   >
                     Continue to Payment →
                   </button>
@@ -2377,7 +2488,7 @@ export const StorefrontClient: React.FC = () => {
             {/* STEP 3: PAYMENT METHOD */}
             {checkoutStep === 3 && (
               <div>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 700, color: '#2A2320' }}>
                   Select Escrow-Protected Payment Method
                 </h4>
 
@@ -2389,8 +2500,8 @@ export const StorefrontClient: React.FC = () => {
                       gap: '12px',
                       padding: '12px',
                       borderRadius: '8px',
-                      border: paymentMethod === 'card' ? '2px solid #E11D48' : '1px solid #E2E8F0',
-                      backgroundColor: paymentMethod === 'card' ? '#FFF1F2' : '#FFFFFF',
+                      border: paymentMethod === 'card' ? '2px solid #B5532E' : '1px solid #E7D5BC',
+                      backgroundColor: paymentMethod === 'card' ? '#F8ECE7' : '#FFFFFF',
                       cursor: 'pointer',
                     }}
                   >
@@ -2401,14 +2512,14 @@ export const StorefrontClient: React.FC = () => {
                       onChange={() => setPaymentMethod('card')}
                     />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#0F172A' }}>
+                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#2A2320' }}>
                         Debit / Credit Card (Mastercard, Visa, Verve)
                       </div>
-                      <div style={{ fontSize: '11px', color: '#64748B' }}>
+                      <div style={{ fontSize: '11px', color: '#8C8279' }}>
                         Secured with 256-bit SSL encryption and mandatory 3D Secure bank OTP
                       </div>
                     </div>
-                    <CreditCard size={18} color="#E11D48" />
+                    <CreditCard size={18} color="#B5532E" />
                   </label>
 
                   <label
@@ -2418,8 +2529,8 @@ export const StorefrontClient: React.FC = () => {
                       gap: '12px',
                       padding: '12px',
                       borderRadius: '8px',
-                      border: paymentMethod === 'bank_transfer' ? '2px solid #E11D48' : '1px solid #E2E8F0',
-                      backgroundColor: paymentMethod === 'bank_transfer' ? '#FFF1F2' : '#FFFFFF',
+                      border: paymentMethod === 'bank_transfer' ? '2px solid #B5532E' : '1px solid #E7D5BC',
+                      backgroundColor: paymentMethod === 'bank_transfer' ? '#F8ECE7' : '#FFFFFF',
                       cursor: 'pointer',
                     }}
                   >
@@ -2430,63 +2541,63 @@ export const StorefrontClient: React.FC = () => {
                       onChange={() => setPaymentMethod('bank_transfer')}
                     />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#0F172A' }}>
+                      <div style={{ fontWeight: 700, fontSize: '13px', color: '#2A2320' }}>
                         Instant Bank Transfer (Dedicated Virtual Account)
                       </div>
-                      <div style={{ fontSize: '11px', color: '#64748B' }}>
+                      <div style={{ fontSize: '11px', color: '#8C8279' }}>
                         Instant account allocation via Wema Bank. Instant confirmation upon transfer
                       </div>
                     </div>
-                    <Building size={18} color="#059669" />
+                    <Building size={18} color="#4F6B3A" />
                   </label>
                 </div>
 
-                {/* Card Inputs Form */}
+                {/* Card Inputs */}
                 {paymentMethod === 'card' && !cardOtpSimulated && (
-                  <div style={{ backgroundColor: '#F8FAFC', padding: '14px', borderRadius: '8px', border: '1px solid #E2E8F0', marginBottom: '18px' }}>
+                  <div style={{ backgroundColor: '#F6EDE0', padding: '14px', borderRadius: '8px', border: '1px solid #E7D5BC', marginBottom: '18px' }}>
                     <div style={{ marginBottom: '10px' }}>
-                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
                         Card Number:
                       </label>
                       <input
                         type="text"
                         defaultValue="5399 4100 8821 9904"
-                        style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px', fontFamily: 'monospace', boxSizing: 'border-box' }}
+                        style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #D8C3A5', fontSize: '13px', fontFamily: 'monospace', boxSizing: 'border-box' }}
                       />
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
                           Expiry (MM/YY):
                         </label>
                         <input
                           type="text"
                           defaultValue="11/28"
-                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px', boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #D8C3A5', fontSize: '13px', boxSizing: 'border-box' }}
                         />
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
                           CVV:
                         </label>
                         <input
                           type="password"
                           defaultValue="782"
                           maxLength={4}
-                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '13px', boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #D8C3A5', fontSize: '13px', boxSizing: 'border-box' }}
                         />
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Card 3DS Simulated Dialog */}
+                {/* Card OTP Verification */}
                 {cardOtpSimulated && (
-                  <div style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', padding: '16px', marginBottom: '18px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1E40AF', fontWeight: 700, fontSize: '13px', marginBottom: '6px' }}>
+                  <div style={{ backgroundColor: '#F8ECE7', border: '1px solid #EDC8BA', borderRadius: '8px', padding: '16px', marginBottom: '18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8F3B1F', fontWeight: 700, fontSize: '13px', marginBottom: '6px' }}>
                       <Lock size={15} /> 3D Secure Verification
                     </div>
-                    <p style={{ fontSize: '12px', color: '#3B82F6', margin: '0 0 10px 0' }}>
+                    <p style={{ fontSize: '12px', color: '#2A2320', margin: '0 0 10px 0' }}>
                       Please enter the 6-digit one-time password sent to your registered phone number (+234 803 *** 4567):
                     </p>
                     <input
@@ -2494,24 +2605,24 @@ export const StorefrontClient: React.FC = () => {
                       placeholder="Enter 6-digit OTP (e.g. 881294)"
                       value={simulatedOtpValue}
                       onChange={(e) => setSimulatedOtpValue(e.target.value)}
-                      style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #93C5FD', fontSize: '14px', letterSpacing: '3px', fontWeight: 700, width: '180px' }}
+                      style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #B5532E', fontSize: '14px', letterSpacing: '3px', fontWeight: 700, width: '180px' }}
                     />
                   </div>
                 )}
 
                 {/* Bank Transfer Simulated Account */}
                 {paymentMethod === 'bank_transfer' && (
-                  <div style={{ backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '8px', padding: '14px', marginBottom: '18px' }}>
-                    <div style={{ fontSize: '12px', color: '#166534', fontWeight: 700, marginBottom: '6px' }}>
+                  <div style={{ backgroundColor: '#EBF2E6', border: '1px solid #D0DEC7', borderRadius: '8px', padding: '14px', marginBottom: '18px' }}>
+                    <div style={{ fontSize: '12px', color: '#4F6B3A', fontWeight: 700, marginBottom: '6px' }}>
                       Transfer exact amount ({formatNaira(grandTotalMinor)}) to:
                     </div>
-                    <div style={{ fontSize: '13px', color: '#0F172A' }}>
+                    <div style={{ fontSize: '13px', color: '#2A2320' }}>
                       Bank: <strong>Wema Bank PLC</strong><br />
                       Account Number: <strong style={{ fontSize: '16px', fontFamily: 'monospace', letterSpacing: '1px' }}>8819 204 112</strong><br />
                       Beneficiary: <strong>MANGA ESCROW / CHIDI OKONKWO</strong>
                     </div>
-                    <span style={{ fontSize: '11px', color: '#15803D', marginTop: '6px', display: 'block' }}>
-                      Account expires in 30 minutes. Payment verifies automatically.
+                    <span style={{ fontSize: '11px', color: '#4F6B3A', marginTop: '6px', display: 'block' }}>
+                      Account expires in 30 minutes. Payment verifies automatically upon transfer.
                     </span>
                   </div>
                 )}
@@ -2522,7 +2633,7 @@ export const StorefrontClient: React.FC = () => {
                       setCardOtpSimulated(false);
                       setCheckoutStep(2);
                     }}
-                    style={{ padding: '8px 16px', background: 'none', border: '1px solid #CBD5E1', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}
+                    style={{ padding: '8px 16px', background: 'none', border: '1px solid #E7D5BC', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}
                   >
                     ← Back to Review
                   </button>
@@ -2532,7 +2643,7 @@ export const StorefrontClient: React.FC = () => {
                     disabled={isProcessingCheckout}
                     style={{
                       padding: '12px 24px',
-                      backgroundColor: '#E11D48',
+                      backgroundColor: '#B5532E',
                       color: '#FFFFFF',
                       border: 'none',
                       borderRadius: '8px',
@@ -2559,16 +2670,16 @@ export const StorefrontClient: React.FC = () => {
         </div>
       )}
 
-      {/* 12. ORDER CONFIRMATION BANNER / SCREEN (Post-Checkout Success) */}
+      {/* 12. ORDER CONFIRMATION SCREEN (§3.10) */}
       {orderConfirmed && (
         <section style={{ maxWidth: '900px', margin: '32px auto', padding: '0 24px' }}>
           <div
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: '14px',
-              border: '1px solid #A7F3D0',
+              border: '1px solid #D0DEC7',
               padding: '28px',
-              boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.1)',
+              boxShadow: '0 8px 24px rgba(79, 107, 58, 0.1)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
@@ -2577,8 +2688,8 @@ export const StorefrontClient: React.FC = () => {
                   width: '44px',
                   height: '44px',
                   borderRadius: '22px',
-                  backgroundColor: '#ECFDF5',
-                  color: '#059669',
+                  backgroundColor: '#EBF2E6',
+                  color: '#4F6B3A',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -2587,17 +2698,17 @@ export const StorefrontClient: React.FC = () => {
                 <CheckCircle2 size={24} />
               </div>
               <div>
-                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>
+                <h2 style={{ fontFamily: 'Fraunces, serif', margin: 0, fontSize: '20px', fontWeight: 800, color: '#2A2320' }}>
                   Order Confirmed & Escrow Secured!
                 </h2>
-                <span style={{ fontSize: '13px', color: '#64748B' }}>
+                <span style={{ fontSize: '13px', color: '#8C8279' }}>
                   Order Reference: <strong>#{orderConfirmed.orderNumber}</strong> • Placed at {orderConfirmed.placedAt}
                 </span>
               </div>
             </div>
 
-            <p style={{ fontSize: '14px', color: '#334155', lineHeight: 1.5, margin: '0 0 20px 0' }}>
-              Your payment of <strong>{orderConfirmed.grandTotalFormatted}</strong> has been secured in the Manga Escrow Account. Funds will only be disbursed to merchants once you inspect and accept your delivery.
+            <p style={{ fontSize: '14px', color: '#2A2320', lineHeight: 1.5, margin: '0 0 20px 0' }}>
+              Your payment of <strong>{orderConfirmed.grandTotalFormatted}</strong> is safely locked in platform escrow. Funds will only be disbursed to merchants once you inspect and accept your delivery.
             </p>
 
             {/* Individual Consignment Packages */}
@@ -2606,10 +2717,10 @@ export const StorefrontClient: React.FC = () => {
                 <div
                   key={pkg.packageNumber}
                   style={{
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid #E7D5BC',
                     borderRadius: '8px',
                     padding: '14px',
-                    backgroundColor: '#F8FAFC',
+                    backgroundColor: '#F6EDE0',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
@@ -2618,15 +2729,15 @@ export const StorefrontClient: React.FC = () => {
                   }}
                 >
                   <div>
-                    <span style={{ fontWeight: 800, fontSize: '13px', color: '#0F172A' }}>
+                    <span style={{ fontWeight: 800, fontSize: '13px', color: '#2A2320' }}>
                       Package #{pkg.packageNumber}: {pkg.merchantName}
                     </span>
-                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
-                      Carrier: {pkg.carrier} • Tracking Code: <code style={{ color: '#0F172A', fontWeight: 700 }}>{pkg.trackingNumber}</code>
+                    <div style={{ fontSize: '12px', color: '#8C8279', marginTop: '2px' }}>
+                      Carrier: {pkg.carrier} • Tracking Code: <code style={{ color: '#B5532E', fontWeight: 700 }}>{pkg.trackingNumber}</code>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '12px', color: '#059669', fontWeight: 700 }}>
+                    <span style={{ fontSize: '12px', color: '#4F6B3A', fontWeight: 700 }}>
                       Estimated Arrival: {pkg.estimatedArrival}
                     </span>
                     <div>
@@ -2638,7 +2749,7 @@ export const StorefrontClient: React.FC = () => {
                         style={{
                           background: 'none',
                           border: 'none',
-                          color: '#2563EB',
+                          color: '#B5532E',
                           fontSize: '11px',
                           fontWeight: 600,
                           cursor: 'pointer',
@@ -2659,8 +2770,8 @@ export const StorefrontClient: React.FC = () => {
                 onClick={() => setOrderConfirmed(null)}
                 style={{
                   padding: '10px 20px',
-                  backgroundColor: '#0F172A',
-                  color: '#FFFFFF',
+                  backgroundColor: '#2A2320',
+                  color: '#F6EDE0',
                   border: 'none',
                   borderRadius: '6px',
                   fontSize: '13px',
@@ -2675,13 +2786,13 @@ export const StorefrontClient: React.FC = () => {
         </section>
       )}
 
-      {/* 13. LIVE ORDER TRACKING MODAL (Zavora track_order.php & Glows Collection OrderTracking.tsx) */}
+      {/* 13. LIVE PARCEL TRACKING MODAL (Section 1.2 Tracking Colours) */}
       {isTrackingModalOpen && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backgroundColor: 'rgba(42, 35, 32, 0.65)',
             backdropFilter: 'blur(3px)',
             zIndex: 100,
             display: 'flex',
@@ -2699,20 +2810,20 @@ export const StorefrontClient: React.FC = () => {
               maxHeight: '90vh',
               overflowY: 'auto',
               padding: '24px',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-              border: '1px solid #E2E8F0',
+              boxShadow: '0 20px 40px rgba(42, 35, 32, 0.25)',
+              border: '1px solid #E7D5BC',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E2E8F0', paddingBottom: '14px', marginBottom: '18px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E7D5BC', paddingBottom: '14px', marginBottom: '18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Truck size={20} color="#E11D48" />
-                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0F172A' }}>
-                  Live Parcel Delivery Tracker
+                <Truck size={20} color="#B5532E" />
+                <h3 style={{ fontFamily: 'Fraunces, serif', margin: 0, fontSize: '18px', fontWeight: 800, color: '#2A2320' }}>
+                  Live Parcel Delivery Timeline
                 </h3>
               </div>
               <button
                 onClick={() => setIsTrackingModalOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: '4px' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8C8279', padding: '4px' }}
               >
                 <X size={18} />
               </button>
@@ -2729,7 +2840,7 @@ export const StorefrontClient: React.FC = () => {
                   flex: 1,
                   padding: '9px 12px',
                   borderRadius: '6px',
-                  border: '1px solid #CBD5E1',
+                  border: '1px solid #E7D5BC',
                   fontSize: '13px',
                   fontFamily: 'monospace',
                 }}
@@ -2737,8 +2848,8 @@ export const StorefrontClient: React.FC = () => {
               <button
                 style={{
                   padding: '9px 16px',
-                  backgroundColor: '#0F172A',
-                  color: '#FFFFFF',
+                  backgroundColor: '#2A2320',
+                  color: '#F6EDE0',
                   border: 'none',
                   borderRadius: '6px',
                   fontSize: '12px',
@@ -2750,32 +2861,32 @@ export const StorefrontClient: React.FC = () => {
               </button>
             </div>
 
-            {/* Active Consignment Overview */}
-            <div style={{ backgroundColor: '#F8FAFC', borderRadius: '8px', padding: '14px', border: '1px solid #E2E8F0', marginBottom: '24px' }}>
+            {/* Consignment Status Box */}
+            <div style={{ backgroundColor: '#F6EDE0', borderRadius: '8px', padding: '14px', border: '1px solid #E7D5BC', marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 800, color: '#0F172A' }}>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#2A2320' }}>
                   Waybill #{trackingSearchCode}
                 </span>
-                <span style={{ backgroundColor: '#ECFDF5', color: '#065F46', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '4px', border: '1px solid #A7F3D0' }}>
-                  In Transit — On Schedule
+                <span style={{ backgroundColor: '#EBF1F6', color: '#3E5C76', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '4px', border: '1px solid #CADAE6' }}>
+                  In Transit with GIG Logistics
                 </span>
               </div>
-              <div style={{ fontSize: '12px', color: '#475569' }}>
-                Carrier: <strong>GIG Logistics Express Priority</strong> • Route: <strong>Lagos Mainland Hub → Lekki Phase 1</strong>
+              <div style={{ fontSize: '12px', color: '#2A2320' }}>
+                Carrier: <strong>GIG Logistics Express Priority Air</strong> • Origin: <strong>Ikeja Logistics Hub, Lagos</strong>
               </div>
-              <div style={{ fontSize: '12px', color: '#059669', fontWeight: 600, marginTop: '4px' }}>
+              <div style={{ fontSize: '12px', color: '#4F6B3A', fontWeight: 600, marginTop: '4px' }}>
                 Estimated Delivery: Tomorrow by 2:00 PM
               </div>
             </div>
 
-            {/* 5-Stage Milestone Stepper (Zavora & Glows Collection Pattern) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingLeft: '12px', borderLeft: '2px solid #E2E8F0', marginLeft: '12px' }}>
+            {/* 5-Stage Stepper using exact Design Prompt tracking colours */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingLeft: '12px', borderLeft: '2px solid #E7D5BC', marginLeft: '12px' }}>
               {[
-                { title: 'Proof of Delivery Completed', desc: 'Awaiting courier handover to security / resident', completed: false, current: false, time: 'Pending' },
-                { title: 'Out for Final Delivery with Courier', desc: 'Driver assigned: Fez Express Rider 04 (Lekki Corridor)', completed: false, current: true, time: 'Today, 2:30 PM' },
-                { title: 'Arrived at Regional Distribution Hub', desc: 'Processed at Victoria Island Sort Facility', completed: true, current: false, time: 'Today, 09:15 AM' },
-                { title: 'Item Packed & Barcode Verified', desc: 'Slot Systems Direct warehouse staff confirmed serial SKU', completed: true, current: false, time: 'Yesterday, 04:20 PM' },
-                { title: 'Order Placed & Escrow Secured', desc: 'Customer payment received into Manga clearing ledger', completed: true, current: false, time: 'Yesterday, 03:45 PM' },
+                { title: 'Delivered — Signed by Recipient', desc: 'Awaiting courier final handover and signature', statusColor: '#4F6B3A', state: 'pending', time: 'Expected Tomorrow' },
+                { title: 'Out with Courier for Final Delivery', desc: 'Assigned to GIG Courier Unit 12 (Lekki Phase 1 corridor)', statusColor: '#D9A441', state: 'active', time: 'Today, 2:30 PM' },
+                { title: 'Arrived at Regional Sort Center', desc: 'Processed at Victoria Island Distribution Hub', statusColor: '#3E5C76', state: 'completed', time: 'Today, 09:15 AM' },
+                { title: 'Package Dispatched by Merchant', desc: 'Left Slot Systems Direct warehouse hands', statusColor: '#3E5C76', state: 'completed', time: 'Yesterday, 04:20 PM' },
+                { title: 'Label Created & Escrow Secured', desc: 'Waybill generated and customer payment verified in ledger', statusColor: '#8C8279', state: 'completed', time: 'Yesterday, 03:45 PM' },
               ].map((step, sIdx) => (
                 <div key={sIdx} style={{ position: 'relative', paddingLeft: '16px' }}>
                   <div
@@ -2786,15 +2897,15 @@ export const StorefrontClient: React.FC = () => {
                       width: '14px',
                       height: '14px',
                       borderRadius: '7px',
-                      backgroundColor: step.completed ? '#10B981' : step.current ? '#E11D48' : '#CBD5E1',
+                      backgroundColor: step.state === 'completed' ? '#4F6B3A' : step.state === 'active' ? '#D9A441' : '#8C8279',
                       border: '2px solid #FFFFFF',
                     }}
                   />
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: step.current ? '#E11D48' : '#0F172A' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: step.state === 'active' ? '#B5532E' : '#2A2320' }}>
                     {step.title}
                   </div>
-                  <div style={{ fontSize: '11px', color: '#64748B' }}>{step.desc}</div>
-                  <div style={{ fontSize: '10px', color: '#94A3B8', marginTop: '2px' }}>{step.time}</div>
+                  <div style={{ fontSize: '11px', color: '#8C8279' }}>{step.desc}</div>
+                  <div style={{ fontSize: '10px', color: '#8C8279', marginTop: '2px' }}>{step.time}</div>
                 </div>
               ))}
             </div>
@@ -2802,22 +2913,22 @@ export const StorefrontClient: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
               <button
                 onClick={() => setIsTrackingModalOpen(false)}
-                style={{ padding: '8px 16px', backgroundColor: '#0F172A', color: '#FFFFFF', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                style={{ padding: '8px 16px', backgroundColor: '#2A2320', color: '#F6EDE0', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
               >
-                Close Tracker
+                Close Timeline
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 14. SAVED WISHLIST DRAWER (Zavora & Glows Collection Style) */}
+      {/* 14. SAVED WISHLIST DRAWER (§3.13) */}
       {isWishlistOpen && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backgroundColor: 'rgba(42, 35, 32, 0.65)',
             backdropFilter: 'blur(3px)',
             zIndex: 90,
             display: 'flex',
@@ -2832,19 +2943,19 @@ export const StorefrontClient: React.FC = () => {
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: '-10px 0 25px -5px rgba(0,0,0,0.2)',
+              boxShadow: '-8px 0 24px rgba(42, 35, 32, 0.2)',
             }}
           >
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #E7D5BC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Heart size={20} color="#E11D48" fill="#E11D48" />
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
-                  Saved Wishlist ({wishlist.length})
+                <Heart size={20} color="#B5532E" fill="#B5532E" />
+                <h3 style={{ fontFamily: 'Fraunces, serif', margin: 0, fontSize: '17px', fontWeight: 800, color: '#2A2320' }}>
+                  Saved Items ({wishlist.length})
                 </h3>
               </div>
               <button
                 onClick={() => setIsWishlistOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: '4px' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8C8279', padding: '4px' }}
               >
                 <X size={20} />
               </button>
@@ -2852,9 +2963,9 @@ export const StorefrontClient: React.FC = () => {
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
               {wishlist.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '48px 0', color: '#64748B' }}>
-                  <Heart size={44} color="#CBD5E1" style={{ margin: '0 auto 12px' }} />
-                  <p style={{ margin: 0, fontWeight: 600, fontSize: '15px' }}>Your Wishlist is empty.</p>
+                <div style={{ textAlign: 'center', padding: '48px 0', color: '#8C8279' }}>
+                  <Heart size={44} color="#D8C3A5" style={{ margin: '0 auto 12px' }} />
+                  <p style={{ margin: 0, fontWeight: 600, fontSize: '15px', color: '#2A2320' }}>Your Wishlist is empty.</p>
                   <p style={{ fontSize: '12px', marginTop: '4px' }}>Click the heart icon on any product to save it for later.</p>
                 </div>
               ) : (
@@ -2867,7 +2978,7 @@ export const StorefrontClient: React.FC = () => {
                       style={{
                         display: 'flex',
                         gap: '12px',
-                        borderBottom: '1px solid #F1F5F9',
+                        borderBottom: '1px solid #F6EDE0',
                         paddingBottom: '14px',
                         marginBottom: '14px',
                         alignItems: 'center',
@@ -2875,8 +2986,8 @@ export const StorefrontClient: React.FC = () => {
                     >
                       <img src={item.imageUrl} alt={item.title} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px' }} />
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A', lineHeight: 1.3 }}>{item.title}</div>
-                        <div style={{ fontSize: '13px', fontWeight: 800, color: '#E11D48', marginTop: '3px' }}>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#2A2320', lineHeight: 1.3 }}>{item.title}</div>
+                        <div style={{ fontSize: '13px', fontWeight: 800, color: '#B5532E', marginTop: '3px' }}>
                           {item.winningOffer.priceFormatted}
                         </div>
                         <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -2887,7 +2998,7 @@ export const StorefrontClient: React.FC = () => {
                             }}
                             style={{
                               padding: '4px 10px',
-                              backgroundColor: '#E11D48',
+                              backgroundColor: '#B5532E',
                               color: '#FFFFFF',
                               border: 'none',
                               borderRadius: '4px',
@@ -2900,7 +3011,7 @@ export const StorefrontClient: React.FC = () => {
                           </button>
                           <button
                             onClick={() => toggleWishlist(item.id)}
-                            style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+                            style={{ background: 'none', border: 'none', color: '#8C8279', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
                           >
                             Remove
                           </button>
@@ -2915,29 +3026,28 @@ export const StorefrontClient: React.FC = () => {
         </div>
       )}
 
-      {/* 15. FLOATING WHATSAPP SHOPPING CONCIERGE (Glows Collection WhatsAppConciergeButton) */}
+      {/* 15. FLOATING WHATSAPP CONCIERGE */}
       <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 60 }}>
         {isWhatsAppOpen ? (
           <div
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: '14px',
-              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)',
-              border: '1px solid #E2E8F0',
+              boxShadow: '0 12px 32px rgba(42, 35, 32, 0.25)',
+              border: '1px solid #E7D5BC',
               width: '320px',
               overflow: 'hidden',
               marginBottom: '12px',
             }}
           >
-            {/* Header */}
-            <div style={{ backgroundColor: '#075E54', color: '#FFFFFF', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ backgroundColor: '#2A2320', color: '#F6EDE0', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '16px', backgroundColor: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '16px', backgroundColor: '#B5532E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <MessageCircle size={18} color="#FFFFFF" />
                 </div>
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: 800 }}>Manga Shopping Concierge</div>
-                  <div style={{ fontSize: '10px', color: '#A7F3D0' }}>Online • Replies within 2 mins</div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, fontFamily: 'Fraunces, serif' }}>Manga Concierge</div>
+                  <div style={{ fontSize: '10px', color: '#D9A441' }}>Lagos Support • Online</div>
                 </div>
               </div>
               <button
@@ -2948,17 +3058,15 @@ export const StorefrontClient: React.FC = () => {
               </button>
             </div>
 
-            {/* Body */}
-            <div style={{ padding: '14px', backgroundColor: '#ECE5DD' }}>
-              <div style={{ backgroundColor: '#FFFFFF', padding: '10px 12px', borderRadius: '8px', fontSize: '12px', color: '#0F172A', maxWidth: '85%', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
-                Hello Chidi! Looking for assistance with product authentication, delivery timelines in Lagos, or bulk discounts?
+            <div style={{ padding: '14px', backgroundColor: '#F6EDE0' }}>
+              <div style={{ backgroundColor: '#FFFFFF', padding: '10px 12px', borderRadius: '8px', fontSize: '12px', color: '#2A2320', maxWidth: '85%', boxShadow: '0 1px 2px rgba(42,35,32,0.08)' }}>
+                Welcome to Manga! Inquiring about delivery timelines across Lagos and Abuja, product authenticity, or bulk discounts?
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div style={{ padding: '10px 12px', backgroundColor: '#FFFFFF', borderTop: '1px solid #E2E8F0' }}>
+            <div style={{ padding: '10px 12px', backgroundColor: '#FFFFFF', borderTop: '1px solid #E7D5BC' }}>
               <a
-                href="https://wa.me/2347006264264?text=Hi%20Manga%20Concierge,%20I%20need%20help%20with%20an%20order"
+                href="https://wa.me/2347006264264?text=Hi%20Manga%20Concierge,%20I%20need%20assistance%20with%20an%20order"
                 target="_blank"
                 rel="noreferrer"
                 style={{
@@ -2966,7 +3074,7 @@ export const StorefrontClient: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  backgroundColor: '#25D366',
+                  backgroundColor: '#B5532E',
                   color: '#FFFFFF',
                   textDecoration: 'none',
                   padding: '9px',
@@ -2975,7 +3083,7 @@ export const StorefrontClient: React.FC = () => {
                   fontWeight: 700,
                 }}
               >
-                <MessageCircle size={14} /> Open Chat on WhatsApp
+                <MessageCircle size={14} /> Chat with Concierge
               </a>
             </div>
           </div>
@@ -2984,9 +3092,9 @@ export const StorefrontClient: React.FC = () => {
             onClick={() => setIsWhatsAppOpen(true)}
             aria-label="Open Shopping Concierge"
             style={{
-              backgroundColor: '#25D366',
-              color: '#FFFFFF',
-              border: 'none',
+              backgroundColor: '#2A2320',
+              color: '#F6EDE0',
+              border: '2px solid #B5532E',
               borderRadius: '28px',
               padding: '12px 18px',
               display: 'flex',
@@ -2995,63 +3103,63 @@ export const StorefrontClient: React.FC = () => {
               fontSize: '13px',
               fontWeight: 700,
               cursor: 'pointer',
-              boxShadow: '0 10px 20px -3px rgba(37, 211, 102, 0.4)',
+              boxShadow: '0 8px 24px rgba(42, 35, 32, 0.25)',
             }}
           >
-            <MessageCircle size={18} />
-            <span>Chat with Concierge</span>
+            <MessageCircle size={18} color="#D9A441" />
+            <span>Manga Concierge</span>
           </button>
         )}
       </div>
 
-      {/* 16. TRUST PILLARS & FOOTER (Konga / Jumia / Zavora Style) */}
-      <footer style={{ backgroundColor: '#020617', color: '#CBD5E1', borderTop: '1px solid #1E293B', marginTop: '60px' }}>
-        {/* 4 Trust Pillars */}
-        <div style={{ borderBottom: '1px solid #1E293B', padding: '32px 24px' }}>
+      {/* 16. TRUST PILLARS & NOK FOOTER (Section 1.2 & Section 3.1) */}
+      <footer style={{ backgroundColor: '#1E1815', color: '#E7D5BC', borderTop: '2px solid #8F3B1F', marginTop: '64px' }}>
+        {/* 4 Pillars */}
+        <div style={{ borderBottom: '1px solid rgba(231, 213, 188, 0.1)', padding: '32px 24px' }}>
           <div style={{ maxWidth: '1360px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <ShieldCheck size={28} color="#E11D48" />
+              <ShieldCheck size={28} color="#B5532E" />
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF', marginBottom: '3px' }}>
+                <div style={{ fontFamily: 'Fraunces, serif', fontSize: '15px', fontWeight: 800, color: '#FFFFFF', marginBottom: '3px' }}>
                   Escrow Buyer Protection
                 </div>
-                <div style={{ fontSize: '12px', color: '#94A3B8' }}>
+                <div style={{ fontSize: '12px', color: '#E7D5BC' }}>
                   Your money is safely locked in platform escrow until you inspect and accept your delivery.
                 </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-              <Award size={28} color="#F59E0B" />
+              <Award size={28} color="#D9A441" />
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF', marginBottom: '3px' }}>
+                <div style={{ fontFamily: 'Fraunces, serif', fontSize: '15px', fontWeight: 800, color: '#FFFFFF', marginBottom: '3px' }}>
                   100% Genuine Certified
                 </div>
-                <div style={{ fontSize: '12px', color: '#94A3B8' }}>
+                <div style={{ fontSize: '12px', color: '#E7D5BC' }}>
                   Only authorized national distributors and verified Tier-2 merchants are allowed to list.
                 </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-              <Truck size={28} color="#38BDF8" />
+              <Truck size={28} color="#D9A441" />
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF', marginBottom: '3px' }}>
+                <div style={{ fontFamily: 'Fraunces, serif', fontSize: '15px', fontWeight: 800, color: '#FFFFFF', marginBottom: '3px' }}>
                   Nationwide Express Logistics
                 </div>
-                <div style={{ fontSize: '12px', color: '#94A3B8' }}>
+                <div style={{ fontSize: '12px', color: '#E7D5BC' }}>
                   Next-day dispatch via GIG Logistics, Red Star Express, and Fez Delivery across 36 states.
                 </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-              <Headphones size={28} color="#10B981" />
+              <Headphones size={28} color="#4F6B3A" />
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF', marginBottom: '3px' }}>
+                <div style={{ fontFamily: 'Fraunces, serif', fontSize: '15px', fontWeight: 800, color: '#FFFFFF', marginBottom: '3px' }}>
                   Dedicated Lagos Support
                 </div>
-                <div style={{ fontSize: '12px', color: '#94A3B8' }}>
+                <div style={{ fontSize: '12px', color: '#E7D5BC' }}>
                   Call our toll-free line 0700-MANGA-NG or reach our WhatsApp Concierge 7 days a week.
                 </div>
               </div>
@@ -3059,16 +3167,19 @@ export const StorefrontClient: React.FC = () => {
           </div>
         </div>
 
-        {/* Directory & Copyright Links */}
+        {/* Directory Links */}
         <div style={{ maxWidth: '1360px', margin: '0 auto', padding: '36px 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
           <div>
-            <div style={{ fontSize: '18px', fontWeight: 900, color: '#E11D48', marginBottom: '10px' }}>
-              MANGA
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+              <NokTriangleEye size={20} color="#B5532E" />
+              <span style={{ fontFamily: 'Fraunces, serif', fontSize: '20px', fontWeight: 900, color: '#F6EDE0' }}>
+                Manga<span style={{ color: '#B5532E' }}>.</span>
+              </span>
             </div>
-            <p style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.6, margin: '0 0 12px 0' }}>
-              Nigeria's independent high-density e-commerce marketplace engineered for authentic consumer electronics, lifestyle fashion, and verified home essentials.
+            <p style={{ fontSize: '12px', color: '#E7D5BC', lineHeight: 1.6, margin: '0 0 12px 0' }}>
+              Nigeria's independent high-density e-commerce marketplace named after Manga in Nok, drawing on terracotta craftsmanship and iron-age precision.
             </p>
-            <div style={{ fontSize: '11px', color: '#64748B' }}>
+            <div style={{ fontSize: '11px', color: '#8C8279' }}>
               © 2026 Manga Technologies Limited. All rights reserved.
             </div>
           </div>
@@ -3078,10 +3189,10 @@ export const StorefrontClient: React.FC = () => {
               Customer Hub
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px' }}>
-              <span onClick={() => setIsTrackingModalOpen(true)} style={{ cursor: 'pointer', color: '#94A3B8' }}>Track Your Order</span>
-              <span style={{ color: '#94A3B8' }}>Escrow Guarantee Terms</span>
-              <span style={{ color: '#94A3B8' }}>Returns & Refund Policy</span>
-              <span style={{ color: '#94A3B8' }}>Frequently Asked Questions</span>
+              <span onClick={() => setIsTrackingModalOpen(true)} style={{ cursor: 'pointer', color: '#E7D5BC' }}>Track Your Order</span>
+              <span style={{ color: '#E7D5BC' }}>Escrow Guarantee Terms</span>
+              <span style={{ color: '#E7D5BC' }}>Returns & Refund Policy</span>
+              <span style={{ color: '#E7D5BC' }}>Nok Heritage Story</span>
             </div>
           </div>
 
@@ -3090,12 +3201,12 @@ export const StorefrontClient: React.FC = () => {
               Merchant Services
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px' }}>
-              <a href="http://localhost:3001" target="_blank" rel="noreferrer" style={{ color: '#FDE68A', textDecoration: 'none' }}>
+              <a href="http://localhost:3001" target="_blank" rel="noreferrer" style={{ color: '#D9A441', textDecoration: 'none' }}>
                 Vendor Operations Console
               </a>
-              <span style={{ color: '#94A3B8' }}>Merchant Accreditation Tiers</span>
-              <span style={{ color: '#94A3B8' }}>Fulfillment & Barcode Scanning SLA</span>
-              <span style={{ color: '#94A3B8' }}>NUBAN Payout Schedules</span>
+              <span style={{ color: '#E7D5BC' }}>Merchant Accreditation Tiers</span>
+              <span style={{ color: '#E7D5BC' }}>Fulfillment & Barcode Scanning SLA</span>
+              <span style={{ color: '#E7D5BC' }}>NUBAN Payout Schedules</span>
             </div>
           </div>
 
@@ -3105,12 +3216,12 @@ export const StorefrontClient: React.FC = () => {
             </div>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
               {['Mastercard', 'Visa', 'Verve', 'Paystack', 'Wema Bank', 'OPay'].map((g) => (
-                <span key={g} style={{ backgroundColor: '#1E293B', padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 700, color: '#E2E8F0' }}>
+                <span key={g} style={{ backgroundColor: '#2A2320', border: '1px solid #4A3F39', padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 700, color: '#E7D5BC' }}>
                   {g}
                 </span>
               ))}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748B' }}>
+            <div style={{ fontSize: '11px', color: '#8C8279' }}>
               256-bit SSL Bank-Grade Encryption
             </div>
           </div>

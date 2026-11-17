@@ -84,32 +84,33 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
           width: '100%',
           maxWidth: '520px',
           padding: '1.75rem',
-          boxShadow: '0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1)',
-          border: '1px solid #e2e8f0',
+          boxShadow: '0 20px 25px -5px rgba(42, 35, 32, 0.2), 0 8px 10px -6px rgba(42, 35, 32, 0.1)',
+          border: '1px solid #E7D5BC',
         }}
       >
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '8px',
-                backgroundColor: '#ffe4e6',
+                backgroundColor: '#FDF4ED',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#e11d48',
+                color: '#B5532E',
+                border: '1px solid #F6D6C2',
               }}
             >
               <Package size={18} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: '#0f172a' }}>
+              <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
                 Pack & Verify Order #{orderNumber}
               </h3>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+              <p style={{ margin: 0, fontSize: '12px', color: '#8C8279' }}>
                 Pre-dispatch barcode scanning and parcel tare weight verification
               </p>
             </div>
@@ -121,8 +122,8 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#64748b',
-              padding: '4px',
+              color: '#8C8279',
+              padding: '6px',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -136,17 +137,17 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         {/* Item Summary Card */}
         <div
           style={{
-            backgroundColor: '#f8fafc',
-            border: '1px solid #e2e8f0',
+            backgroundColor: '#FBF7F0',
+            border: '1px solid #E7D5BC',
             borderRadius: '8px',
             padding: '10px 14px',
             marginBottom: '1rem',
             fontSize: '13px',
           }}
         >
-          <div style={{ color: '#0f172a', fontWeight: 600 }}>{itemTitle}</div>
-          <div style={{ color: '#64748b', fontSize: '12px', marginTop: '2px' }}>
-            Expected Catalog SKU: <code style={{ color: '#0f172a', fontWeight: 600 }}>{expectedSku}</code>
+          <div style={{ color: '#2A2320', fontWeight: 600 }}>{itemTitle}</div>
+          <div style={{ color: '#8C8279', fontSize: '12px', marginTop: '2px' }}>
+            Expected Catalog SKU: <code style={{ color: '#B5532E', fontWeight: 600 }}>{expectedSku}</code>
           </div>
         </div>
 
@@ -154,17 +155,17 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         <div
           style={{
             position: 'relative',
-            backgroundColor: '#0f172a',
+            backgroundColor: '#1E1815',
             borderRadius: '8px',
             height: '180px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#94a3b8',
+            color: '#8C8279',
             overflow: 'hidden',
             marginBottom: '1.25rem',
-            border: '1px solid #1e293b',
+            border: '1px solid #3E3430',
           }}
         >
           {cameraActive ? (
@@ -185,14 +186,14 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                   alignItems: 'center',
                   justifyContent: 'center',
                   margin: '0 auto 10px',
-                  color: '#94a3b8',
+                  color: '#D9A441',
                 }}
               >
                 <Camera size={24} />
               </div>
-              <div style={{ fontSize: '13px', color: '#e2e8f0', fontWeight: 500 }}>
+              <div style={{ fontSize: '13px', color: '#F6EDE0', fontWeight: 500 }}>
                 {cameraError ? (
-                  <span style={{ color: '#fca5a5', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
+                  <span style={{ color: '#F8B4B4', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
                     <AlertCircle size={14} /> {cameraError}
                   </span>
                 ) : (
@@ -209,12 +210,12 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                   style={{
                     marginTop: '10px',
                     padding: '6px 14px',
-                    backgroundColor: 'rgba(255,255,255,0.15)',
-                    border: '1px solid rgba(255,255,255,0.25)',
+                    backgroundColor: 'rgba(181, 83, 46, 0.35)',
+                    border: '1px solid #B5532E',
                     borderRadius: '6px',
-                    color: '#ffffff',
+                    color: '#F6EDE0',
                     fontSize: '12px',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     cursor: 'pointer',
                   }}
                 >
@@ -228,11 +229,11 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
             <div
               style={{
                 position: 'absolute',
-                border: '2px solid #10b981',
+                border: '2px solid #4F6B3A',
                 borderRadius: '8px',
                 width: '65%',
                 height: '45%',
-                boxShadow: '0 0 16px rgba(16, 185, 129, 0.45)',
+                boxShadow: '0 0 16px rgba(79, 107, 58, 0.45)',
               }}
             />
           )}
@@ -241,7 +242,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         {/* Verification Inputs Form */}
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a', marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '6px' }}>
               Scanned SKU or EAN/UPC Barcode:
             </label>
             <input
@@ -253,17 +254,18 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                 width: '100%',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                border: '1px solid #cbd5e1',
+                border: '1px solid #E7D5BC',
                 fontSize: '14px',
                 boxSizing: 'border-box',
                 fontFamily: 'monospace',
                 backgroundColor: '#ffffff',
+                color: '#2A2320',
               }}
             />
           </div>
 
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#0f172a', marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '6px' }}>
               Packed Parcel Tare Weight (Grams):
             </label>
             <input
@@ -277,13 +279,14 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                 width: '100%',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                border: '1px solid #cbd5e1',
+                border: '1px solid #E7D5BC',
                 fontSize: '14px',
                 boxSizing: 'border-box',
                 backgroundColor: '#ffffff',
+                color: '#2A2320',
               }}
             />
-            <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
+            <span style={{ fontSize: '11px', color: '#8C8279', marginTop: '4px', display: 'block' }}>
               Used for carrier billing reconciliation and delivery manifest dispatch.
             </span>
           </div>

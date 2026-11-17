@@ -54,33 +54,34 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({
           width: '100%',
           maxWidth: '540px',
           padding: '1.75rem',
-          boxShadow: '0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1)',
-          border: '1px solid #e2e8f0',
+          boxShadow: '0 20px 25px -5px rgba(42, 35, 32, 0.2), 0 8px 10px -6px rgba(42, 35, 32, 0.1)',
+          border: '1px solid #E7D5BC',
         }}
       >
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '8px',
-                backgroundColor: '#eff6ff',
+                backgroundColor: '#FDF4ED',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#2563eb',
+                color: '#B5532E',
+                border: '1px solid #F6D6C2',
               }}
             >
               <Tag size={18} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: '#0f172a' }}>
-                Standard Carrier Shipping Label
+              <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
+                Standard Carrier Shipping Waybill
               </h3>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
-                Ready for thermal printing (4x6 format) or laser sticker sheet
+              <p style={{ margin: 0, fontSize: '12px', color: '#8C8279' }}>
+                Thermal label (4x6 format) with Manga Express barcode routing
               </p>
             </div>
           </div>
@@ -91,8 +92,8 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#64748b',
-              padding: '4px',
+              color: '#8C8279',
+              padding: '6px',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -107,7 +108,7 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({
         <div
           id="printable-shipping-label"
           style={{
-            border: '2px solid #0f172a',
+            border: '2px solid #2A2320',
             padding: '1.25rem',
             borderRadius: '6px',
             backgroundColor: '#ffffff',
@@ -115,27 +116,27 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({
             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #0f172a', paddingBottom: '8px', marginBottom: '12px' }}>
-            <span style={{ fontWeight: 800, fontSize: '15px', color: '#0f172a', letterSpacing: '0.05em' }}>MANGA LOGISTICS</span>
-            <span style={{ fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>{carrierName}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #2A2320', paddingBottom: '8px', marginBottom: '12px' }}>
+            <span style={{ fontWeight: 800, fontSize: '15px', color: '#B5532E', letterSpacing: '0.05em' }}>MANGA EXPRESS LOGISTICS</span>
+            <span style={{ fontWeight: 700, fontSize: '13px', color: '#2A2320' }}>{carrierName}</span>
           </div>
 
-          <div style={{ fontSize: '12px', marginBottom: '12px', color: '#0f172a' }}>
-            <strong style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#475569' }}>SHIP TO:</strong>
+          <div style={{ fontSize: '12px', marginBottom: '12px', color: '#2A2320' }}>
+            <strong style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8C8279' }}>SHIP TO:</strong>
             <div style={{ fontWeight: 700, fontSize: '14px', marginTop: '2px' }}>{recipientAddress.recipientName}</div>
             <div style={{ marginTop: '2px' }}>{recipientAddress.streetAddress}</div>
             <div>{recipientAddress.city}, {recipientAddress.stateOrProvince}</div>
             <div style={{ marginTop: '2px', fontWeight: 600 }}>TEL: {recipientAddress.phone}</div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '8px', fontSize: '11px', marginBottom: '12px', color: '#334155' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #E7D5BC', paddingTop: '8px', fontSize: '11px', marginBottom: '12px', color: '#2A2320' }}>
             <span>Order: <strong>#{orderNumber}</strong></span>
             <span>Weight: <strong>{weightG}g</strong></span>
-            <span>Routing: <strong>EXPRESS PRIORITY</strong></span>
+            <span>Routing: <strong style={{ color: '#4F6B3A' }}>EXPRESS PRIORITY</strong></span>
           </div>
 
           {/* Barcode representation */}
-          <div style={{ textAlign: 'center', borderTop: '2px solid #0f172a', paddingTop: '12px' }}>
+          <div style={{ textAlign: 'center', borderTop: '2px solid #2A2320', paddingTop: '12px' }}>
             <div
               style={{
                 letterSpacing: '5px',
@@ -143,12 +144,12 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({
                 fontWeight: 900,
                 transform: 'scaleY(1.5)',
                 margin: '8px 0',
-                color: '#0f172a',
+                color: '#2A2320',
               }}
             >
               ||||| | |||| ||| || |||||| | |||||
             </div>
-            <div style={{ fontWeight: 700, fontSize: '13px', letterSpacing: '2px', color: '#0f172a' }}>
+            <div style={{ fontWeight: 700, fontSize: '13px', letterSpacing: '2px', color: '#2A2320' }}>
               {trackingNumber}
             </div>
           </div>
@@ -159,7 +160,7 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({
             Close
           </Button>
           <Button variant="primary" onClick={handlePrint} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Printer size={16} /> Print Shipping Label
+            <Printer size={16} /> Print Waybill
           </Button>
         </div>
       </div>

@@ -41,11 +41,11 @@ export const SlaTimerBadge: React.FC<SlaTimerBadgeProps> = ({ label, deadlineIso
   const getStyle = () => {
     switch (urgency) {
       case 'breached':
-        return { bg: '#fee2e2', text: '#b91c1c', border: '#f87171' };
+        return { bg: '#FDF2F2', text: '#B3261E', border: '#F8B4B4' };
       case 'urgent':
-        return { bg: '#fef3c7', text: '#b45309', border: '#fcd34d' };
+        return { bg: '#FEF7ED', text: '#8F3B1F', border: '#FAD7A0' };
       default:
-        return { bg: '#f0fdf4', text: '#15803d', border: '#86efac' };
+        return { bg: '#F0F6EE', text: '#4F6B3A', border: '#C2D6BC' };
     }
   };
 

@@ -1,35 +1,42 @@
 export const colors = {
-  primary: {
-    50: '#fdf4f4',
-    100: '#fbe8e8',
-    500: '#e11d48', // Manga rose/crimson
-    600: '#be123c',
-    700: '#9f1239',
-  },
-  neutral: {
-    50: '#f8fafc',
-    100: '#f1f5f9',
-    200: '#e2e8f0',
-    300: '#cbd5e1',
-    400: '#94a3b8',
-    500: '#64748b',
-    600: '#475569',
-    700: '#334155',
-    800: '#1e293b',
-    900: '#0f172a',
-    950: '#020617',
-  },
-  feedback: {
-    success: '#10b981',
-    warning: '#f59e0b',
-    error: '#ef4444',
-    info: '#3b82f6',
+  brand: {
+    primary: '#B5532E',       // Terracotta
+    primaryDeep: '#8F3B1F',   // Laterite
+    iron: '#2A2320',          // Iron
+    ochre: '#D9A441',         // Ochre Gold
   },
   surface: {
-    background: '#ffffff',
-    subtle: '#f8fafc',
-    card: '#ffffff',
-    border: '#e2e8f0',
+    base: '#F6EDE0',          // Clay Cream
+    raised: '#FFFFFF',        // Paper
+    sunken: '#E7D5BC',        // Dry Sand
+    border: '#E7D5BC',
+  },
+  status: {
+    success: '#4F6B3A',       // Savanna Green
+    info: '#3E5C76',          // Slate Blue
+    error: '#B3261E',         // Ember
+    warning: '#D9A441',       // Ochre Gold
+  },
+  tracking: {
+    labelCreated: '#8C8279',   // Ash
+    pickedUp: '#3E5C76',       // Slate Blue
+    inTransit: '#3E5C76',      // Slate Blue
+    outForDelivery: '#D9A441', // Ochre
+    delivered: '#4F6B3A',      // Savanna Green
+    exception: '#B3261E',      // Ember
+    returned: '#8F3B1F',       // Laterite
+  },
+  neutral: {
+    ash: '#8C8279',           // Ash
+    iron: '#2A2320',          // Iron
+  },
+  dark: {
+    base: '#1E1815',
+    raised: '#2A2320',
+    text: '#F6EDE0',
+    primary: '#D9764F',
+    accent: '#D9A441',
+    border: '#4A3F39',
   },
 } as const;
 
