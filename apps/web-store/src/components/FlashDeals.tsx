@@ -24,8 +24,8 @@ export interface FlashDealsProps {
   items: FlashItem[];
   currency: 'NGN' | 'USD';
   wishlist: string[];
-  onToggleWishlist: (id: string) => void;
-  onAddToCart: (item: FlashItem) => void;
+  onToggleWishlist: (id: string, sourceEl?: HTMLElement) => void;
+  onAddToCart: (item: FlashItem, sourceEl?: HTMLElement) => void;
   onViewProduct: (item: FlashItem) => void;
 }
 
@@ -87,10 +87,15 @@ export const FlashDeals: React.FC<FlashDealsProps> = ({
             return (
               <div
                 key={item.id}
+                id={`product-card-${item.id}`}
                 className="group bg-white rounded-2xl border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
               >
                 <div>
-                  <div className="relative bg-gray-100 aspect-square overflow-hidden cursor-pointer" onClick={() => onViewProduct(item)}>
+                  <div
+                    id={`product-visual-${item.id}`}
+                    className="relative bg-gray-100 aspect-square overflow-hidden cursor-pointer"
+                    onClick={() => onViewProduct(item)}
+                  >
                     <img
                       src={item.image}
                       alt={item.title}
@@ -103,7 +108,8 @@ export const FlashDeals: React.FC<FlashDealsProps> = ({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onToggleWishlist(item.id);
+                        const visualEl = document.getElementById(`product-visual-${item.id}`) || e.currentTarget;
+                        onToggleWishlist(item.id, visualEl);
                       }}
                       title={inWishlist ? 'Remove from Wishlist' : 'Save to Wishlist'}
                       className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/95 hover:bg-white text-[#8C8279] shadow-md backdrop-blur-sm flex items-center justify-center transition-all z-10 hover:scale-110 border-0 cursor-pointer"
@@ -154,8 +160,14 @@ export const FlashDeals: React.FC<FlashDealsProps> = ({
                 <div className="p-5 pt-0">
                   <button
                     type="button"
-                    onClick={() => onAddToCart(item)}
-                    className="w-full py-2.5 bg-[#FAF6F0] hover:bg-[#B5532E] text-[#2A2320] hover:text-white rounded-xl text-xs font-bold border border-[#E7D5BC] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    onClick={(e) => {
+                      const btn = e.currentTarget;
+                      btn.classList.add('scale-95');
+                      setTimeout(() => btn.classList.remove('scale-95'), 150);
+                      const visualEl = document.getElementById(`product-visual-${item.id}`) || btn;
+                      onAddToCart(item, visualEl);
+                    }}
+                    className="w-full py-2.5 bg-[#FAF6F0] hover:bg-[#B5532E] text-[#2A2320] hover:text-white rounded-xl text-xs font-bold border border-[#E7D5BC] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs active:scale-95"
                   >
                     <i className="fas fa-cart-plus"></i>
                     <span>Add to Cart</span>

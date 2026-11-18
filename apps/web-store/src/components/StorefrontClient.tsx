@@ -443,8 +443,8 @@ export function StorefrontClient() {
             items={FLASH_ITEMS}
             currency={currency}
             wishlist={wishlist}
-            onToggleWishlist={toggleWishlist}
-            onAddToCart={(prod) => addToCart(prod, 1)}
+            onToggleWishlist={(id, el) => toggleWishlist(id, el)}
+            onAddToCart={(prod, el) => addToCart(prod, 1, el)}
             onViewProduct={(item) => router.push(`/product/${item.id}`)}
           />
         </div>
@@ -500,8 +500,8 @@ export function StorefrontClient() {
                   item={item}
                   currency={currency}
                   inWishlist={isInWishlist(item.id)}
-                  onToggleWishlist={toggleWishlist}
-                  onAddToCart={(prod) => addToCart(prod, 1)}
+                  onToggleWishlist={(id, el) => toggleWishlist(id, el, item)}
+                  onAddToCart={(prod, el) => addToCart(prod, 1, el)}
                   onViewProduct={(prod) => router.push(`/product/${prod.id}`)}
                   onOpenBuyBox={(prod) => setBuyBoxProduct(prod)}
                 />
@@ -531,7 +531,7 @@ export function StorefrontClient() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
               <div>
                 <span className="text-xs font-bold text-[#4F6B3A] uppercase tracking-wider block mb-1">
-                  <i className="fas fa-bolt mr-1"></i> Instant Delivery & Codebases
+                  <i className="fas fa-cloud-arrow-down mr-1"></i> Instant Delivery & Codebases
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-black font-display text-[#2A2320]">
                   Software, UI Kits & Digital Licenses
@@ -583,8 +583,13 @@ export function StorefrontClient() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => addToCart(digi, 1)}
-                      className="px-4 py-1.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-colors border-0 cursor-pointer shadow-2xs"
+                      onClick={(e) => {
+                        const btn = e.currentTarget;
+                        btn.classList.add('scale-95');
+                        setTimeout(() => btn.classList.remove('scale-95'), 150);
+                        addToCart(digi, 1, btn);
+                      }}
+                      className="px-4 py-1.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-all border-0 cursor-pointer shadow-2xs active:scale-95"
                     >
                       Add License
                     </button>

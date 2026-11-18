@@ -8,9 +8,9 @@ export interface ProductDetailModalProps {
   product: ProductItem | null;
   isOpen: boolean;
   onClose: () => void;
-  onAddToCart: (product: ProductItem, qty: number) => void;
+  onAddToCart: (product: ProductItem, qty: number, sourceEl?: HTMLElement) => void;
   inWishlist: boolean;
-  onToggleWishlist: (id: string) => void;
+  onToggleWishlist: (id: string, sourceEl?: HTMLElement) => void;
   currency: 'NGN' | 'USD';
 }
 
@@ -23,6 +23,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onToggleWishlist,
   currency,
 }) => {
+  const modalVisualRef = React.useRef<HTMLDivElement>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(0);
 
@@ -77,7 +78,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             
             {/* Gallery (Left 5 Cols) */}
             <div className="lg:col-span-5 space-y-3">
-              <div className="relative rounded-2xl overflow-hidden aspect-square bg-[#FAF6F0] border border-[#E7D5BC] flex items-center justify-center p-4">
+              <div
+                ref={modalVisualRef}
+                id="modal-product-visual"
+                className="relative rounded-2xl overflow-hidden aspect-square bg-[#FAF6F0] border border-[#E7D5BC] flex items-center justify-center p-4"
+              >
                 <img
                   src={product.image}
                   alt={product.title}
@@ -197,11 +202,14 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => {
-                    onAddToCart(product, quantity);
+                  onClick={(e) => {
+                    const btn = e.currentTarget;
+                    btn.classList.add('scale-95');
+                    setTimeout(() => btn.classList.remove('scale-95'), 150);
+                    onAddToCart(product, quantity, modalVisualRef.current || btn);
                     onClose();
                   }}
-                  className="flex-1 h-12 px-4 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 border-0 cursor-pointer"
+                  className="flex-1 h-12 px-4 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 border-0 cursor-pointer active:scale-95"
                 >
                   <i className="fas fa-cart-plus text-xs"></i>
                   <span>Add to Cart ({quantity})</span>
@@ -209,7 +217,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => onToggleWishlist(product.id)}
+                  onClick={(e) => {
+                    onToggleWishlist(product.id, modalVisualRef.current || e.currentTarget);
+                  }}
                   title={inWishlist ? 'Remove from Wishlist' : 'Save to Wishlist'}
                   className={`w-12 h-12 rounded-xl border flex items-center justify-center text-base transition-all flex-shrink-0 cursor-pointer ${
                     inWishlist
