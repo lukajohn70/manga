@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="mGradClay" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B5532E" />
+      <stop offset="100%" stop-color="#8F3B1F" />
+    </linearGradient>
+  </defs>
+  <!-- Background rounded squircle -->
+  <rect width="48" height="48" rx="12" fill="url(#mGradClay)" />
+  <!-- Futuristic dynamic M glyph -->
+  <path d="M11 34V14h6.5l6.5 10.5L30.5 14H37v20h-5.5V22l-6.5 9h-2l-6.5-9v12H11z" fill="#FFFFFF" />
+  <!-- Accent glow sphere -->
+  <circle cx="36" cy="13" r="3" fill="#D9A441" />
+</svg>

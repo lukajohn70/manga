@@ -1,4 +1,6 @@
-import { Controller, Post, Get, Body, Query } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, UseGuards } from '@nestjs/common';
+import { RolesGuard } from '../../auth/roles.guard.js';
+import { Roles } from '../../auth/roles.decorator.js';
 import {
   AdminRepairService,
   ReplayOutboxDto,
@@ -41,6 +43,8 @@ export class ResyncTrackingBodyDto implements ResyncTrackingDto {
 }
 
 @Controller('admin/repair')
+@UseGuards(RolesGuard)
+@Roles('ADMIN')
 export class AdminRepairController {
   constructor(private readonly repairService: AdminRepairService) {}
 

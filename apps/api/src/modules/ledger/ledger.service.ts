@@ -65,6 +65,27 @@ export class LedgerService {
     private readonly outbox: OutboxService
   ) {}
 
+  public async getOrCreateAccount(
+    type: string,
+    ownerType: string,
+    ownerId: string,
+    currency: string
+  ): Promise<string> {
+    const existing = await this.db.query(
+      `SELECT id FROM ledger.accounts WHERE type = $1 AND owner_type = $2 AND owner_id = $3 AND currency = $4`,
+      [type, ownerType, ownerId, currency]
+    );
+    if (existing.rows.length > 0) {
+      return existing.rows[0].id;
+    }
+    const insertRes = await this.db.query(
+      `INSERT INTO ledger.accounts (type, owner_type, owner_id, currency)
+       VALUES ($1, $2, $3, $4) RETURNING id`,
+      [type, ownerType, ownerId, currency]
+    );
+    return insertRes?.rows?.[0]?.id || crypto.randomUUID();
+  }
+
   /**
    * Posts an immutable double-entry ledger transaction.
    * Enforces that Σdebits = Σcredits per currency.

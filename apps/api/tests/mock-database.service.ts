@@ -21,6 +21,7 @@ export class MockDatabaseService extends DatabaseService {
     'returns.return_requests': [],
     'returns.return_items': [],
     'payments.payments': [],
+    'ledger.accounts': [],
     'ledger.transactions': [],
     'ledger.entries': [],
     'outbox.events': [],
@@ -570,6 +571,28 @@ export class MockDatabaseService extends DatabaseService {
     if (text.includes("FROM vendor.vendors v WHERE v.status = 'active'")) {
       const rows = this.tables['vendor.vendors'].filter((v) => v.status === 'active');
       return { rows };
+    }
+
+    // SELECT id FROM ledger.accounts
+    if (text.includes('SELECT id FROM ledger.accounts')) {
+      const row = this.tables['ledger.accounts'].find(
+        (a) => a.type === params[0] && a.owner_type === params[1] && a.owner_id === params[2] && a.currency === params[3]
+      );
+      return { rows: row ? [row] : [] };
+    }
+
+    // INSERT INTO ledger.accounts
+    if (text.includes('INSERT INTO ledger.accounts')) {
+      const row = {
+        id: crypto.randomUUID(),
+        type: params[0],
+        owner_type: params[1],
+        owner_id: params[2],
+        currency: params[3],
+        created_at: new Date(),
+      };
+      this.tables['ledger.accounts'].push(row);
+      return { rows: [row] };
     }
 
     // INSERT INTO ledger.transactions

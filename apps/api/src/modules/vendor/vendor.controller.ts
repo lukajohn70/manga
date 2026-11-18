@@ -6,11 +6,15 @@ import {
   Param,
   Query,
   Headers,
+  UseGuards,
 } from '@nestjs/common';
+import { RolesGuard } from '../auth/roles.guard.js';
+import { Roles } from '../auth/roles.decorator.js';
 import { VendorService, RegisterVendorDto, CreateWarehouseDto } from './vendor.service.js';
 import { CsvImportService } from './import/csv-import.service.js';
 
 @Controller('v1/vendor')
+@UseGuards(RolesGuard)
 export class VendorController {
   constructor(
     private readonly vendorService: VendorService,
@@ -23,6 +27,7 @@ export class VendorController {
   }
 
   @Post(':id/kyc')
+  @Roles('VENDOR')
   public async submitKyc(@Param('id') vendorId: string, @Body() body: any) {
     return await this.vendorService.submitKyc({
       ...body,
@@ -31,6 +36,7 @@ export class VendorController {
   }
 
   @Post(':id/warehouses')
+  @Roles('VENDOR')
   public async createWarehouse(
     @Param('id') vendorId: string,
     @Body() dto: Omit<CreateWarehouseDto, 'vendorId'>
@@ -42,11 +48,13 @@ export class VendorController {
   }
 
   @Get(':id/warehouses')
+  @Roles('VENDOR')
   public async listWarehouses(@Param('id') vendorId: string) {
     return await this.vendorService.listWarehouses(vendorId);
   }
 
   @Post(':id/imports')
+  @Roles('VENDOR')
   public async importProductsCsv(
     @Param('id') vendorId: string,
     @Body('csvContent') csvContent: string,

@@ -9,6 +9,7 @@
     "dev:store": "pnpm --filter @manga/web-store dev",
     "dev:vendor": "pnpm --filter @manga/web-vendor dev",
     "dev:admin": "pnpm --filter @manga/web-admin dev",
+    "dev:mobile": "pnpm --filter @manga/mobile start",
     "dev:all": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",

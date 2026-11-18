@@ -16,6 +16,7 @@ import { ShippingController } from './modules/shipping/shipping.controller.js';
 import { DisputesService } from './modules/disputes/disputes.service.js';
 import { DisputesController } from './modules/disputes/disputes.controller.js';
 import { CheckoutService } from './modules/checkout/checkout.service.js';
+import { CheckoutController } from './modules/checkout/checkout.controller.js';
 import { ShippingService } from './modules/shipping/shipping.service.js';
 import { ReturnsService } from './modules/returns/returns.service.js';
 import { PayoutsService } from './modules/payouts/payouts.service.js';
@@ -26,9 +27,11 @@ import { RiskEngineService } from './modules/trust/risk-engine.service.js';
 import { RiskEngineController } from './modules/trust/risk-engine.controller.js';
 import { TelemetryService } from './modules/observability/telemetry.service.js';
 import { SecurityService } from './modules/security/security.service.js';
+import { AuthModule } from './modules/auth/auth.module.js';
+import { PaystackController } from './modules/payments/paystack.controller.js';
 
 @Module({
-  imports: [],
+  imports: [AuthModule],
   controllers: [
     VendorController,
     CatalogController,
@@ -38,6 +41,8 @@ import { SecurityService } from './modules/security/security.service.js';
     DisputesController,
     AdminRepairController,
     RiskEngineController,
+    CheckoutController,
+    PaystackController,
   ],
   providers: [
     DatabaseService,

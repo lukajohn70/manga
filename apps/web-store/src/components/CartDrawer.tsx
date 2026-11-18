@@ -1,286 +1,340 @@
+'use client';
+
 import * as React from 'react';
-import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck, Store } from 'lucide-react';
-import { Product } from '../data/mockProducts';
+import { useState } from 'react';
+import { RollingNumber } from '@manga/ui';
 
 export interface CartItem {
-  product: Product;
+  id: string;
+  name: string;
+  seller: string;
+  priceNgn: number;
+  priceUsd: number;
+  image?: string;
+  type: 'physical' | 'digital';
   quantity: number;
-  selectedVendorName: string;
-  pricePerUnit: number;
 }
 
 export interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   items: CartItem[];
-  onUpdateQuantity: (productId: string, newQty: number) => void;
-  onRemoveItem: (productId: string) => void;
-  onProceedToCheckout: () => void;
+  onUpdateQty: (id: string, qty: number) => void;
+  onRemoveItem: (id: string) => void;
+  onProceedCheckout: () => void;
+  currency: 'NGN' | 'USD';
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
   isOpen,
   onClose,
   items,
-  onUpdateQuantity,
+  onUpdateQty,
   onRemoveItem,
-  onProceedToCheckout,
+  onProceedCheckout,
+  currency,
 }) => {
+  const [coupon, setCoupon] = useState('');
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
+
   if (!isOpen) return null;
 
-  const subtotal = items.reduce((sum, item) => sum + item.pricePerUnit * item.quantity, 0);
-  const freeShippingThreshold = 30000;
-  const isFreeShipping = subtotal >= freeShippingThreshold;
-  const deliveryFee = isFreeShipping ? 0 : 2500;
-  const total = subtotal + deliveryFee;
+  const FREE_SHIPPING_THRESHOLD_NGN = 40000;
+  const subtotalNgn = items.reduce((sum, item) => sum + item.priceNgn * item.quantity, 0);
+  const subtotalUsd = items.reduce((sum, item) => sum + item.priceUsd * item.quantity, 0);
+
+  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD_NGN - subtotalNgn);
+  const shippingPercent = Math.min(100, Math.round((subtotalNgn / FREE_SHIPPING_THRESHOLD_NGN) * 100));
+
+  const discountNgn = Math.round((subtotalNgn * discountPercent) / 100);
+  const discountUsd = Math.round((subtotalUsd * discountPercent) / 100);
+
+  const hasPhysical = items.some((i) => i.type === 'physical');
+  const deliveryFeeNgn = hasPhysical && amountToFreeShipping > 0 ? 3500 : 0;
+  const deliveryFeeUsd = hasPhysical && amountToFreeShipping > 0 ? 3 : 0;
+
+  const totalNgn = subtotalNgn - discountNgn + deliveryFeeNgn;
+  const totalUsd = subtotalUsd - discountUsd + deliveryFeeUsd;
+
+  const formatPrice = (ngn: number, usd: number) => {
+    return currency === 'NGN' ? `₦${ngn.toLocaleString()}` : `$${usd.toLocaleString()}`;
+  };
+
+  // Group items by seller
+  const sellerGroups = items.reduce((acc, item) => {
+    if (!acc[item.seller]) {
+      acc[item.seller] = [];
+    }
+    acc[item.seller].push(item);
+    return acc;
+  }, {} as Record<string, CartItem[]>);
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCouponError('');
+    setCouponSuccess('');
+    if (coupon.trim().toUpperCase() === 'MANGA10' || coupon.trim().toUpperCase() === 'ZAVORA10') {
+      setDiscountPercent(10);
+      setCouponSuccess('10% VIP Discount Applied!');
+    } else {
+      setCouponError('Invalid coupon code. Try MANGA10');
+    }
+  };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(3px)',
-        zIndex: 1000,
-        display: 'flex',
-        justifyContent: 'flex-end',
-      }}
-    >
+    <div className="fixed inset-0 z-50 flex justify-end">
+      {/* Backdrop */}
       <div
-        style={{
-          width: '100%',
-          maxWidth: '460px',
-          height: '100vh',
-          backgroundColor: '#FFFFFF',
-          boxShadow: '-10px 0 25px rgba(0,0,0,0.15)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        {/* Drawer Header */}
-        <div
-          style={{
-            padding: '1.25rem 1.5rem',
-            borderBottom: '1px solid #E2E8F0',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <div>
-            <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800, color: '#0F172A' }}>
-              Your Shopping Cart ({items.reduce((acc, i) => acc + i.quantity, 0)})
-            </h3>
-            <span style={{ fontSize: '11px', color: '#15803D', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
-              <ShieldCheck size={12} /> Escrow Protected Checkout
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        onClick={onClose}
+      ></div>
+
+      {/* Drawer */}
+      <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 overflow-hidden text-[#2A2320]">
+        
+        {/* Header */}
+        <div className="p-4 sm:p-5 border-b border-[#E7D5BC]/60 flex items-center justify-between bg-white">
+          <div className="flex items-center gap-2">
+            <span className="w-8 h-8 rounded-xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center font-bold text-sm">
+              <i className="fas fa-bag-shopping"></i>
             </span>
+            <div>
+              <h2 className="font-display font-black text-base sm:text-lg text-[#2A2320] leading-tight">
+                Shopping Cart
+              </h2>
+              <p className="text-[11px] text-[#8C8279]">
+                {items.length} unique item{items.length !== 1 ? 's' : ''} in your parcel
+              </p>
+            </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            aria-label="Close cart"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#64748B',
-              padding: '6px',
-              borderRadius: '6px',
-            }}
+            className="w-8 h-8 rounded-lg text-[#8C8279] hover:text-[#2A2320] hover:bg-[#F6EDE0] flex items-center justify-center transition-colors border-0 bg-transparent cursor-pointer"
           >
-            <X size={20} />
+            <i className="fas fa-times text-sm"></i>
           </button>
         </div>
 
-        {/* Free Shipping Progress Meter */}
-        <div style={{ backgroundColor: '#F8FAFC', padding: '10px 1.5rem', borderBottom: '1px solid #E2E8F0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-            <span style={{ color: '#334155', fontWeight: 600 }}>
-              {isFreeShipping ? 'You unlocked Free Express Delivery!' : `Add ₦${(freeShippingThreshold - subtotal).toLocaleString()} for Free Delivery`}
-            </span>
-            <span style={{ fontWeight: 700, color: '#15803D' }}>{isFreeShipping ? 'FREE' : '₦2,500'}</span>
+        {/* Free Delivery Bar */}
+        <div className="p-3.5 bg-[#FAF6F0] border-b border-[#E7D5BC]/60 text-xs">
+          <div className="flex items-center justify-between mb-1.5 font-semibold text-[11px]">
+            {amountToFreeShipping <= 0 ? (
+              <span className="text-[#4F6B3A] flex items-center gap-1 font-bold">
+                <i className="fas fa-check-circle"></i> FREE Express Nationwide Delivery Unlocked!
+              </span>
+            ) : (
+              <span className="text-[#2A2320]">
+                Add <strong className="text-[#B5532E]">{currency === 'NGN' ? `₦${amountToFreeShipping.toLocaleString()}` : `$${Math.ceil(amountToFreeShipping / 1400)}`}</strong> for <strong className="text-[#B5532E]">FREE Express Delivery</strong>
+              </span>
+            )}
+            <span className="text-[#8C8279] font-bold">{shippingPercent}%</span>
           </div>
-          <div style={{ width: '100%', height: '6px', backgroundColor: '#E2E8F0', borderRadius: '3px', overflow: 'hidden' }}>
+          <div className="w-full bg-[#E7D5BC]/50 rounded-full h-2 overflow-hidden">
             <div
-              style={{
-                width: `${Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100))}%`,
-                height: '100%',
-                backgroundColor: isFreeShipping ? '#15803D' : '#C2410C',
-                borderRadius: '3px',
-                transition: 'width 0.3s ease',
-              }}
-            />
+              className="bg-gradient-to-r from-[#B5532E] to-[#D9A441] h-2 rounded-full transition-all duration-300"
+              style={{ width: `${shippingPercent}%` }}
+            ></div>
           </div>
         </div>
 
-        {/* Items List (Scrollable) */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {/* Scrollable Cart Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
           {items.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748B' }}>
-              <div style={{ width: '54px', height: '54px', borderRadius: '50%', backgroundColor: '#F1F5F9', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Truck size={24} color="#94A3B8" />
+            <div className="py-16 text-center">
+              <div className="w-16 h-16 rounded-full bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-2xl mx-auto mb-3">
+                <i className="fas fa-bag-shopping"></i>
               </div>
-              <h4 style={{ margin: '0 0 6px', fontSize: '15px', color: '#1E293B', fontWeight: 700 }}>
-                Your cart is empty
-              </h4>
-              <p style={{ margin: 0, fontSize: '13px' }}>
-                Explore flash deals and top products to start shopping!
+              <h3 className="font-bold text-[#2A2320] text-sm mb-1">Your cart is empty</h3>
+              <p className="text-xs text-[#8C8279] max-w-xs mx-auto mb-4">
+                Explore authentic electronics, smartphones, fashion, and digital software on Manga.
               </p>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2.5 bg-[#B5532E] text-white text-xs font-bold rounded-xl hover:bg-[#8F3B1F] transition-colors border-0 cursor-pointer shadow-xs"
+              >
+                Browse Marketplace
+              </button>
             </div>
           ) : (
-            items.map((item) => (
-              <div
-                key={item.product.id}
-                style={{
-                  display: 'flex',
-                  gap: '12px',
-                  paddingBottom: '1rem',
-                  borderBottom: '1px solid #F1F5F9',
-                }}
-              >
-                {/* Thumbnail */}
-                <div
-                  style={{
-                    width: '74px',
-                    height: '74px',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    backgroundColor: '#F8FAFC',
-                    flexShrink: 0,
-                    border: '1px solid #E2E8F0',
-                  }}
-                >
-                  <img
-                    src={item.product.image}
-                    alt={item.product.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                </div>
-
-                {/* Details */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A', lineHeight: 1.3, marginBottom: '3px' }}>
-                    {item.product.title}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
-                    <Store size={11} /> Sold by: <strong style={{ color: '#334155' }}>{item.selectedVendorName}</strong>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: '15px', fontWeight: 800, color: '#0F172A' }}>
-                      ₦{(item.pricePerUnit * item.quantity).toLocaleString()}
-                    </div>
-
-                    {/* Quantity Stepper */}
-                    <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #CBD5E1', borderRadius: '6px' }}>
-                      <button
-                        onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
-                        style={{
-                          width: '28px',
-                          height: '28px',
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#475569',
-                        }}
-                      >
-                        <Minus size={13} />
-                      </button>
-                      <span style={{ fontSize: '12px', fontWeight: 700, padding: '0 8px', color: '#0F172A' }}>
-                        {item.quantity}
+            Object.entries(sellerGroups).map(([sellerName, sellerItems]) => (
+              <div key={sellerName} className="rounded-2xl border border-[#E7D5BC]/80 p-4 bg-white shadow-2xs">
+                
+                {/* Seller Header */}
+                <div className="flex items-center justify-between pb-2.5 border-b border-[#E7D5BC]/40 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-md bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-[10px]">
+                      <i className="fas fa-store"></i>
+                    </span>
+                    <div>
+                      <h4 className="text-xs font-bold text-[#2A2320] leading-none">{sellerName}</h4>
+                      <span className="text-[10px] text-[#4F6B3A] font-semibold">
+                        <i className="fas fa-check-circle text-[8px]"></i> Fulfilled by Manga Express
                       </span>
-                      <button
-                        onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
-                        style={{
-                          width: '28px',
-                          height: '28px',
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#475569',
-                        }}
-                      >
-                        <Plus size={13} />
-                      </button>
                     </div>
-
-                    <button
-                      onClick={() => onRemoveItem(item.product.id)}
-                      aria-label="Remove item"
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#94A3B8',
-                        padding: '4px',
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
                   </div>
+                  <span className="text-[10px] text-[#8C8279] font-medium">
+                    {sellerItems.length} item{sellerItems.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
+
+                {/* Items in this seller parcel */}
+                <div className="divide-y divide-[#E7D5BC]/40">
+                  {sellerItems.map((item) => (
+                    <div key={item.id} className="py-3 flex items-start gap-3">
+                      <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border border-[#E7D5BC]/60">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xs bg-[#F6EDE0] text-[#B5532E] font-bold">
+                            DIGITAL
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-bold ${item.type === 'digital' ? 'bg-[#3E5C76]/15 text-[#3E5C76]' : 'bg-[#F6EDE0] text-[#B5532E]'} mb-0.5`}>
+                          {item.type === 'digital' ? 'Instant Download' : 'Physical Delivery'}
+                        </span>
+                        <h5 className="font-bold text-xs text-[#2A2320] truncate">{item.name}</h5>
+                        <p className="text-xs font-black text-[#B5532E] mt-0.5">
+                          {formatPrice(item.priceNgn, item.priceUsd)}
+                        </p>
+
+                        <div className="flex items-center justify-between mt-2">
+                          {/* Qty Stepper */}
+                          {item.type === 'physical' ? (
+                            <div className="flex items-center border border-[#E7D5BC] rounded-lg overflow-hidden bg-[#FAF6F0] h-6">
+                              <button
+                                type="button"
+                                onClick={() => onUpdateQty(item.id, Math.max(1, item.quantity - 1))}
+                                className="w-6 h-full flex items-center justify-center text-[#8C8279] hover:bg-[#E7D5BC]/60 font-bold text-xs border-0 bg-transparent cursor-pointer"
+                              >
+                                -
+                              </button>
+                              <span className="w-7 text-center text-xs font-bold text-[#2A2320]">
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => onUpdateQty(item.id, item.quantity + 1)}
+                                className="w-6 h-full flex items-center justify-center text-[#8C8279] hover:bg-[#E7D5BC]/60 font-bold text-xs border-0 bg-transparent cursor-pointer"
+                              >
+                                +
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-[#8C8279] font-medium">Qty: 1</span>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => onRemoveItem(item.id)}
+                            className="text-[11px] text-[#B3261E] hover:text-[#8F3B1F] font-medium flex items-center gap-1 border-0 bg-transparent cursor-pointer"
+                          >
+                            <i className="far fa-trash-alt text-[10px]"></i>
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
               </div>
             ))
           )}
+
+          {/* Coupon Code Strip */}
+          {items.length > 0 && (
+            <div className="p-3.5 rounded-2xl bg-[#FAF6F0] border border-[#E7D5BC]/80">
+              <span className="text-[11px] font-bold text-[#2A2320] block mb-1.5">
+                <i className="fas fa-tag text-[#B5532E] mr-1"></i> Have a promo code? (Try: MANGA10)
+              </span>
+              <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter MANGA10"
+                  value={coupon}
+                  onChange={(e) => setCoupon(e.target.value)}
+                  className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#E7D5BC] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#B5532E] uppercase font-mono text-[#2A2320]"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold rounded-xl transition-colors border-0 cursor-pointer shadow-2xs"
+                >
+                  Apply
+                </button>
+              </form>
+              {couponSuccess && (
+                <p className="text-[11px] text-[#4F6B3A] font-bold mt-1.5 flex items-center gap-1">
+                  <i className="fas fa-check-circle"></i> {couponSuccess}
+                </p>
+              )}
+              {couponError && (
+                <p className="text-[11px] text-[#B3261E] font-bold mt-1.5 flex items-center gap-1">
+                  <i className="fas fa-circle-exclamation"></i> {couponError}
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Drawer Footer with Price Breakdown and Checkout Button */}
+        {/* Footer & Checkout Button */}
         {items.length > 0 && (
-          <div
-            style={{
-              padding: '1.25rem 1.5rem',
-              borderTop: '1px solid #E2E8F0',
-              backgroundColor: '#FFFFFF',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748B', marginBottom: '6px' }}>
-              <span>Subtotal</span>
-              <span style={{ color: '#0F172A', fontWeight: 600 }}>₦{subtotal.toLocaleString()}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748B', marginBottom: '10px' }}>
-              <span>Delivery Fee</span>
-              <span style={{ color: isFreeShipping ? '#15803D' : '#0F172A', fontWeight: 600 }}>
-                {isFreeShipping ? 'FREE' : `₦${deliveryFee.toLocaleString()}`}
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '17px', fontWeight: 900, color: '#0F172A', marginBottom: '1rem', borderTop: '1px solid #F1F5F9', paddingTop: '8px' }}>
-              <span>Total</span>
-              <span style={{ color: '#C2410C' }}>₦{total.toLocaleString()}</span>
+          <div className="p-4 sm:p-5 border-t border-[#E7D5BC]/60 bg-white space-y-3">
+            <div className="space-y-1.5 text-xs">
+              <div className="flex justify-between text-[#8C8279]">
+                <span>Subtotal</span>
+                <span className="font-bold text-[#2A2320]">{formatPrice(subtotalNgn, subtotalUsd)}</span>
+              </div>
+              {discountPercent > 0 && (
+                <div className="flex justify-between text-[#4F6B3A] font-bold">
+                  <span>Discount ({discountPercent}%)</span>
+                  <span>-{formatPrice(discountNgn, discountUsd)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-[#8C8279]">
+                <span>Nationwide Shipping</span>
+                <span className="font-bold text-[#2A2320]">
+                  {deliveryFeeNgn === 0 ? (
+                    <span className="text-[#4F6B3A] uppercase font-bold text-[11px]">FREE</span>
+                  ) : (
+                    formatPrice(deliveryFeeNgn, deliveryFeeUsd)
+                  )}
+                </span>
+              </div>
+              <div className="pt-2 border-t border-[#E7D5BC]/40 flex justify-between text-sm sm:text-base font-black text-[#2A2320]">
+                <span>Total Due</span>
+                <span className="text-[#B5532E]">
+                  <RollingNumber
+                    value={(currency === 'NGN' ? totalNgn : totalUsd).toLocaleString()}
+                    prefix={currency === 'NGN' ? '₦' : '$'}
+                  />
+                </span>
+              </div>
             </div>
 
             <button
-              onClick={() => {
-                onClose();
-                onProceedToCheckout();
-              }}
-              style={{
-                width: '100%',
-                backgroundColor: '#C2410C',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '12px',
-                fontSize: '14px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 12px rgba(194, 65, 12, 0.3)',
-              }}
+              type="button"
+              onClick={onProceedCheckout}
+              className="w-full py-3.5 bg-gradient-to-r from-[#B5532E] to-[#8F3B1F] hover:opacity-95 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 border-0 cursor-pointer"
             >
-              <span>Proceed to Checkout</span>
-              <ArrowRight size={16} />
+              <i className="fas fa-lock text-xs text-[#D9A441]"></i>
+              <span>Proceed to Secure Checkout</span>
+              <i className="fas fa-arrow-right text-xs"></i>
             </button>
+
+            <div className="flex items-center justify-center gap-2 text-[10px] text-[#8C8279] font-medium">
+              <i className="fas fa-shield-halved text-[#4F6B3A]"></i>
+              <span>256-bit SSL Paystack Secure Payment Guaranteed</span>
+            </div>
           </div>
         )}
+
       </div>
     </div>
   );

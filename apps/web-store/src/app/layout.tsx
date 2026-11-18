@@ -1,9 +1,14 @@
 import * as React from 'react';
 import './globals.css';
+import { StoreProvider } from '../context/StoreContext';
 
 export const metadata = {
-  title: 'Manga — A Marketplace Without Borders | Considered Objects & Digital Goods',
-  description: 'Shop considered objects, technology, and original digital work from independent sellers around the world. Escrow protected payments and clear delivery.',
+  title: 'MANGA MARKETSQUARE — Authentic Multi-Category Commerce | Verified Sellers',
+  description: 'Shop genuine smartphones, laptops, audio, fashion, and home goods from verified sellers. Same-day delivery available for orders within Kaduna.',
+  icons: {
+    icon: '/images/symbol.svg',
+    shortcut: '/images/symbol.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -13,11 +18,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap"
           rel="stylesheet"
         />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
       </head>
-      <body>{children}</body>
+      <body className="min-h-screen flex flex-col antialiased overflow-x-hidden bg-[#FAF6F0] text-[#2A2320]">
+        <StoreProvider>
+          {children}
+        </StoreProvider>
+      </body>
     </html>
   );
 }

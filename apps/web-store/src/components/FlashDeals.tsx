@@ -1,134 +1,173 @@
+'use client';
+
 import * as React from 'react';
-import { Flame, Clock, ArrowRight, Zap } from 'lucide-react';
-import { FLASH_DEALS, Product } from '../data/mockProducts';
-import { ProductCard } from './ProductCard';
+import { useState, useEffect } from 'react';
+
+export interface FlashItem {
+  id: string;
+  title: string;
+  priceNgn: number;
+  oldPriceNgn: number;
+  priceUsd: number;
+  oldPriceUsd: number;
+  image: string;
+  rating: number;
+  reviewsCount: number;
+  claimedPercent: number;
+  discountPercent: number;
+  type: 'physical' | 'digital';
+  category: string;
+  storeName: string;
+}
 
 export interface FlashDealsProps {
-  onAddToCart: (product: Product) => void;
-  onToggleWishlist: (product: Product) => void;
-  wishlistIds: Set<string>;
-  onCompareOffers: (product: Product) => void;
+  items: FlashItem[];
+  currency: 'NGN' | 'USD';
+  wishlist: string[];
+  onToggleWishlist: (id: string) => void;
+  onAddToCart: (item: FlashItem) => void;
+  onViewProduct: (item: FlashItem) => void;
 }
 
 export const FlashDeals: React.FC<FlashDealsProps> = ({
-  onAddToCart,
+  items,
+  currency,
+  wishlist,
   onToggleWishlist,
-  wishlistIds,
-  onCompareOffers,
+  onAddToCart,
+  onViewProduct,
 }) => {
-  const [timeLeft, setTimeLeft] = React.useState({ hours: 4, minutes: 28, seconds: 15 });
+  // Live ticking countdown timer
+  const [timeLeft, setTimeLeft] = useState(8 * 3600 + 42 * 60 + 19);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return { hours: 12, minutes: 0, seconds: 0 };
-      });
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 24 * 3600));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const formatNumber = (num: number) => num.toString().padStart(2, '0');
+  const hrs = String(Math.floor(timeLeft / 3600)).padStart(2, '0');
+  const mins = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, '0');
+  const secs = String(timeLeft % 60).padStart(2, '0');
+
+  const formatPrice = (ngn: number, usd: number) => {
+    return currency === 'NGN' ? `₦${ngn.toLocaleString()}` : `$${usd.toLocaleString()}`;
+  };
 
   return (
-    <section
-      style={{
-        maxWidth: '1440px',
-        margin: '2rem auto 0',
-        padding: '0 2rem',
-      }}
-    >
-      {/* Flash Deals Header Strip */}
-      <div
-        style={{
-          backgroundColor: '#DC2626',
-          borderRadius: '12px 12px 0 0',
-          padding: '1rem 1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          color: '#FFFFFF',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Flame size={24} color="#FEF08A" />
-            <span style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em' }}>
-              TODAY'S FLASH DEALS
+    <section className="py-12 sm:py-16 bg-[#FAF6F0] border-b border-[#E7D5BC]">
+      <div className="container mx-auto px-4 lg:px-8">
+        
+        {/* Flash Sale Header with Live Timer (Manga Terracotta to Laterite Gradient) */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 sm:p-6 bg-gradient-to-r from-[#B5532E] via-[#8F3B1F] to-[#2A2320] rounded-2xl text-white mb-8 shadow-lg">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg text-[#D9A441]">
+              <i className="fas fa-bolt"></i>
             </span>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black font-display text-white">Flash Sales & Limited Deals</h2>
+              <p className="text-xs sm:text-sm text-[#F6EDE0]/85">Markdowns on authentic consumer electronics, hardware & fashion.</p>
+            </div>
           </div>
-
-          {/* Countdown Clock */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
-            <span style={{ opacity: 0.9 }}>Ends in:</span>
-            <div style={{ display: 'flex', gap: '4px', fontWeight: 800 }}>
-              <span style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '3px 6px', borderRadius: '4px' }}>
-                {formatNumber(timeLeft.hours)}h
-              </span>
-              <span>:</span>
-              <span style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '3px 6px', borderRadius: '4px' }}>
-                {formatNumber(timeLeft.minutes)}m
-              </span>
-              <span>:</span>
-              <span style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '3px 6px', borderRadius: '4px' }}>
-                {formatNumber(timeLeft.seconds)}s
-              </span>
+          
+          {/* Countdown Timer Box */}
+          <div className="flex items-center gap-2 text-xs font-bold bg-black/30 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20">
+            <span className="text-[#E7D5BC] uppercase text-[10px]">Ends In:</span>
+            <div className="flex items-center gap-1 font-mono text-white text-sm">
+              <span className="bg-black/40 px-1.5 py-0.5 rounded text-[#D9A441]">{hrs}</span>:
+              <span className="bg-black/40 px-1.5 py-0.5 rounded text-[#D9A441]">{mins}</span>:
+              <span className="bg-black/40 px-1.5 py-0.5 rounded text-[#D9A441]">{secs}</span>
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
-          <span>See All Flash Deals</span>
-          <ArrowRight size={14} />
-        </div>
-      </div>
-
-      {/* Flash Deals Product Grid */}
-      <div
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderRadius: '0 0 12px 12px',
-          border: '1px solid #E2E8F0',
-          borderTop: 'none',
-          padding: '1.25rem',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-        }}
-      >
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '16px',
-          }}
-        >
-          {FLASH_DEALS.map((deal) => {
-            const soldPercent = Math.min(100, Math.round(((deal.soldCount || 30) / (deal.stockCount + (deal.soldCount || 30))) * 100));
-
+        {/* Deal Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {items.map((item) => {
+            const inWishlist = wishlist.includes(item.id);
             return (
-              <div key={deal.id} style={{ display: 'flex', flexDirection: 'column' }}>
-                <ProductCard
-                  product={deal}
-                  onAddToCart={onAddToCart}
-                  onToggleWishlist={onToggleWishlist}
-                  isWishlisted={wishlistIds.has(deal.id)}
-                  onCompareOffers={onCompareOffers}
-                />
-                {/* Flash Deal Progress Bar */}
-                <div style={{ marginTop: '8px', padding: '0 4px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B', marginBottom: '3px' }}>
-                    <span>{soldPercent}% Claimed</span>
-                    <span style={{ fontWeight: 600, color: '#DC2626' }}>{deal.stockCount} left</span>
+              <div
+                key={item.id}
+                className="group bg-white rounded-2xl border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+              >
+                <div>
+                  <div className="relative bg-gray-100 aspect-square overflow-hidden cursor-pointer" onClick={() => onViewProduct(item)}>
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <span className="absolute top-3 left-3 bg-[#B3261E] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase shadow-md">
+                      -{item.discountPercent}% OFF
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleWishlist(item.id);
+                      }}
+                      title={inWishlist ? 'Remove from Wishlist' : 'Save to Wishlist'}
+                      className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/95 hover:bg-white text-[#8C8279] shadow-md backdrop-blur-sm flex items-center justify-center transition-all z-10 hover:scale-110 border-0 cursor-pointer"
+                    >
+                      <i className={`${inWishlist ? 'fas text-[#B5532E]' : 'far text-[#8C8279]'} fa-heart text-xs`}></i>
+                    </button>
                   </div>
-                  <div style={{ width: '100%', height: '6px', backgroundColor: '#FEE2E2', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ width: `${soldPercent}%`, height: '100%', backgroundColor: '#DC2626', borderRadius: '3px' }} />
+                  
+                  <div className="p-5">
+                    <div className="flex items-center gap-1 text-xs text-[#D9A441] mb-1">
+                      <i className="fas fa-star text-[10px]"></i>
+                      <span className="font-bold text-[#2A2320]">{item.rating.toFixed(1)}</span>
+                      <span className="text-[#8C8279] text-[11px]">({item.reviewsCount})</span>
+                    </div>
+                    
+                    <h3
+                      onClick={() => onViewProduct(item)}
+                      className="font-bold text-sm text-[#2A2320] line-clamp-2 mb-2 group-hover:text-[#B5532E] transition-colors cursor-pointer"
+                    >
+                      {item.title}
+                    </h3>
+                    
+                    <div className="flex items-baseline gap-2 mb-3">
+                      <span className="text-base font-black text-[#B5532E]">
+                        {formatPrice(item.priceNgn, item.priceUsd)}
+                      </span>
+                      {item.oldPriceNgn && (
+                        <span className="text-xs text-[#8C8279] line-through">
+                          {formatPrice(item.oldPriceNgn, item.oldPriceUsd)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Claimed Progress Bar */}
+                    <div className="w-full bg-[#E7D5BC]/50 rounded-full h-2 mb-1.5 overflow-hidden">
+                      <div
+                        className="bg-[#B5532E] h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${item.claimedPercent}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between text-[10px] text-[#8C8279] font-medium">
+                      <span>{item.claimedPercent}% claimed</span>
+                      <span className="text-[#4F6B3A] font-semibold">Fast selling</span>
+                    </div>
                   </div>
+                </div>
+
+                <div className="p-5 pt-0">
+                  <button
+                    type="button"
+                    onClick={() => onAddToCart(item)}
+                    className="w-full py-2.5 bg-[#FAF6F0] hover:bg-[#B5532E] text-[#2A2320] hover:text-white rounded-xl text-xs font-bold border border-[#E7D5BC] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <i className="fas fa-cart-plus"></i>
+                    <span>Add to Cart</span>
+                  </button>
                 </div>
               </div>
             );
           })}
         </div>
+
       </div>
     </section>
   );

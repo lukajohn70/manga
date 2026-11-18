@@ -1,12 +1,14 @@
+'use client';
+
 import * as React from 'react';
-import { X, Star, Store, Truck, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { Product, VendorOffer } from '../data/mockProducts';
+import { ProductItem, VendorOffer } from './ProductCard';
 
 export interface BuyBoxModalProps {
-  product: Product | null;
+  product: ProductItem | null;
   isOpen: boolean;
   onClose: () => void;
-  onSelectOffer: (product: Product, offer: VendorOffer | null) => void;
+  onSelectOffer: (product: ProductItem, offer: VendorOffer) => void;
+  currency: 'NGN' | 'USD';
 }
 
 export const BuyBoxModal: React.FC<BuyBoxModalProps> = ({
@@ -14,209 +16,153 @@ export const BuyBoxModal: React.FC<BuyBoxModalProps> = ({
   isOpen,
   onClose,
   onSelectOffer,
+  currency,
 }) => {
   if (!isOpen || !product) return null;
 
+  const formatPrice = (ngn: number, usd: number) => {
+    return currency === 'NGN' ? `₦${ngn.toLocaleString()}` : `$${usd.toLocaleString()}`;
+  };
+
+  const allOffers: VendorOffer[] = [
+    {
+      vendorId: 'primary',
+      vendorName: product.storeName,
+      vendorRating: product.rating,
+      priceNgn: product.priceNgn,
+      priceUsd: product.priceUsd,
+      condition: 'Brand New (Official Partner)',
+      deliveryTime: product.deliveryEstimate || 'Manga Express • Tomorrow',
+      dispatchCity: 'Lagos Hub',
+    },
+    ...(product.otherOffers || []),
+  ];
+
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(3px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '1.25rem',
-      }}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
       <div
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderRadius: '12px',
-          width: '100%',
-          maxWidth: '680px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          padding: '1.75rem',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          border: '1px solid #E2E8F0',
-        }}
-      >
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        onClick={onClose}
+      ></div>
+
+      {/* Modal Dialog */}
+      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl z-10 overflow-hidden border border-[#E7D5BC] text-[#2A2320]">
+        
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#C2410C', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Multi-Vendor Marketplace Buy-Box
-            </div>
-            <h3 style={{ margin: '4px 0 0', fontSize: '1.125rem', fontWeight: 800, color: '#0F172A' }}>
-              Compare Verified Merchant Offers
-            </h3>
-            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
-              {product.title}
+        <div className="p-5 border-b border-[#E7D5BC]/60 flex items-center justify-between bg-[#FAF6F0]">
+          <div className="flex items-center gap-3">
+            <span className="w-9 h-9 rounded-xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center font-bold text-sm">
+              <i className="fas fa-scale-balanced"></i>
+            </span>
+            <div>
+              <h3 className="font-display font-black text-base text-[#2A2320] leading-tight">
+                Compare Verified Seller Offers
+              </h3>
+              <p className="text-xs text-[#8C8279]">Choose your preferred price, condition & delivery speed</p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            aria-label="Close dialog"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#64748B',
-              padding: '4px',
-              borderRadius: '6px',
-            }}
+            className="w-8 h-8 rounded-lg text-[#8C8279] hover:text-[#2A2320] hover:bg-[#F6EDE0] flex items-center justify-center transition-colors border-0 bg-transparent cursor-pointer"
           >
-            <X size={20} />
+            <i className="fas fa-times"></i>
           </button>
         </div>
 
-        {/* Featured Primary Winner Offer */}
-        <div
-          style={{
-            backgroundColor: '#FFF7ED',
-            borderRadius: '10px',
-            border: '2px solid #C2410C',
-            padding: '1.25rem',
-            marginBottom: '1rem',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span
-              style={{
-                backgroundColor: '#C2410C',
-                color: '#FFFFFF',
-                fontSize: '11px',
-                fontWeight: 800,
-                padding: '3px 8px',
-                borderRadius: '4px',
-              }}
-            >
-              FEATURED BUY-BOX WINNER
-            </span>
-            <span style={{ fontSize: '12px', color: '#15803D', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <ShieldCheck size={14} /> Escrow Protected
-            </span>
+        {/* Product Mini Banner */}
+        <div className="p-4 bg-[#F6EDE0]/40 border-b border-[#E7D5BC] flex items-center gap-3">
+          <img
+            src={product.image}
+            alt={product.title}
+            className="w-12 h-12 object-cover rounded-xl border border-[#E7D5BC] bg-white"
+          />
+          <div className="min-w-0">
+            <h4 className="font-bold text-xs text-[#2A2320] truncate">{product.title}</h4>
+            <p className="text-[11px] text-[#8C8279] font-medium">{product.categoryName || product.category} Department</p>
           </div>
+        </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Store size={15} color="#C2410C" />
-                <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
-                  {product.primaryVendor.name}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748B' }}>({product.primaryVendor.city})</span>
-              </div>
-              <div style={{ fontSize: '12px', color: '#64748B', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#F59E0B', fontWeight: 700 }}>
-                  <Star size={12} fill="#F59E0B" /> {product.primaryVendor.rating}
-                </span>
-                <span>•</span>
-                <span>Condition: <strong>Brand New</strong></span>
-                <span>•</span>
-                <span style={{ color: '#15803D', fontWeight: 600 }}>Next-Day Delivery</span>
-              </div>
-            </div>
-
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '20px', fontWeight: 900, color: '#0F172A' }}>
-                ₦{product.currentPrice.toLocaleString()}
-              </div>
-              <button
-                onClick={() => {
-                  onSelectOffer(product, null);
-                  onClose();
-                }}
-                style={{
-                  marginTop: '6px',
-                  backgroundColor: '#C2410C',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '8px 16px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
+        {/* Offers List */}
+        <div className="p-5 space-y-3 max-h-[60vh] overflow-y-auto">
+          {allOffers.map((offer, idx) => {
+            const isFeatured = idx === 0;
+            return (
+              <div
+                key={offer.vendorId}
+                className={`p-4 rounded-2xl border transition-all ${
+                  isFeatured
+                    ? 'border-[#B5532E] bg-[#F6EDE0]/30 shadow-xs'
+                    : 'border-[#E7D5BC]/80 bg-white hover:border-[#8C8279]'
+                }`}
               >
-                Choose This Offer
-              </button>
-            </div>
-          </div>
-        </div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h5 className="font-bold text-sm text-[#2A2320]">{offer.vendorName}</h5>
+                      {isFeatured && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#B5532E] text-white">
+                          Featured Choice
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-[#D9A441] mt-0.5">
+                      <div className="flex items-center gap-1">
+                        <i className="fas fa-star text-[10px]"></i>
+                        <span className="font-bold text-[#2A2320]">{offer.vendorRating.toFixed(1)}</span>
+                      </div>
+                      <span className="text-[#E7D5BC]">•</span>
+                      <span className="text-[#8C8279] text-[11px]">{offer.condition}</span>
+                    </div>
+                  </div>
 
-        {/* Other Sellers Grid */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Other Verified Merchant Offers ({product.otherOffers.length})
-          </div>
-
-          {product.otherOffers.map((offer) => (
-            <div
-              key={offer.vendorId}
-              style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: '8px',
-                border: '1px solid #E2E8F0',
-                padding: '1rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
-                    {offer.vendorName}
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#64748B' }}>({offer.dispatchCity})</span>
-                  {offer.isVerified && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#15803D', fontSize: '11px', fontWeight: 600 }}>
-                      <CheckCircle2 size={12} /> Verified
+                  <div className="text-left sm:text-right">
+                    <span className="text-lg font-black text-[#B5532E] block leading-none">
+                      {formatPrice(offer.priceNgn, offer.priceUsd)}
                     </span>
-                  )}
+                    <span className="text-[10px] text-[#8C8279] mt-0.5 block">
+                      Dispatched from {offer.dispatchCity}
+                    </span>
+                  </div>
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748B', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#F59E0B', fontWeight: 700 }}>
-                    <Star size={12} fill="#F59E0B" /> {offer.vendorRating}
-                  </span>
-                  <span>•</span>
-                  <span>Condition: <strong>{offer.condition}</strong></span>
-                  <span>•</span>
-                  <span>Delivery: {offer.deliveryTime}</span>
-                </div>
-              </div>
 
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A' }}>
-                  ₦{offer.price.toLocaleString()}
+                <div className="flex items-center justify-between pt-2 border-t border-[#E7D5BC]/40 text-xs">
+                  <span className="text-[#4F6B3A] font-semibold flex items-center gap-1 text-[11px]">
+                    <i className="fas fa-truck-fast"></i> {offer.deliveryTime}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectOffer(product, offer);
+                      onClose();
+                    }}
+                    className="px-4 py-1.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs transition-colors border-0 cursor-pointer flex items-center gap-1 shadow-2xs"
+                  >
+                    <span>Select Seller</span>
+                    <i className="fas fa-check text-[10px]"></i>
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    onSelectOffer(product, offer);
-                    onClose();
-                  }}
-                  style={{
-                    marginTop: '6px',
-                    backgroundColor: '#F8FAFC',
-                    color: '#0F172A',
-                    border: '1px solid #CBD5E1',
-                    borderRadius: '6px',
-                    padding: '6px 14px',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Select Offer
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+
+        {/* Footer Guarantee */}
+        <div className="p-4 bg-[#FAF6F0] border-t border-[#E7D5BC]/60 flex items-center justify-between text-xs text-[#8C8279]">
+          <span className="flex items-center gap-1.5 font-medium">
+            <i className="fas fa-shield-halved text-[#4F6B3A]"></i>
+            <span>Every seller offer backed by 100% Verified Sellers Guarantee</span>
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[#8C8279] hover:text-[#2A2320] font-bold bg-transparent border-0 cursor-pointer"
+          >
+            Close
+          </button>
+        </div>
+
       </div>
     </div>
   );

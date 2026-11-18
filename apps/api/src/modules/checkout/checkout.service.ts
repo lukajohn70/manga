@@ -4,6 +4,7 @@ import { InventoryService } from '../inventory/inventory.service.js';
 import { LedgerService } from '../ledger/ledger.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { PaymentProvider, MockCardPaymentProvider } from '../payments/payment.provider.js';
+import { PaystackPaymentProvider } from '../payments/paystack.provider.js';
 import { DomainEventNames, MoneyUtil, ShipmentGroupStateMachine } from '@manga/domain';
 
 export interface CheckoutItemInput {
@@ -46,7 +47,9 @@ export class CheckoutService {
     private readonly ledger: LedgerService,
     private readonly outbox: OutboxService
   ) {
-    this.psp = new MockCardPaymentProvider();
+    this.psp = process.env.PAYSTACK_SECRET_KEY
+      ? new PaystackPaymentProvider()
+      : new MockCardPaymentProvider();
   }
 
   /**
@@ -253,14 +256,17 @@ export class CheckoutService {
         ]
       );
 
+      const pspAccountId = await this.ledger.getOrCreateAccount('psp_clearing', 'system', 'paystack', currency);
+      const buyerFundsHeldAccountId = await this.ledger.getOrCreateAccount('buyer_funds_held', 'buyer', dto.buyerId, currency);
+
       // Post Double-Entry Ledger Capture (§7.5): Debit psp_clearing / Credit buyer_funds_held
       await this.ledger.postPaymentCapture({
         orderId,
         grossAmountMinor: grandTotalMinor,
         currency,
         idempotencyKey: `LEDGER-CAP-${dto.idempotencyKey}`,
-        pspAccountId: crypto.randomUUID(),
-        buyerFundsHeldAccountId: crypto.randomUUID(),
+        pspAccountId,
+        buyerFundsHeldAccountId,
       });
 
       // Emit order.confirmed

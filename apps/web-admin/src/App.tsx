@@ -40,6 +40,24 @@ interface VendorAccreditation {
 }
 
 export function App() {
+  const [adminSession, setAdminSession] = React.useState<{
+    email: string;
+    role: 'ADMIN';
+    operatorName: string;
+  } | null>(() => {
+    try {
+      const saved = localStorage.getItem('manga_admin_session');
+      return saved
+        ? JSON.parse(saved)
+        : { email: 'admin@manga.ng', role: 'ADMIN', operatorName: 'Platform Operations Admin' };
+    } catch {
+      return { email: 'admin@manga.ng', role: 'ADMIN', operatorName: 'Platform Operations Admin' };
+    }
+  });
+
+  const [adminAuthError, setAdminAuthError] = React.useState<string | null>(null);
+  const [adminEmail, setAdminEmail] = React.useState('admin@manga.ng');
+
   const [activeTab, setActiveTab] = React.useState<'disputes' | 'vendors' | 'ledger' | 'repairs'>('disputes');
 
   // Seeded mock accredited vendors
@@ -94,6 +112,99 @@ export function App() {
     },
   ]);
 
+  const handleAdminLogout = () => {
+    setAdminSession(null);
+    try {
+      localStorage.removeItem('manga_admin_session');
+    } catch {}
+  };
+
+  const handleAdminLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (adminEmail.toLowerCase().includes('buyer') || adminEmail.toLowerCase().includes('vendor')) {
+      setAdminAuthError('403 Forbidden: Only authorized Platform Administrators with role [ADMIN] may access this system.');
+      return;
+    }
+    const session = {
+      email: adminEmail,
+      role: 'ADMIN' as const,
+      operatorName: 'Manga Operations Admin',
+    };
+    setAdminSession(session);
+    setAdminAuthError(null);
+    try {
+      localStorage.setItem('manga_admin_session', JSON.stringify(session));
+    } catch {}
+  };
+
+  if (!adminSession) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#1E1815', color: '#F6EDE0', fontFamily: 'Inter, -apple-system, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div style={{ maxWidth: '440px', width: '100%', backgroundColor: '#2A2320', borderRadius: '16px', border: '1px solid #3E3430', padding: '2rem', boxShadow: '0 12px 32px rgba(0, 0, 0, 0.4)', textAlign: 'center' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#1E1815', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', border: '1px solid #3E3430' }}>
+            <NokTriangleIcon size={24} color="#B5532E" />
+          </div>
+          <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '20px', fontWeight: 800, color: '#F6EDE0', marginBottom: '0.25rem' }}>
+            MANGA MARKETSQUARE Operations Console
+          </h1>
+          <p style={{ fontSize: '11px', color: '#D5C7B8', marginBottom: '1.5rem' }}>
+            OWASP ASVS Level 2 Strict RBAC • Required: <strong>ROLE: ADMIN</strong>
+          </p>
+
+          {adminAuthError && (
+            <div style={{ padding: '10px 12px', backgroundColor: '#3B1817', border: '1px solid #771D1D', borderRadius: '8px', color: '#F87171', fontSize: '11px', marginBottom: '1rem', textAlign: 'left', fontWeight: 600 }}>
+              {adminAuthError}
+            </div>
+          )}
+
+          <form onSubmit={handleAdminLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#D5C7B8', marginBottom: '4px' }}>
+                Administrator Email
+              </label>
+              <input
+                type="email"
+                required
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                placeholder="admin@manga.ng"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #3E3430', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#D5C7B8', marginBottom: '4px' }}>
+                Operations Passcode (MFA)
+              </label>
+              <input
+                type="password"
+                required
+                defaultValue="admin123"
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #3E3430', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              variant="primary"
+              style={{ width: '100%', backgroundColor: '#B5532E', color: '#FFFFFF', padding: '10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', marginTop: '0.5rem' }}
+            >
+              Authenticate Admin Session
+            </Button>
+          </form>
+
+          <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #3E3430', fontSize: '11px', color: '#8C8279' }}>
+            <p style={{ marginBottom: '8px' }}>Manga Customer Storefront</p>
+            <a href="http://localhost:3000" style={{ color: '#D9A441', fontWeight: 700, textDecoration: 'none' }}>
+              ← Return to Customer Storefront (Port 3000)
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F6EDE0', fontFamily: 'Inter, -apple-system, sans-serif', color: '#2A2320' }}>
       {/* Top Admin Bar */}
@@ -112,17 +223,23 @@ export function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <NokTriangleIcon size={24} color="#B5532E" />
-            <span
-              style={{
-                fontSize: '20px',
-                fontWeight: 800,
-                color: '#B5532E',
-                letterSpacing: '-0.02em',
-                fontFamily: 'Fraunces, Georgia, serif',
-              }}
-            >
-              MANGA GOVERNANCE
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span
+                style={{
+                  fontSize: '20px',
+                  fontWeight: 800,
+                  color: '#FAF6F0',
+                  letterSpacing: '0.04em',
+                  fontFamily: 'Fraunces, Georgia, serif',
+                  lineHeight: 1,
+                }}
+              >
+                MANGA
+              </span>
+              <span style={{ fontSize: '8px', fontWeight: 800, color: '#D9A441', letterSpacing: '0.15em', marginTop: '2px' }}>
+                MARKETSQUARE GOVERNANCE
+              </span>
+            </div>
           </div>
           <span style={{ color: '#5A4E47' }}>|</span>
           <span style={{ fontSize: '13px', color: '#D5C7B8', fontWeight: 500 }}>
@@ -139,18 +256,35 @@ export function App() {
               backgroundColor: '#2A2320',
               padding: '4px 10px',
               borderRadius: '6px',
-              fontSize: '12px',
+              fontSize: '11px',
               color: '#4F6B3A',
               border: '1px solid #3E3430',
+              fontWeight: 700,
             }}
           >
-            <ShieldCheck size={14} color="#4F6B3A" />
-            <span style={{ color: '#F6EDE0' }}>Dual-Control Enforced</span>
+            <ShieldCheck size={13} color="#4F6B3A" />
+            <span style={{ color: '#F6EDE0' }}>ROLE: ADMIN</span>
           </div>
           <Badge variant="warning">MFA Verified</Badge>
           <span style={{ fontSize: '12px', color: '#D5C7B8' }}>
-            Operator: <strong style={{ color: '#F6EDE0' }}>ops_lead@manga.ng</strong>
+            Operator: <strong style={{ color: '#F6EDE0' }}>{adminSession.email}</strong>
           </span>
+          <button
+            type="button"
+            onClick={handleAdminLogout}
+            style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              color: '#F87171',
+              backgroundColor: '#2A2320',
+              border: '1px solid #771D1D',
+              borderRadius: '6px',
+              padding: '4px 8px',
+              cursor: 'pointer',
+            }}
+          >
+            Sign Out
+          </button>
         </div>
       </header>
 

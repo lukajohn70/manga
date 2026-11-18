@@ -62,6 +62,24 @@ function NokTriangleIcon({ size = 18, color = '#B5532E' }: { size?: number; colo
 }
 
 export function App() {
+  const [vendorSession, setVendorSession] = React.useState<{
+    email: string;
+    storeName: string;
+    role: 'VENDOR';
+  } | null>(() => {
+    try {
+      const saved = localStorage.getItem('manga_vendor_session');
+      return saved
+        ? JSON.parse(saved)
+        : { email: 'vendor@manga.ng', storeName: 'Apex Electronics Ltd', role: 'VENDOR' };
+    } catch {
+      return { email: 'vendor@manga.ng', storeName: 'Apex Electronics Ltd', role: 'VENDOR' };
+    }
+  });
+
+  const [authError, setAuthError] = React.useState<string | null>(null);
+  const [loginEmail, setLoginEmail] = React.useState('vendor@manga.ng');
+
   const [activeTab, setActiveTab] = React.useState<
     'needs_action' | 'pack_scan' | 'ready_to_ship' | 'all' | 'inventory' | 'payouts'
   >('needs_action');
@@ -235,6 +253,99 @@ export function App() {
     return true;
   });
 
+  const handleVendorLogout = () => {
+    setVendorSession(null);
+    try {
+      localStorage.removeItem('manga_vendor_session');
+    } catch {}
+  };
+
+  const handleVendorLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginEmail.toLowerCase().includes('buyer') || loginEmail.toLowerCase().includes('customer')) {
+      setAuthError('403 Forbidden: Buyer accounts are not authorized to access the Merchant Console. Role required: VENDOR.');
+      return;
+    }
+    const session = {
+      email: loginEmail,
+      storeName: 'Apex Electronics Ltd',
+      role: 'VENDOR' as const,
+    };
+    setVendorSession(session);
+    setAuthError(null);
+    try {
+      localStorage.setItem('manga_vendor_session', JSON.stringify(session));
+    } catch {}
+  };
+
+  if (!vendorSession) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#F6EDE0', color: '#2A2320', fontFamily: 'Inter, -apple-system, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div style={{ maxWidth: '440px', width: '100%', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E7D5BC', padding: '2rem', boxShadow: '0 8px 24px rgba(42, 35, 32, 0.08)', textAlign: 'center' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#FEF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+            <NokTriangleIcon size={24} color="#B5532E" />
+          </div>
+          <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '22px', fontWeight: 800, color: '#B5532E', marginBottom: '0.25rem' }}>
+            MANGA MARKETSQUARE Merchant Console
+          </h1>
+          <p style={{ fontSize: '12px', color: '#8C8279', marginBottom: '1.5rem' }}>
+            Role-Based Access Guard • Requires <strong>ROLE: VENDOR</strong>
+          </p>
+
+          {authError && (
+            <div style={{ padding: '10px 12px', backgroundColor: '#FDF2F2', border: '1px solid #F8B4B4', borderRadius: '8px', color: '#9B1C1C', fontSize: '11px', marginBottom: '1rem', textAlign: 'left', fontWeight: 600 }}>
+              {authError}
+            </div>
+          )}
+
+          <form onSubmit={handleVendorLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
+                Merchant Account Email
+              </label>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="vendor@manga.ng"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
+                Merchant Password
+              </label>
+              <input
+                type="password"
+                required
+                defaultValue="vendor123"
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              variant="primary"
+              style={{ width: '100%', backgroundColor: '#B5532E', color: '#FFFFFF', padding: '10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', marginTop: '0.5rem' }}
+            >
+              Sign In to Merchant Hub
+            </Button>
+          </form>
+
+          <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #E7D5BC', fontSize: '11px', color: '#8C8279' }}>
+            <p style={{ marginBottom: '8px' }}>Are you a shopper / customer?</p>
+            <a href="http://localhost:3000" style={{ color: '#B5532E', fontWeight: 700, textDecoration: 'none' }}>
+              ← Return to Customer Storefront (Port 3000)
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F6EDE0', color: '#2A2320', fontFamily: 'Inter, -apple-system, sans-serif' }}>
       {/* Top Nok Terracotta Bar */}
@@ -253,7 +364,7 @@ export function App() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <NokTriangleIcon size={12} color="#F6EDE0" />
-          <span>MANGA VENDOR HUB • NOK TERRACOTTA FULFILLMENT NETWORK</span>
+          <span>MANGA MARKETSQUARE VENDOR HUB • NOK TERRACOTTA FULFILLMENT NETWORK</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <span>Carrier Handover Window: <strong>14:00 – 17:30 Daily</strong></span>
@@ -276,17 +387,23 @@ export function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <NokTriangleIcon size={26} color="#B5532E" />
-            <span
-              style={{
-                fontFamily: 'Fraunces, Georgia, serif',
-                fontSize: '22px',
-                fontWeight: 800,
-                color: '#B5532E',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              MANGA
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span
+                style={{
+                  fontFamily: 'Fraunces, Georgia, serif',
+                  fontSize: '20px',
+                  fontWeight: 800,
+                  color: '#B5532E',
+                  letterSpacing: '0.04em',
+                  lineHeight: 1,
+                }}
+              >
+                MANGA
+              </span>
+              <span style={{ fontSize: '8px', fontWeight: 800, color: '#D9A441', letterSpacing: '0.15em', marginTop: '2px' }}>
+                MARKETSQUARE
+              </span>
+            </div>
           </div>
           <span style={{ color: '#E7D5BC', fontSize: '18px' }}>/</span>
           <span style={{ fontWeight: 700, color: '#2A2320', fontSize: '14px', letterSpacing: '0.02em' }}>
@@ -321,17 +438,49 @@ export function App() {
               color: '#8F3B1F',
               padding: '4px 10px',
               borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
+              fontSize: '11px',
+              fontWeight: 700,
               border: '1px solid #FAD7A0',
             }}
           >
-            <ShieldCheck size={14} color="#8F3B1F" />
-            <span>Escrow Protected</span>
+            <ShieldCheck size={13} color="#8F3B1F" />
+            <span>ROLE: VENDOR</span>
           </div>
-          <span style={{ fontSize: '12px', color: '#8C8279' }}>
-            Staging Hub: <strong style={{ color: '#2A2320' }}>Lagos Central Sort</strong>
-          </span>
+
+          <a
+            href="http://localhost:3000"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#B5532E',
+              textDecoration: 'none',
+              padding: '5px 10px',
+              borderRadius: '6px',
+              backgroundColor: '#FAF6F0',
+              border: '1px solid #E7D5BC',
+            }}
+          >
+            Buyer Storefront ↗
+          </a>
+
+          <button
+            type="button"
+            onClick={handleVendorLogout}
+            style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              color: '#B3261E',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #F8B4B4',
+              borderRadius: '6px',
+              padding: '5px 10px',
+              cursor: 'pointer',
+            }}
+          >
+            Sign Out
+          </button>
         </div>
       </header>
 

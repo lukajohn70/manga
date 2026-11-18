@@ -1,303 +1,145 @@
+'use client';
+
 import * as React from 'react';
-import { ArrowRight, ShieldCheck, Zap, Store, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
 
-export const HeroBanner: React.FC<{ onExploreDeals: () => void }> = ({ onExploreDeals }) => {
-  const [currentSlide, setCurrentSlide] = React.useState(0);
+export interface HeroBannerProps {
+  onExploreClick: () => void;
+  onFlashDealsClick: () => void;
+  onSelectFeatured: () => void;
+  currency: 'NGN' | 'USD';
+}
 
-  const slides = [
-    {
-      badge: 'MEGA ELECTRONICS & GADGET WEEK',
-      title: 'Upgrade Your World. Top Tech, Lowest Prices.',
-      subtitle: 'Smartphones, Laptops, Audio & Home Entertainment with verified warranty and 24h express dispatch.',
-      cta: 'Shop Tech Deals',
-      discount: 'UP TO 35% OFF',
-      bgGradient: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
-      accentColor: '#F97316',
-      image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80',
-    },
-    {
-      badge: 'NEW SEASON ARRIVALS',
-      title: 'Authentic Fashion & Everyday Essentials',
-      subtitle: 'Curated apparel, premium sneakers, bags and accessories from independent Nigerian merchants.',
-      cta: 'Explore Fashion',
-      discount: 'FROM ₦4,500',
-      bgGradient: 'linear-gradient(135deg, #7C2D12 0%, #431407 100%)',
-      accentColor: '#FDBA74',
-      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80',
-    },
-  ];
-
-  const slide = slides[currentSlide];
-
+export const HeroBanner: React.FC<HeroBannerProps> = ({
+  onExploreClick,
+  onFlashDealsClick,
+  onSelectFeatured,
+  currency,
+}) => {
   return (
-    <div
-      style={{
-        maxWidth: '1440px',
-        margin: '1.25rem auto 0',
-        padding: '0 2rem',
-      }}
-    >
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 340px',
-          gap: '16px',
-        }}
-      >
-        {/* Main Hero Banner Slider */}
-        <div
-          style={{
-            background: slide.bgGradient,
-            borderRadius: '12px',
-            padding: '2.5rem 3rem',
-            color: '#FFFFFF',
-            position: 'relative',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            minHeight: '340px',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
-          }}
-        >
-          {/* Subtle background image overlay */}
-          <div
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: '50%',
-              backgroundImage: `url(${slide.image})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              opacity: 0.35,
-              maskImage: 'linear-gradient(to right, transparent, black)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent 5%, black 95%)',
-            }}
-          />
+    <section className="relative bg-gradient-to-br from-[#2A2320] via-[#8F3B1F] to-[#2A2320] text-white py-12 sm:py-16 lg:py-20 overflow-hidden">
+      {/* Glowing ambient earth accents in Manga Terracotta & Ochre */}
+      <div className="pointer-events-none absolute -top-40 -right-20 w-96 h-96 bg-[#B5532E]/30 rounded-full blur-3xl"></div>
+      <div className="pointer-events-none absolute -bottom-40 -left-20 w-96 h-96 bg-[#D9A441]/20 rounded-full blur-3xl"></div>
 
-          <div style={{ position: 'relative', zIndex: 2, maxWidth: '540px' }}>
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                backgroundColor: 'rgba(255,255,255,0.15)',
-                backdropFilter: 'blur(4px)',
-                padding: '4px 12px',
-                borderRadius: '20px',
-                fontSize: '11px',
-                fontWeight: 800,
-                letterSpacing: '0.06em',
-                color: slide.accentColor,
-                marginBottom: '1rem',
-              }}
-            >
-              <Zap size={13} /> {slide.badge} • {slide.discount}
+      <div className="container mx-auto px-4 lg:px-8 relative z-10">
+        <div className="grid lg:grid-cols-12 gap-10 items-center">
+          
+          {/* Left Hero Copy */}
+          <div className="lg:col-span-7 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#D9A441] text-xs font-bold mb-6">
+              <span className="w-2 h-2 rounded-full bg-[#B5532E] animate-ping"></span>
+              <span>Nigeria & Global Multi-Category Marketplace</span>
             </div>
-
-            <h1
-              style={{
-                fontSize: '2.25rem',
-                fontWeight: 900,
-                lineHeight: 1.15,
-                margin: '0 0 12px 0',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              {slide.title}
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight text-white mb-6 leading-tight">
+              Everything you need.<br />
+              <span className="bg-gradient-to-r from-white via-[#F6EDE0] to-[#D9A441] bg-clip-text text-transparent">
+                One authentic marketplace.
+              </span>
             </h1>
-
-            <p
-              style={{
-                fontSize: '14px',
-                color: '#CBD5E1',
-                lineHeight: 1.5,
-                margin: '0 0 1.75rem 0',
-                maxWidth: '460px',
-              }}
-            >
-              {slide.subtitle}
+            
+            <p className="text-base sm:text-lg text-[#F6EDE0]/90 max-w-xl mx-auto lg:mx-0 leading-relaxed mb-8 font-normal">
+              Shop genuine smartphones, laptops, audio, fashion, and home goods — all from verified sellers. Same-day delivery available for orders within Kaduna.
             </p>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            {/* CTA Buttons in Manga Terracotta #B5532E */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <button
-                onClick={onExploreDeals}
-                style={{
-                  backgroundColor: slide.accentColor,
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 12px rgba(249, 115, 22, 0.3)',
-                }}
+                type="button"
+                onClick={onExploreClick}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-sm shadow-xl hover:scale-105 transition-all text-center flex items-center justify-center gap-2 border-0 cursor-pointer"
               >
-                {slide.cta} <ArrowRight size={16} />
+                <span>Explore All Departments</span>
+                <i className="fas fa-arrow-right text-xs"></i>
               </button>
-              <span style={{ fontSize: '12px', color: '#94A3B8' }}>
-                Over <strong>150,000+</strong> verified orders delivered
-              </span>
-            </div>
-          </div>
-
-          {/* Slide Indicator Controls */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '16px',
-              right: '24px',
-              display: 'flex',
-              gap: '6px',
-              zIndex: 3,
-            }}
-          >
-            {slides.map((_, idx) => (
               <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                style={{
-                  width: idx === currentSlide ? '24px' : '8px',
-                  height: '8px',
-                  borderRadius: '4px',
-                  border: 'none',
-                  backgroundColor: idx === currentSlide ? '#FFFFFF' : 'rgba(255,255,255,0.4)',
-                  cursor: 'pointer',
-                  padding: 0,
-                  transition: 'all 0.2s ease',
-                }}
-              />
-            ))}
-          </div>
-        </div>
+                type="button"
+                onClick={onFlashDealsClick}
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-[#F6EDE0] font-bold text-sm backdrop-blur-sm transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <i className="fas fa-bolt text-[#D9A441]"></i>
+                <span>Today's Flash Deals</span>
+              </button>
+            </div>
 
-        {/* Side Promo Action Cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {/* Card 1: Manga Express Logistics */}
-          <div
-            style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: '10px',
-              padding: '1.25rem',
-              border: '1px solid #E2E8F0',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-            }}
-          >
-            <div
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '8px',
-                backgroundColor: '#DCFCE7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#15803D',
-                flexShrink: 0,
-              }}
-            >
-              <Truck size={22} />
-            </div>
-            <div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#0F172A' }}>
-                Manga Express Delivery
+            {/* Micro Trust Signals */}
+            <div className="mt-10 pt-8 border-t border-white/15 grid grid-cols-3 gap-4 text-center lg:text-left">
+              <div>
+                <div className="text-xl sm:text-2xl font-black text-white">100%</div>
+                <div className="text-[11px] text-[#E7D5BC] font-medium">Genuine Brands</div>
               </div>
-              <div style={{ fontSize: '12px', color: '#64748B', marginTop: '3px', lineHeight: 1.4 }}>
-                Next-day priority fulfillment across Lagos, Abuja, Port Harcourt & Ibadan.
+              <div>
+                <div className="text-xl sm:text-2xl font-black text-[#D9A441]">24 - 48 Hrs</div>
+                <div className="text-[11px] text-[#E7D5BC] font-medium">Express Nationwide</div>
+              </div>
+              <div>
+                <div className="text-xl sm:text-2xl font-black text-[#F6EDE0]">7 Days</div>
+                <div className="text-[11px] text-[#E7D5BC] font-medium">Hassle-Free Returns</div>
               </div>
             </div>
+
           </div>
 
-          {/* Card 2: Escrow Protection */}
-          <div
-            style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: '10px',
-              padding: '1.25rem',
-              border: '1px solid #E2E8F0',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-            }}
-          >
-            <div
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '8px',
-                backgroundColor: '#EFF6FF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#1D4ED8',
-                flexShrink: 0,
-              }}
-            >
-              <ShieldCheck size={22} />
-            </div>
-            <div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#0F172A' }}>
-                Safe Escrow Payment
+          {/* Right Hero Visual Spotlight */}
+          <div className="lg:col-span-5 relative">
+            <div className="relative mx-auto max-w-md">
+              <div
+                onClick={onSelectFeatured}
+                className="block rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 p-6 shadow-2xl hover:border-white/40 transition-all duration-300 group cursor-pointer"
+              >
+                <div className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-4 bg-[#1E1815]">
+                  <img
+                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85"
+                    alt="Sony WH-1000XM5 Noise Cancelling Headphones"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <span className="absolute top-3 left-3 bg-[#B5532E] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    Featured Spotlight
+                  </span>
+                  <span className="absolute top-3 right-3 bg-[#2A2320] text-[#D9A441] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-[#D9A441]/30">
+                    Manga Express
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-white">
+                  <div className="pr-3">
+                    <h4 className="font-bold text-sm text-white line-clamp-1 group-hover:text-[#D9A441] transition-colors">
+                      Sony WH-1000XM5 Wireless ANC Headphones
+                    </h4>
+                    <p className="text-xs text-[#E7D5BC] line-clamp-1">Flagship Audio • Official Sony Store</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <span className="text-base font-black text-[#D9A441]">
+                      {currency === 'NGN' ? '₦450,000' : '$320'}
+                    </span>
+                    <span className="block text-[11px] text-[#E7D5BC]/70 line-through">
+                      {currency === 'NGN' ? '₦580,000' : '$399'}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div style={{ fontSize: '12px', color: '#64748B', marginTop: '3px', lineHeight: 1.4 }}>
-                Funds are held in secure escrow until you receive and verify your package.
+
+              {/* Floating badge: Express Delivery */}
+              <div className="absolute -bottom-3 left-2 sm:-bottom-5 sm:-left-5 bg-white text-[#2A2320] p-3 sm:p-4 rounded-2xl shadow-2xl border border-[#E7D5BC] flex items-center gap-3 z-10 pointer-events-none">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#4F6B3A] text-white flex items-center justify-center font-bold text-xs sm:text-base">
+                  <i className="fas fa-truck-fast"></i>
+                </div>
+                <div>
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase text-[#4F6B3A] block">Manga Express</span>
+                  <span className="text-[11px] sm:text-xs font-bold text-[#2A2320]">Doorstep Delivery in 24h</span>
+                </div>
               </div>
+
+              {/* Floating badge: Secure Payment */}
+              <div className="absolute -top-3 right-2 sm:-top-5 sm:-right-5 bg-white text-[#2A2320] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl shadow-2xl border border-[#E7D5BC] flex items-center gap-2 z-10 pointer-events-none">
+                <i className="fas fa-lock text-[#4F6B3A] text-xs sm:text-sm"></i>
+                <span className="text-[11px] sm:text-xs font-bold text-[#2A2320]">256-bit SSL Paystack</span>
+              </div>
+
             </div>
           </div>
 
-          {/* Card 3: Sell on Manga */}
-          <a
-            href="http://localhost:3001"
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              backgroundColor: '#FFF7ED',
-              borderRadius: '10px',
-              padding: '1.25rem',
-              border: '1px solid #FDBA74',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-              textDecoration: 'none',
-            }}
-          >
-            <div
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '8px',
-                backgroundColor: '#EA580C',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#FFFFFF',
-                flexShrink: 0,
-              }}
-            >
-              <Store size={22} />
-            </div>
-            <div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#9A3412', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                Start Selling on Manga <ArrowRight size={13} />
-              </div>
-              <div style={{ fontSize: '12px', color: '#C2410C', marginTop: '3px', lineHeight: 1.4 }}>
-                Register your business in 5 minutes. Zero monthly maintenance fees.
-              </div>
-            </div>
-          </a>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

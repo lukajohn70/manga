@@ -4,6 +4,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
+  /** Scale factor when pressed. Default is 0.95 (5% squish) */
+  squishScale?: number;
+  /** Enable or disable the squish animation. Default true */
+  enableSquish?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -13,8 +17,54 @@ export const Button: React.FC<ButtonProps> = ({
   isLoading = false,
   disabled,
   style,
+  squishScale = 0.95,
+  enableSquish = true,
+  onPointerDown,
+  onPointerUp,
+  onPointerLeave,
+  onPointerCancel,
+  onKeyDown,
+  onKeyUp,
   ...props
 }) => {
+  const [isPressed, setIsPressed] = React.useState(false);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!disabled && !isLoading && enableSquish) {
+      setIsPressed(true);
+    }
+    onPointerDown?.(e);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (enableSquish) setIsPressed(false);
+    onPointerUp?.(e);
+  };
+
+  const handlePointerLeave = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (enableSquish) setIsPressed(false);
+    onPointerLeave?.(e);
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (enableSquish) setIsPressed(false);
+    onPointerCancel?.(e);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if ((e.key === ' ' || e.key === 'Enter') && !disabled && !isLoading && enableSquish) {
+      setIsPressed(true);
+    }
+    onKeyDown?.(e);
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if ((e.key === ' ' || e.key === 'Enter') && enableSquish) {
+      setIsPressed(false);
+    }
+    onKeyUp?.(e);
+  };
+
   const getStyles = (): React.CSSProperties => {
     switch (variant) {
       case 'primary':
@@ -22,7 +72,9 @@ export const Button: React.FC<ButtonProps> = ({
           backgroundColor: '#B5532E',
           color: '#FFFFFF',
           border: '1px solid #8F3B1F',
-          boxShadow: '0 1px 2px rgba(42, 35, 32, 0.08)',
+          boxShadow: isPressed
+            ? '0 1px 1px rgba(42, 35, 32, 0.04)'
+            : '0 1px 2px rgba(42, 35, 32, 0.08)',
         };
       case 'secondary':
         return {
@@ -52,9 +104,20 @@ export const Button: React.FC<ButtonProps> = ({
     }
   };
 
+  // Kinetic spring transition on release, instant compression on press
+  const transformTransition = isPressed
+    ? 'transform 0.08s ease-out'
+    : 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
   return (
     <button
       disabled={disabled || isLoading}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerLeave}
+      onPointerCancel={handlePointerCancel}
+      onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -67,7 +130,11 @@ export const Button: React.FC<ButtonProps> = ({
         cursor: disabled || isLoading ? 'not-allowed' : 'pointer',
         padding: size === 'sm' ? '6px 12px' : size === 'lg' ? '12px 22px' : '9px 16px',
         opacity: disabled || isLoading ? 0.6 : 1,
-        transition: 'all 0.15s ease',
+        transform: isPressed ? `scale(${squishScale})` : 'scale(1)',
+        transition: `${transformTransition}, background-color 0.15s ease, box-shadow 0.15s ease`,
+        userSelect: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        willChange: 'transform',
         ...getStyles(),
         ...style,
       }}
