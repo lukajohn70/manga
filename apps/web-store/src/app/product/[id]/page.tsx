@@ -157,8 +157,9 @@ export default function ProductDetailPage() {
 
   const inWish = product ? isInWishlist(product.id) : false;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e?: React.MouseEvent) => {
     if (!product) return;
+    const sourceEl = document.getElementById('product-page-main-visual') || (e ? (e.currentTarget as HTMLElement) : null);
     addToCart(
       {
         ...product,
@@ -166,7 +167,8 @@ export default function ProductDetailPage() {
         priceNgn: currentPriceNgn,
         priceUsd: currentPriceUsd,
       },
-      quantity
+      quantity,
+      sourceEl
     );
   };
 
@@ -266,7 +268,10 @@ export default function ProductDetailPage() {
           
           {/* Left: Product Image Gallery (5 Cols) */}
           <div className="lg:col-span-5 space-y-3">
-            <div className="relative rounded-2xl overflow-hidden h-[320px] sm:h-[380px] bg-white border border-[#E7D5BC] shadow-inner flex items-center justify-center p-3 group">
+            <div
+              id="product-page-main-visual"
+              className="relative rounded-2xl overflow-hidden h-[320px] sm:h-[380px] bg-white border border-[#E7D5BC] shadow-inner flex items-center justify-center p-3 group"
+            >
               <img
                 src={galleryImages[currentGalleryIdx] || product.image}
                 alt={product.title}
@@ -534,8 +539,13 @@ export default function ProductDetailPage() {
 
                 <button
                   type="button"
-                  onClick={handleAddToCart}
-                  className="flex-1 min-w-0 h-12 px-2 sm:px-4 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-0 cursor-pointer"
+                  onClick={(e) => {
+                    const btn = e.currentTarget;
+                    btn.classList.add('scale-95');
+                    setTimeout(() => btn.classList.remove('scale-95'), 150);
+                    handleAddToCart(e);
+                  }}
+                  className="flex-1 min-w-0 h-12 px-2 sm:px-4 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-0 cursor-pointer active:scale-95"
                 >
                   <i className="fas fa-cart-plus text-xs"></i>
                   <span className="truncate">Add to Cart</span>
@@ -543,8 +553,8 @@ export default function ProductDetailPage() {
 
                 <button
                   type="button"
-                  onClick={() => {
-                    handleAddToCart();
+                  onClick={(e) => {
+                    handleAddToCart(e);
                     router.push('/checkout');
                   }}
                   className="hidden sm:flex h-12 px-4 bg-[#2A2320] hover:bg-[#8F3B1F] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md transition-all items-center justify-center gap-1.5 border-0 cursor-pointer"
@@ -555,7 +565,10 @@ export default function ProductDetailPage() {
                 {/* Save to Wishlist Button */}
                 <button
                   type="button"
-                  onClick={() => toggleWishlist(product.id)}
+                  onClick={(e) => {
+                    const sourceEl = document.getElementById('product-page-main-visual') || (e.currentTarget as HTMLElement);
+                    toggleWishlist(product.id, sourceEl, product);
+                  }}
                   title={inWish ? 'Remove from Wishlist' : 'Save to Wishlist'}
                   className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl border flex items-center justify-center text-base sm:text-lg transition-all shadow-2xs flex-shrink-0 cursor-pointer ${
                     inWish
