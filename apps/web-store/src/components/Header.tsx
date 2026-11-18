@@ -388,31 +388,41 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </div>
 
-            {/* Wishlist Icon with Dynamic Counter */}
+            {/* Wishlist Icon with Dynamic Counter & Catch Ripple Target */}
             <button
+              id="header-wishlist-button"
               type="button"
               onClick={handleWishlistClick}
               title="Saved Wishlist"
               className="relative flex items-center gap-1.5 p-2 sm:px-3 sm:py-2 rounded-xl text-[#2A2320] hover:text-[#B5532E] hover:bg-[#F6EDE0]/50 transition-colors bg-transparent border-0 cursor-pointer"
             >
-              <i className={`${activeWishlistCount > 0 ? 'fas text-[#B5532E]' : 'far text-[#2A2320]'} fa-heart text-base`}></i>
+              <div id="header-wishlist-ripple-container" className="absolute inset-0 pointer-events-none"></div>
+              <i className={`${activeWishlistCount > 0 ? 'fas text-[#B5532E]' : 'far text-[#2A2320]'} fa-heart text-base transition-colors`}></i>
               <span className="hidden md:inline text-xs font-bold">Saved</span>
-              {activeWishlistCount > 0 && (
-                <span className="bg-[#B5532E] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full ml-0.5 leading-none">
-                  {activeWishlistCount}
-                </span>
-              )}
+              <span
+                id="header-wishlist-badge"
+                className={`bg-[#B5532E] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full ml-0.5 leading-none min-w-[1.25rem] text-center ${
+                  activeWishlistCount > 0 ? 'inline-block' : 'hidden'
+                }`}
+              >
+                {activeWishlistCount}
+              </span>
             </button>
 
-            {/* Shopping Cart Button (Terracotta to Laterite gradient with Ochre Count Pill) */}
+            {/* Shopping Cart Button (Terracotta to Laterite gradient with Ochre Count Pill & Catch Ripple Target) */}
             <button
+              id="header-cart-button"
               type="button"
               onClick={handleCartClick}
               className="relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#B5532E] to-[#8F3B1F] text-white font-bold text-xs shadow-md hover:shadow-lg transition-all border-0 cursor-pointer"
             >
+              <div id="header-cart-ripple-container" className="absolute inset-0 pointer-events-none"></div>
               <i className="fas fa-bag-shopping text-sm text-[#F6EDE0]"></i>
               <span className="hidden sm:inline">Cart</span>
-              <span className="bg-[#D9A441] text-[#2A2320] text-[10px] font-black px-1.5 py-0.5 rounded-full">
+              <span
+                id="header-cart-badge"
+                className="bg-[#D9A441] text-[#2A2320] text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center"
+              >
                 {activeCartCount}
               </span>
             </button>
