@@ -69,6 +69,98 @@ img, video, canvas, svg {
   animation: pulseSubtle 2.5s infinite ease-in-out;
 }
 
+/* Custom Animations for Cinematic Fly-to-Cart & Magnetic Wishlist */
+@keyframes cartCatch {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.28) rotate(-12deg); }
+  50% { transform: scale(0.92) rotate(8deg); }
+  75% { transform: scale(1.12) rotate(-4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0.5); }
+  60% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@keyframes rippleExpand {
+  0% {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.8);
+    opacity: 0;
+  }
+}
+
+.animate-cart-catch {
+  animation: cartCatch 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-badge-pop {
+  animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.cart-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  border: 2.5px solid #B5532E;
+  background: rgba(181, 83, 46, 0.18);
+  pointer-events: none;
+  animation: rippleExpand 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 50;
+}
+
+.wishlist-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  border: 2.5px solid #B3261E;
+  background: rgba(179, 38, 30, 0.18);
+  pointer-events: none;
+  animation: rippleExpand 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 50;
+}
+
+/* Flying clone element base styling */
+.flying-clone {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  border-radius: 1rem;
+  overflow: hidden;
+  will-change: transform, left, top, width, height, opacity;
+  box-shadow: 0 25px 50px -12px rgba(181, 83, 46, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flying-clone-wishlist {
+  box-shadow: 0 25px 50px -12px rgba(179, 38, 30, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+}
+
+/* Trail particle styling */
+.flight-particle {
+  position: fixed;
+  z-index: 99998;
+  pointer-events: none;
+  border-radius: 9999px;
+  transition: transform 0.45s ease-out, opacity 0.45s ease-out;
+}
+
 /* Line clamp helpers */
 .line-clamp-1 {
   display: -webkit-box;

@@ -57,7 +57,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 onClick={onFlashDealsClick}
                 className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-[#F6EDE0] font-bold text-sm backdrop-blur-sm transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
               >
-                <i className="fas fa-bolt text-[#D9A441]"></i>
                 <span>Today's Flash Deals</span>
               </button>
             </div>
@@ -116,23 +115,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                     </span>
                   </div>
                 </div>
-              </div>
-
-              {/* Floating badge: Express Delivery */}
-              <div className="absolute -bottom-3 left-2 sm:-bottom-5 sm:-left-5 bg-white text-[#2A2320] p-3 sm:p-4 rounded-2xl shadow-2xl border border-[#E7D5BC] flex items-center gap-3 z-10 pointer-events-none">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#4F6B3A] text-white flex items-center justify-center font-bold text-xs sm:text-base">
-                  <i className="fas fa-truck-fast"></i>
-                </div>
-                <div>
-                  <span className="text-[9px] sm:text-[10px] font-bold uppercase text-[#4F6B3A] block">Manga Express</span>
-                  <span className="text-[11px] sm:text-xs font-bold text-[#2A2320]">Doorstep Delivery in 24h</span>
-                </div>
-              </div>
-
-              {/* Floating badge: Secure Payment */}
-              <div className="absolute -top-3 right-2 sm:-top-5 sm:-right-5 bg-white text-[#2A2320] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl shadow-2xl border border-[#E7D5BC] flex items-center gap-2 z-10 pointer-events-none">
-                <i className="fas fa-lock text-[#4F6B3A] text-xs sm:text-sm"></i>
-                <span className="text-[11px] sm:text-xs font-bold text-[#2A2320]">256-bit SSL Paystack</span>
               </div>
 
             </div>
