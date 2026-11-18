@@ -276,7 +276,7 @@ export default function ProductDetailPage() {
 
               {/* Boost / Featured Sponsor Badge */}
               <span className="absolute top-3.5 left-3.5 px-3 py-1 bg-gradient-to-r from-[#D9A441] to-[#B5532E] text-white text-xs font-black rounded-lg shadow-md uppercase tracking-wider flex items-center gap-1.5 z-10 pointer-events-none">
-                <i className="fas fa-bolt text-yellow-100"></i> Featured Official Store
+                <i className="fas fa-certificate text-yellow-100"></i> Featured Official Store
               </span>
 
               {/* Zoom Icon Button (Top-Right) */}

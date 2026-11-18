@@ -70,7 +70,7 @@ function ShopContent() {
   // Sync state if URL changes
   useEffect(() => {
     const cat = searchParams.get('category');
-    if (cat) setSelectedCategory(cat);
+    setSelectedCategory(cat || 'all');
     const q = searchParams.get('q');
     if (q !== null) setSearchQuery(q);
     const t = searchParams.get('type');
@@ -190,7 +190,7 @@ function ShopContent() {
         <div className="flex items-center gap-2 text-xs text-[#8C8279] mb-4">
           <Link href="/" className="hover:text-[#B5532E] transition-colors">Home</Link>
           <span>/</span>
-          <span className="font-bold text-[#2A2320]">Shop Marketplace</span>
+          <Link href="/shop" className="hover:text-[#B5532E] transition-colors font-bold text-[#2A2320]">Shop Marketplace</Link>
           {selectedCategory !== 'all' && (
             <>
               <span>/</span>
@@ -205,10 +205,17 @@ function ShopContent() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#E7D5BC] mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-black font-display text-[#2A2320]">
-              {searchQuery ? `Search Results for "${searchQuery}"` : 'Marketplace Catalog'}
+              {searchQuery
+                ? `Search Results for "${searchQuery}"`
+                : selectedCategory !== 'all'
+                ? DEPARTMENTS.find((d) => d.id === selectedCategory)?.name || 'Marketplace Catalog'
+                : 'Marketplace Catalog'}
             </h1>
             <p className="text-xs sm:text-sm text-[#8C8279] mt-1">
               Showing <strong>{filteredProducts.length}</strong> verified authentic products
+              {selectedCategory !== 'all' && (
+                <span> in <span className="text-[#B5532E] font-semibold">{DEPARTMENTS.find((d) => d.id === selectedCategory)?.name}</span></span>
+              )}
             </p>
           </div>
 

@@ -35,8 +35,8 @@ export interface ProductCardProps {
   item: ProductItem;
   currency: 'NGN' | 'USD';
   inWishlist: boolean;
-  onToggleWishlist: (id: string) => void;
-  onAddToCart: (item: ProductItem) => void;
+  onToggleWishlist: (id: string, sourceEl?: HTMLElement) => void;
+  onAddToCart: (item: ProductItem, sourceEl?: HTMLElement) => void;
   onViewProduct: (item: ProductItem) => void;
   onOpenBuyBox?: (item: ProductItem) => void;
 }
@@ -50,14 +50,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onViewProduct,
   onOpenBuyBox,
 }) => {
+  const visualRef = React.useRef<HTMLDivElement>(null);
+
   const formatPrice = (ngn: number, usd: number) => {
     return currency === 'NGN' ? `₦${ngn.toLocaleString()}` : `$${usd.toLocaleString()}`;
   };
 
   return (
-    <div className="group bg-white rounded-2xl border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden">
+    <div
+      id={`product-card-${item.id}`}
+      data-product-id={item.id}
+      className="group bg-white rounded-2xl border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+    >
       <div>
         <div
+          ref={visualRef}
+          id={`product-visual-${item.id}`}
           className="relative bg-gray-100 aspect-square overflow-hidden cursor-pointer"
           onClick={() => onViewProduct(item)}
         >
@@ -73,7 +81,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onToggleWishlist(item.id);
+              onToggleWishlist(item.id, visualRef.current || e.currentTarget);
             }}
             title={inWishlist ? 'Remove from Wishlist' : 'Save to Wishlist'}
             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/95 hover:bg-white text-[#8C8279] shadow-md backdrop-blur-sm flex items-center justify-center transition-all z-10 hover:scale-110 border-0 cursor-pointer"
