@@ -370,6 +370,7 @@ export function StorefrontClient() {
   const [buyBoxProduct, setBuyBoxProduct] = useState<ProductItem | null>(null);
 
   const handleSelectVendorOffer = (product: ProductItem, offer: VendorOffer) => {
+    const visualEl = document.getElementById(`product-visual-${product.id}`);
     addToCart(
       {
         ...product,
@@ -378,7 +379,8 @@ export function StorefrontClient() {
         priceUsd: offer.priceUsd,
         offerId: offer.vendorId,
       },
-      1
+      1,
+      visualEl
     );
     setBuyBoxProduct(null);
   };

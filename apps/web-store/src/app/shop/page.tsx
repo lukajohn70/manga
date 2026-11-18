@@ -406,10 +406,14 @@ function ShopContent() {
                   return (
                     <div
                       key={item.id}
+                      id={`product-card-${item.id}`}
                       className="group bg-white rounded-2xl border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
                     >
                       {/* Product Media Area */}
-                      <div className="relative aspect-square overflow-hidden bg-[#FAF6F0]">
+                      <div
+                        id={`product-visual-${item.id}`}
+                        className="relative aspect-square overflow-hidden bg-[#FAF6F0]"
+                      >
                         <Link href={`/product/${item.id}`} className="block w-full h-full">
                           <img
                             src={item.image}
@@ -432,7 +436,8 @@ function ShopContent() {
                             type="button"
                             onClick={(e) => {
                               e.preventDefault();
-                              toggleWishlist(item.id);
+                              const visualEl = document.getElementById(`product-visual-${item.id}`) || e.currentTarget;
+                              toggleWishlist(item.id, visualEl, item);
                             }}
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 border-0 cursor-pointer pointer-events-auto shadow-sm ${
                               inWish
@@ -492,8 +497,14 @@ function ShopContent() {
                           <div className="flex items-center gap-2">
                             <button
                               type="button"
-                              onClick={() => addToCart(item, 1)}
-                              className="flex-1 py-2 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-colors border-0 cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+                              onClick={(e) => {
+                                const btn = e.currentTarget;
+                                btn.classList.add('scale-95');
+                                setTimeout(() => btn.classList.remove('scale-95'), 150);
+                                const visualEl = document.getElementById(`product-visual-${item.id}`) || btn;
+                                addToCart(item, 1, visualEl);
+                              }}
+                              className="flex-1 py-2 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-all border-0 cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
                             >
                               <i className="fas fa-cart-plus text-xs"></i>
                               <span>Add to Cart</span>

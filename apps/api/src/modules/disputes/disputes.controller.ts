@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import {
   DisputesService,
   OpenDisputeDto,
   SubmitEvidenceDto,
   ResolveDisputeDto,
 } from './disputes.service.js';
+import { RolesGuard } from '../auth/roles.guard.js';
+import { Roles } from '../auth/roles.decorator.js';
 
 export class OpenDisputeInput {
   orderId!: string;
@@ -34,20 +36,24 @@ export class ResolveDisputeInput {
 }
 
 @Controller('v1/admin/disputes')
+@UseGuards(RolesGuard)
 export class DisputesController {
   constructor(private readonly disputesService: DisputesService) {}
 
   @Get()
+  @Roles('ADMIN')
   public async listDisputes(@Query('status') status?: string) {
     return await this.disputesService.listDisputes(status);
   }
 
   @Get(':id')
+  @Roles('ADMIN')
   public async getDisputeDetail(@Param('id') caseId: string) {
     return await this.disputesService.getDisputeDetail(caseId);
   }
 
   @Post('open')
+  @Roles('BUYER', 'VENDOR', 'ADMIN')
   public async openDispute(@Body() body: OpenDisputeInput) {
     return await this.disputesService.openDispute({
       ...body,
@@ -56,6 +62,7 @@ export class DisputesController {
   }
 
   @Post(':id/evidence')
+  @Roles('BUYER', 'VENDOR', 'ADMIN')
   public async submitEvidence(
     @Param('id') caseId: string,
     @Body() body: SubmitEvidenceInput
@@ -67,6 +74,7 @@ export class DisputesController {
   }
 
   @Post(':id/resolve')
+  @Roles('ADMIN')
   public async resolveDispute(
     @Param('id') caseId: string,
     @Body() body: ResolveDisputeInput
