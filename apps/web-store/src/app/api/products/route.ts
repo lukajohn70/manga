@@ -159,6 +159,70 @@ const FALLBACK_PRODUCTS = [
     deliveryEstimate: 'Delivered in 24h within Lagos',
   },
   {
+    id: 'prod-arc-bag',
+    title: 'Arc Mini Sculpted Full Leather Bag (Limited Ochre / Terracotta Edition)',
+    category: 'fashion',
+    categoryName: 'Fashion & Streetwear',
+    priceNgn: 185000,
+    oldPriceNgn: 220000,
+    priceUsd: 128,
+    oldPriceUsd: 150,
+    image: 'https://images.unsplash.com/photo-1603219527847-24c87f552a77?auto=format&fit=crop&w=900&q=85',
+    rating: 4.9,
+    reviewsCount: 52,
+    storeName: 'Cedar & Hide Studio',
+    type: 'physical',
+    deliveryEstimate: 'Arrives in 2–3 days',
+  },
+  {
+    id: 'prod-philips-airfryer',
+    title: 'Philips Premium XXL Smart Sensing Airfryer 7.2L with Rapid Air Technology',
+    category: 'home',
+    categoryName: 'Home & Appliances',
+    priceNgn: 195000,
+    oldPriceNgn: 245000,
+    priceUsd: 138,
+    oldPriceUsd: 170,
+    image: 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=900&q=85',
+    rating: 4.8,
+    reviewsCount: 89,
+    storeName: 'HomeTech Mart Lagos',
+    type: 'physical',
+    deliveryEstimate: 'Manga Express • Tomorrow',
+  },
+  {
+    id: 'prod-sony-tv',
+    title: 'Sony BRAVIA XR 65" 4K OLED Smart Google TV (Cognitive Processor XR)',
+    category: 'electronics',
+    categoryName: 'Electronics & Audio',
+    priceNgn: 1450000,
+    oldPriceNgn: 1650000,
+    priceUsd: 1020,
+    oldPriceUsd: 1150,
+    image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=900&q=85',
+    rating: 4.9,
+    reviewsCount: 112,
+    storeName: 'Sony Audio Official Store',
+    type: 'physical',
+    deliveryEstimate: 'Manga Express • 24–48h',
+  },
+  {
+    id: 'prod-dyson-v15',
+    title: 'Dyson V15 Detect Absolute Cordless Vacuum Cleaner with Laser Illumination',
+    category: 'home',
+    categoryName: 'Home & Appliances',
+    priceNgn: 680000,
+    oldPriceNgn: 750000,
+    priceUsd: 480,
+    oldPriceUsd: 530,
+    image: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?auto=format&fit=crop&w=900&q=85',
+    rating: 4.9,
+    reviewsCount: 46,
+    storeName: 'HomeTech Mart Lagos',
+    type: 'physical',
+    deliveryEstimate: 'Manga Express • Tomorrow',
+  },
+  {
     id: '66666666-6666-6666-6666-666666666666',
     title: 'SaaS UI Design System & Figma Pro Kit (400+ Components & Tokens)',
     category: 'digital',
@@ -271,14 +335,28 @@ export async function GET(request: Request) {
           };
         });
 
+        // Combine backend items with other items from catalog so every department is well-stocked
+        const backendIds = new Set(backendItems.map((b) => b.product_id));
+        const additionalFallbacks = FALLBACK_PRODUCTS.filter((p) => !backendIds.has(p.id));
+        const allItems = [...merged, ...additionalFallbacks];
+
         // Apply category filter if requested
         const filtered = category && category !== 'all' && category !== 'flash'
-          ? merged.filter((item) => item.category === category)
-          : merged;
+          ? allItems.filter((item) => item.category === category)
+          : allItems;
+
+        const searched = q.trim()
+          ? filtered.filter(
+              (item) =>
+                item.title.toLowerCase().includes(q.toLowerCase()) ||
+                item.storeName.toLowerCase().includes(q.toLowerCase()) ||
+                item.categoryName.toLowerCase().includes(q.toLowerCase())
+            )
+          : filtered;
 
         return NextResponse.json({
-          items: filtered,
-          total: filtered.length,
+          items: searched,
+          total: searched.length,
           source: 'backend_monolith',
         });
       }

@@ -549,7 +549,6 @@ export default function ProductDetailPage() {
                   }}
                   className="hidden sm:flex h-12 px-4 bg-[#2A2320] hover:bg-[#8F3B1F] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md transition-all items-center justify-center gap-1.5 border-0 cursor-pointer"
                 >
-                  <i className="fas fa-bolt text-[#D9A441]"></i>
                   <span>Buy Now</span>
                 </button>
 
@@ -1058,7 +1057,7 @@ export default function ProductDetailPage() {
 
                 <div className="flex items-start gap-3 p-2.5 rounded-xl bg-[#F3E2CB]/60 border border-[#D9A441]/50">
                   <div className="w-7 h-7 rounded-lg bg-[#B5532E] text-white flex items-center justify-center flex-shrink-0 text-xs shadow-xs">
-                    <i className="fas fa-bolt"></i>
+                    <i className="fas fa-truck-fast"></i>
                   </div>
                   <div>
                     <h5 className="font-extrabold text-[#2A2320]">Kaduna Same-Day Dispatch</h5>

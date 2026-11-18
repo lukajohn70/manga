@@ -144,8 +144,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-5 pt-0">
         <button
           type="button"
-          onClick={() => onAddToCart(item)}
-          className="w-full py-2.5 bg-[#FAF6F0] hover:bg-[#B5532E] text-[#2A2320] hover:text-white rounded-xl text-xs font-bold border border-[#E7D5BC] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+          onClick={(e) => {
+            const btn = e.currentTarget;
+            btn.classList.add('scale-95');
+            setTimeout(() => btn.classList.remove('scale-95'), 150);
+            onAddToCart(item, visualRef.current || btn);
+          }}
+          className="w-full py-2.5 bg-[#FAF6F0] hover:bg-[#B5532E] text-[#2A2320] hover:text-white rounded-xl text-xs font-bold border border-[#E7D5BC] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs active:scale-95"
         >
           <i className="fas fa-cart-plus"></i>
           <span>Add to Cart</span>
