@@ -61,14 +61,12 @@ export const FlashDeals: React.FC<FlashDealsProps> = ({
         
         {/* Flash Sale Header with Live Timer (Manga Terracotta to Laterite Gradient) */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 sm:p-6 bg-gradient-to-r from-[#B5532E] via-[#8F3B1F] to-[#2A2320] rounded-2xl text-white mb-8 shadow-lg">
-          <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg text-[#D9A441]">
-              <i className="fas fa-bolt"></i>
-            </span>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black font-display text-white">Flash Sales & Limited Deals</h2>
-              <p className="text-xs sm:text-sm text-[#F6EDE0]/85">Markdowns on authentic consumer electronics, hardware & fashion.</p>
+          <div>
+            <div className="inline-block px-2.5 py-0.5 rounded-full bg-white/15 text-[#D9A441] text-[10px] font-black uppercase tracking-wider mb-1">
+              Limited Time Offers
             </div>
+            <h2 className="text-xl sm:text-2xl font-black font-display text-white">Flash Sales & Limited Deals</h2>
+            <p className="text-xs sm:text-sm text-[#F6EDE0]/85">Markdowns on authentic consumer electronics, hardware & fashion.</p>
           </div>
           
           {/* Countdown Timer Box */}

@@ -156,8 +156,7 @@ export default function FlashSalesPage() {
           <div className="container mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8">
             <div>
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-[#D9A441] text-xs font-bold mb-4 border border-white/20">
-                <i className="fas fa-bolt animate-pulse"></i>
-                <span>Lightning Deals • Limited Stock Reservations</span>
+                <span>Limited Time Offers • Verified Merchant Stock</span>
               </div>
               <h1 className="text-3xl sm:text-5xl font-black font-display text-white mb-3">
                 MARKETSQUARE Flash Deals
@@ -284,7 +283,6 @@ export default function FlashSalesPage() {
                       onClick={() => addToCart(item, 1)}
                       className="w-full py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-colors border-0 cursor-pointer shadow-2xs flex items-center justify-center gap-1.5"
                     >
-                      <i className="fas fa-bolt text-xs text-[#D9A441]"></i>
                       <span>Claim Deal</span>
                     </button>
                   </div>

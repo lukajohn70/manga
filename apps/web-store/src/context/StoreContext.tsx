@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
+import { triggerFlyToCart, triggerFlyToWishlist } from '../lib/flyAnimations';
 
 export interface CartItem {
   id: string;
@@ -54,11 +55,13 @@ export interface StoreContextType {
   cartCount: number;
   wishlist: string[];
   wishlistCount: number;
-  addToCart: (item: any, qty?: number) => void;
+  addToCart: (item: any, qty?: number, sourceEl?: HTMLElement | null) => void;
   updateQty: (id: string, qty: number) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
-  toggleWishlist: (id: string) => void;
+  toggleWishlist: (id: string, sourceEl?: HTMLElement | null, item?: any) => void;
+  flyToCart: (sourceEl?: HTMLElement | null, item?: any) => void;
+  flyToWishlist: (sourceEl?: HTMLElement | null, item?: any) => void;
   isInWishlist: (id: string) => boolean;
   toastMessage: string | null;
   showToast: (msg: string) => void;
@@ -286,28 +289,31 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setLastOrderRef(newOrder.orderRef);
   };
 
-  const addToCart = (product: any, qty = 1) => {
-    setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + qty } : item
-        );
-      }
-      return [
-        ...prev,
-        {
-          id: product.id,
-          name: product.title || product.name,
-          seller: product.storeName || product.seller || 'Official Vendor',
-          priceNgn: product.priceNgn,
-          priceUsd: product.priceUsd,
-          image: product.image,
-          type: product.type || 'physical',
-          quantity: qty,
-          offerId: product.offerId,
-        },
-      ];
+  const addToCart = (product: any, qty = 1, sourceEl?: HTMLElement | null) => {
+    // Cinematic Parabolic Fly-to-Cart Arc
+    triggerFlyToCart(sourceEl, product, () => {
+      setCartItems((prev) => {
+        const existing = prev.find((item) => item.id === product.id);
+        if (existing) {
+          return prev.map((item) =>
+            item.id === product.id ? { ...item, quantity: item.quantity + qty } : item
+          );
+        }
+        return [
+          ...prev,
+          {
+            id: product.id,
+            name: product.title || product.name,
+            seller: product.storeName || product.seller || 'Official Vendor',
+            priceNgn: product.priceNgn,
+            priceUsd: product.priceUsd,
+            image: product.image,
+            type: product.type || 'physical',
+            quantity: qty,
+            offerId: product.offerId,
+          },
+        ];
+      });
     });
     showToast(`Added ${String(product.title || product.name).slice(0, 30)}... to cart`);
   };
@@ -331,15 +337,25 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCartItems([]);
   };
 
-  const toggleWishlist = (id: string) => {
-    setWishlist((prev) => {
-      if (prev.includes(id)) {
-        showToast('Removed from saved wishlist');
-        return prev.filter((item) => item !== id);
-      }
+  const toggleWishlist = (id: string, sourceEl?: HTMLElement | null, item?: any) => {
+    if (wishlist.includes(id)) {
+      setWishlist((prev) => prev.filter((item) => item !== id));
+      showToast('Removed from saved wishlist');
+    } else {
+      // Magnetic Pull Fly-to-Wishlist
+      triggerFlyToWishlist(sourceEl, item || { id }, () => {
+        setWishlist((prev) => (prev.includes(id) ? prev : [...prev, id]));
+      });
       showToast('Saved to your wishlist');
-      return [...prev, id];
-    });
+    }
+  };
+
+  const flyToCart = (sourceEl?: HTMLElement | null, item?: any) => {
+    triggerFlyToCart(sourceEl, item);
+  };
+
+  const flyToWishlist = (sourceEl?: HTMLElement | null, item?: any) => {
+    triggerFlyToWishlist(sourceEl, item);
   };
 
   const isInWishlist = (id: string) => wishlist.includes(id);
@@ -367,6 +383,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         removeFromCart,
         clearCart,
         toggleWishlist,
+        flyToCart,
+        flyToWishlist,
         isInWishlist,
         toastMessage,
         showToast,

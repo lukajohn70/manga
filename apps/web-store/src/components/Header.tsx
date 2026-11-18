@@ -558,9 +558,8 @@ export const Header: React.FC<HeaderProps> = ({
 
             <Link
               href="/flash-sales"
-              className="text-[#B3261E] hover:text-[#8F3B1F] flex items-center gap-1.5 flex-shrink-0 font-black animate-pulse"
+              className="text-[#B3261E] hover:text-[#8F3B1F] flex items-center gap-1.5 flex-shrink-0 font-bold"
             >
-              <i className="fas fa-bolt"></i>
               <span>Flash Sales (Up to 60% OFF)</span>
             </Link>
 

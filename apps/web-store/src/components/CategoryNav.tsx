@@ -1,10 +1,11 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 
 export interface CategoryNavProps {
-  selectedCategory: string;
-  onSelectCategory: (cat: string) => void;
+  selectedCategory?: string;
+  onSelectCategory?: (cat: string) => void;
 }
 
 export const CategoryNav: React.FC<CategoryNavProps> = ({
@@ -52,25 +53,29 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
             <h2 className="text-2xl sm:text-3xl font-black font-display text-[#2A2320]">Shop by Department</h2>
             <p className="text-sm text-[#8C8279] mt-1">Explore authentic physical goods and instant digital downloads.</p>
           </div>
-          <button
-            type="button"
-            onClick={() => onSelectCategory('all')}
-            className="text-xs font-bold text-[#B5532E] hover:text-[#8F3B1F] hover:underline flex items-center gap-1 bg-transparent border-0 cursor-pointer"
+          <Link
+            href="/shop"
+            onClick={() => {
+              if (onSelectCategory) onSelectCategory('all');
+            }}
+            className="text-xs font-bold text-[#B5532E] hover:text-[#8F3B1F] hover:underline flex items-center gap-1 bg-transparent border-0 cursor-pointer no-underline"
           >
             <span>View All Categories</span>
             <i className="fas fa-arrow-right"></i>
-          </button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {departments.map((cat) => {
             const isSelected = selectedCategory === cat.id;
             return (
-              <button
+              <Link
                 key={cat.id}
-                type="button"
-                onClick={() => onSelectCategory(isSelected ? 'all' : cat.id)}
-                className={`group p-5 rounded-2xl border transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center text-center cursor-pointer ${
+                href={`/shop?category=${cat.id}`}
+                onClick={() => {
+                  if (onSelectCategory) onSelectCategory(cat.id);
+                }}
+                className={`group p-5 rounded-2xl border transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center text-center cursor-pointer no-underline block ${
                   isSelected
                     ? 'bg-[#F6EDE0] border-[#B5532E] shadow-md ring-2 ring-[#B5532E]/20'
                     : 'bg-[#FAF6F0] hover:bg-white border-[#E7D5BC]/60 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-xl'
@@ -91,7 +96,7 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
                 <span className="text-[11px] text-[#8C8279] mt-1 capitalize font-medium">
                   {cat.type} Department
                 </span>
-              </button>
+              </Link>
             );
           })}
         </div>
