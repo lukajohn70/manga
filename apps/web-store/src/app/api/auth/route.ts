@@ -4,6 +4,8 @@ import {
   registerDbUser,
   createDbPasswordReset,
   resetDbUserPassword,
+  createDbEmailVerificationOtp,
+  verifyDbEmailVerificationOtp,
 } from '../../../lib/db-auth';
 import { getDbOrdersByEmail } from '../../../lib/db-orders';
 import {
@@ -126,10 +128,69 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, message: res.message });
     }
 
+    // 4b. Action: SEND EMAIL VERIFICATION OTP (Pre-registration verification)
+    if (action === 'send-email-otp') {
+      const rateLimitKey = `email_otp:${clientIp}`;
+      const rateCheck = checkRateLimit(rateLimitKey, 5, 10 * 60 * 1000); // 5 requests per 10 mins
+      if (!rateCheck.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Too many verification requests. Please retry in ${rateCheck.retryAfterSeconds} seconds.`,
+          },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(rateCheck.retryAfterSeconds) },
+          }
+        );
+      }
+
+      const res = await createDbEmailVerificationOtp(body.email);
+      if (!res.success) {
+        return NextResponse.json({ success: false, message: res.message }, { status: 400 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: res.message,
+        token: res.token,
+        devOtp: res.otp, // Available for development/testing convenience
+      });
+    }
+
+    // 4c. Action: VERIFY EMAIL OTP
+    if (action === 'verify-email-otp') {
+      const rateLimitKey = `verify_otp:${clientIp}`;
+      const rateCheck = checkRateLimit(rateLimitKey, 10, 15 * 60 * 1000); // 10 attempts
+      if (!rateCheck.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Too many verification attempts. Please retry in ${rateCheck.retryAfterSeconds} seconds.`,
+          },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(rateCheck.retryAfterSeconds) },
+          }
+        );
+      }
+
+      const res = await verifyDbEmailVerificationOtp(body.email, body.otp);
+      if (!res.success) {
+        return NextResponse.json({ success: false, message: res.message }, { status: 400 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: res.message,
+        verificationToken: res.verificationToken,
+      });
+    }
+
     // 5. Action: REGISTRATION
     if (action === 'register') {
       const rateLimitKey = `register:${clientIp}`;
-      const rateCheck = checkRateLimit(rateLimitKey, 5, 60 * 60 * 1000); // 5 per hour
+      const rateCheck = checkRateLimit(rateLimitKey, 10, 60 * 60 * 1000); // 10 per hour
       if (!rateCheck.allowed) {
         return NextResponse.json(
           {
@@ -148,6 +209,7 @@ export async function POST(request: Request) {
         password: body.password,
         name: body.name,
         phone: body.phone,
+        verificationToken: body.verificationToken,
       });
 
       if (!res.success || !res.user) {

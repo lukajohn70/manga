@@ -1,6 +1,7 @@
 import * as React from 'react';
 import './globals.css';
 import { StoreProvider } from '../context/StoreContext';
+import { CookieConsent } from '../components/CookieConsent';
 
 export const metadata = {
   title: 'MANGA MARKETSQUARE — Authentic Multi-Category Commerce | Verified Sellers',
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col antialiased bg-[#FAF6F0] text-[#2A2320]">
         <StoreProvider>
           {children}
+          <CookieConsent />
         </StoreProvider>
       </body>
     </html>

@@ -19,6 +19,7 @@ export default function SellOnMangaPage() {
   const [city, setCity] = useState('Kaduna');
   const [category, setCategory] = useState('Electronics & Audio');
   const [notes, setNotes] = useState('');
+  const [merchantAgreed, setMerchantAgreed] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState<string | null>(null);
@@ -29,6 +30,10 @@ export default function SellOnMangaPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!merchantAgreed) {
+      setErrorMessage('Please accept the Merchant Standards, Terms of Service, and Privacy Policy to register.');
+      return;
+    }
     setIsSubmitting(true);
     setErrorMessage(null);
 
@@ -182,8 +187,8 @@ export default function SellOnMangaPage() {
                       <span className="text-white font-bold">Kaduna • Kano • Abuja • Lagos</span>
                     </div>
                     <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-                      <span className="text-[#E7D5BC]">Database Engine</span>
-                      <span className="text-white font-bold">PostgreSQL 13 Enterprise</span>
+                      <span className="text-[#E7D5BC]">Platform Reliability</span>
+                      <span className="text-white font-bold">99.9% Cloud Uptime</span>
                     </div>
                     <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
                       <span className="text-[#E7D5BC]">Disbursement Partner</span>
@@ -475,17 +480,36 @@ export default function SellOnMangaPage() {
                   ></textarea>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#F6EDE0] border border-[#E7D5BC] text-[11px] text-[#8C8279] flex items-start gap-2">
-                  <i className="fas fa-lock text-[#B5532E] mt-0.5"></i>
-                  <span>
-                    By registering, your account is stored directly in our secured PostgreSQL database. You agree to Manga's
-                    Merchant Standards, escrow disbursement timelines, and authenticity policy.
-                  </span>
+                <div className="p-4 rounded-xl bg-white border border-[#E7D5BC] text-xs text-[#6B5E57] space-y-2">
+                  <label className="flex items-start gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={merchantAgreed}
+                      onChange={(e) => setMerchantAgreed(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-[#E7D5BC] text-[#B5532E] focus:ring-[#B5532E] cursor-pointer"
+                    />
+                    <span className="text-xs text-[#2A2320] leading-relaxed">
+                      I have read and agree to Manga's{' '}
+                      <Link href="/terms-of-service" target="_blank" className="text-[#B5532E] font-bold underline hover:text-[#8F3B1F]">
+                        Terms of Service
+                      </Link>
+                      ,{' '}
+                      <Link href="/privacy-policy" target="_blank" className="text-[#B5532E] font-bold underline hover:text-[#8F3B1F]">
+                        Privacy Policy
+                      </Link>
+                      , and{' '}
+                      <Link href="/escrow-agreement" target="_blank" className="text-[#B5532E] font-bold underline hover:text-[#8F3B1F]">
+                        Merchant Quality & Escrow Standards
+                      </Link>
+                      .
+                    </span>
+                  </label>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !merchantAgreed}
                   className="w-full py-4 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-black text-sm shadow-lg shadow-[#B5532E]/30 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (

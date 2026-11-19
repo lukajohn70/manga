@@ -244,9 +244,9 @@ export function StorefrontClient() {
                 <div className="w-16 h-16 rounded-full bg-[#FAF7F2] border border-[#E7D5BC] text-[#8C8279] flex items-center justify-center text-2xl mx-auto mb-4">
                   <i className="fas fa-boxes-stacked"></i>
                 </div>
-                <h4 className="font-black text-[#2A2320] text-lg mb-2">Marketplace Catalog Ready</h4>
+                <h4 className="font-black text-[#2A2320] text-lg mb-2">New Arrivals Coming Soon</h4>
                 <p className="text-xs text-[#8C8279] mb-6 leading-relaxed">
-                  All dummy products have been removed from the database. Verified merchants can now register and list inventory.
+                  Verified merchants and official stores are updating their inventory catalogs. Check back shortly for new drops or list your own authentic products.
                 </p>
                 <button
                   type="button"
@@ -254,7 +254,7 @@ export function StorefrontClient() {
                   className="px-6 py-2.5 bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold rounded-xl border-0 cursor-pointer shadow-xs transition inline-flex items-center gap-2"
                 >
                   <i className="fas fa-shop"></i>
-                  <span>Sell on Manga / List Inventory</span>
+                  <span>Sell on Manga / Partner With Us</span>
                 </button>
               </div>
             )}

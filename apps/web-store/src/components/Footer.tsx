@@ -255,6 +255,8 @@ export const Footer: React.FC<FooterProps> = ({
                 <span>•</span>
                 <Link href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
                 <span>•</span>
+                <Link href="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link>
+                <span>•</span>
                 <Link href="/escrow-agreement" className="hover:text-white transition-colors">Buyer Protection Policy</Link>
                 <span>•</span>
                 <Link href="/return-policy" className="hover:text-white transition-colors">7-Day Return Policy</Link>

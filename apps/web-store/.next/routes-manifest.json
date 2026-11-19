@@ -127,6 +127,12 @@
       "namedRegex": "^/checkout(?:/)?$"
     },
     {
+      "page": "/cookie-policy",
+      "regex": "^/cookie\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cookie\\-policy(?:/)?$"
+    },
+    {
       "page": "/escrow-agreement",
       "regex": "^/escrow\\-agreement(?:/)?$",
       "routeKeys": {},

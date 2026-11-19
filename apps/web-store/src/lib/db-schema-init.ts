@@ -35,6 +35,19 @@ CREATE TABLE IF NOT EXISTS identity.password_resets (
 CREATE INDEX IF NOT EXISTS idx_password_resets_token ON identity.password_resets(token_hash);
 CREATE INDEX IF NOT EXISTS idx_password_resets_email ON identity.password_resets(email);
 
+-- 1c. Email Verification Codes (Expiring, 6-digit OTP for Registration)
+CREATE TABLE IF NOT EXISTS identity.email_verifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL,
+    otp_code VARCHAR(16) NOT NULL,
+    verification_token VARCHAR(128) NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    verified_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_email_verifications_email ON identity.email_verifications(email);
+CREATE INDEX IF NOT EXISTS idx_email_verifications_token ON identity.email_verifications(verification_token);
+
 -- 2. Vendors
 CREATE TABLE IF NOT EXISTS vendor.vendors (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
