@@ -4,10 +4,6 @@
   "private": true,
   "main": "server.js",
   "packageManager": "pnpm@12.21.0",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "build": "turbo run build",
     "start": "node server.js",
@@ -31,6 +27,9 @@
     "vitest": "^5.1.0"
   },
   "dependencies": {
-    "lucide-react": "^1.73.0"
+    "lucide-react": "^1.73.0",
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

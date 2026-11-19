@@ -34,13 +34,14 @@ if command -v rsync &> /dev/null; then
     --exclude='.cpanel.yml' \
     --exclude='.github' \
     --exclude='.turbo' \
-    --exclude='.next' \
+    --exclude='.next/cache' \
     --exclude='node_modules' \
     ./ "$TARGET/"
 else
   echo "rsync not found, using cp..."
   /bin/cp -R * "$TARGET/" 2>/dev/null || true
   /bin/cp -f .htaccess "$TARGET/" 2>/dev/null || true
+  /bin/cp -rf apps/web-store/.next "$TARGET/apps/web-store/" 2>/dev/null || true
 fi
 
 # Ensure .env is preserved or created from example if not already present
