@@ -44,6 +44,13 @@ else
   /bin/cp -rf apps/web-store/.next "$TARGET/apps/web-store/" 2>/dev/null || true
 fi
 
+# Remove static index.html if present so Passenger / Node.js handles root traffic
+rm -f "$TARGET/index.html"
+
+# Trigger Phusion Passenger reload
+mkdir -p "$TARGET/tmp"
+touch "$TARGET/tmp/restart.txt"
+
 # Ensure .env is preserved or created from example if not already present
 if [ ! -f "$TARGET/.env" ] && [ -f "$TARGET/.env.example" ]; then
   echo "Creating initial .env from .env.example..."

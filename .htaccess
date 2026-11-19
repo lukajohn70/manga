@@ -2,11 +2,8 @@
 # MANGA MARKETSQUARE — LiteSpeed / Apache Web Server Configuration
 # ==============================================================================
 
-# Disable directory browsing (prevents "Index of /" file listings)
+# Disable directory browsing (prevents file listings)
 Options -Indexes
-
-# Set directory index order
-DirectoryIndex index.html index.php
 
 # UTF-8 encoding
 AddDefaultCharset UTF-8
