@@ -201,7 +201,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       const savedUser = localStorage.getItem('manga_customer_user');
       if (savedUser) {
-        setUser(JSON.parse(savedUser));
+        const u = JSON.parse(savedUser);
+        setUser(u);
+        if (u?.email) {
+          fetch(`/api/orders?email=${encodeURIComponent(u.email)}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => {
+              if (d?.orders && d.orders.length > 0) {
+                setOrders(d.orders);
+              }
+            })
+            .catch(() => {});
+        }
       }
 
       const savedOrders = localStorage.getItem('manga_customer_orders');
@@ -285,6 +296,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       },
     };
     setUser(customer);
+
+    // Sync real buyer orders from database
+    fetch(`/api/orders?email=${encodeURIComponent(customer.email)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.orders && d.orders.length > 0) {
+          setOrders(d.orders);
+        }
+      })
+      .catch(() => {});
+
     showToast(`Welcome back, ${customer.name}! Authenticated as [${role}].`);
   };
 

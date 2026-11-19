@@ -1,7 +1,25 @@
 'use client';
 
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+
+export interface CategoryItem {
+  id: string;
+  slug: string;
+  name: string;
+  type?: string;
+  icon?: string;
+  count?: number;
+}
+
+const DEFAULT_DEPARTMENTS: CategoryItem[] = [
+  { id: 'computing', slug: 'computing', name: 'Phones & Computing', type: 'Hardware', icon: 'fa-laptop' },
+  { id: 'electronics', slug: 'electronics', name: 'Electronics & Audio', type: 'Consumer Tech', icon: 'fa-headphones' },
+  { id: 'fashion', slug: 'fashion', name: 'Fashion & Streetwear', type: 'Lifestyle', icon: 'fa-shirt' },
+  { id: 'home', slug: 'home', name: 'Home & Appliances', type: 'Living', icon: 'fa-couch' },
+  { id: 'digital', slug: 'digital', name: 'Software & Digital Assets', type: 'Code & Design', icon: 'fa-code' },
+];
 
 export interface CategoryNavProps {
   selectedCategory?: string;
@@ -12,38 +30,38 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
   selectedCategory,
   onSelectCategory,
 }) => {
-  const departments = [
-    {
-      id: 'computing',
-      name: 'Phones & Computing',
-      type: 'Hardware',
-      icon: 'fa-laptop',
-    },
-    {
-      id: 'electronics',
-      name: 'Electronics & Audio',
-      type: 'Consumer Tech',
-      icon: 'fa-headphones',
-    },
-    {
-      id: 'fashion',
-      name: 'Fashion & Streetwear',
-      type: 'Lifestyle',
-      icon: 'fa-shirt',
-    },
-    {
-      id: 'home',
-      name: 'Home & Appliances',
-      type: 'Living',
-      icon: 'fa-couch',
-    },
-    {
-      id: 'digital',
-      name: 'Software & Digital Assets',
-      type: 'Code & Design',
-      icon: 'fa-code',
-    },
-  ];
+  const [departments, setDepartments] = useState<CategoryItem[]>(DEFAULT_DEPARTMENTS);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/categories')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data?.categories && data.categories.length > 0) {
+          const typeMap: Record<string, string> = {
+            computing: 'Hardware',
+            electronics: 'Consumer Tech',
+            fashion: 'Lifestyle',
+            home: 'Living',
+            digital: 'Code & Design',
+          };
+          const mapped: CategoryItem[] = data.categories.map((c: any) => ({
+            id: c.slug || c.id,
+            slug: c.slug || c.id,
+            name: c.name,
+            type: typeMap[c.slug] || 'Department',
+            icon: c.icon || 'fa-tag',
+            count: c.count,
+          }));
+          setDepartments(mapped);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <section className="py-12 sm:py-14 bg-white border-b border-[#E7D5BC]">
@@ -67,13 +85,13 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {departments.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
+            const isSelected = selectedCategory === cat.slug || selectedCategory === cat.id;
             return (
               <Link
                 key={cat.id}
-                href={`/shop?category=${cat.id}`}
+                href={`/shop?category=${cat.slug || cat.id}`}
                 onClick={() => {
-                  if (onSelectCategory) onSelectCategory(cat.id);
+                  if (onSelectCategory) onSelectCategory(cat.slug || cat.id);
                 }}
                 className={`group p-5 rounded-2xl border transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center text-center cursor-pointer no-underline block ${
                   isSelected
@@ -94,7 +112,7 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
                   {cat.name}
                 </h3>
                 <span className="text-[11px] text-[#8C8279] mt-1 capitalize font-medium">
-                  {cat.type} Department
+                  {cat.type} {cat.count !== undefined && cat.count > 0 ? `(${cat.count})` : 'Department'}
                 </span>
               </Link>
             );

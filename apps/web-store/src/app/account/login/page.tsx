@@ -7,13 +7,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useStore } from '../../../context/StoreContext';
 import { Header } from '../../../components/Header';
 import { Footer } from '../../../components/Footer';
-import { AuthClient, calculateTotpCode, DEMO_CREDENTIALS } from '@manga/api-client';
+import { calculateTotpCode, DEMO_CREDENTIALS } from '@manga/api-client';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loginCustomer, cartCount, wishlistCount } = useStore();
-  const authClient = useMemo(() => new AuthClient('http://localhost:3003'), []);
 
   const initialTab = searchParams.get('tab') === 'register' ? 'register' : 'login';
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'lookup'>(initialTab);
@@ -58,10 +57,24 @@ function LoginContent() {
 
     try {
       const pass = loginPassword || 'BuyerPass123!';
-      const res = await authClient.login(loginEmail, pass);
-      setChallengeToken(res.challengeToken);
-      setTotpSecret(res.totpSecret);
-      setTestOtp(res.testOtp || null);
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'login',
+          email: loginEmail,
+          password: pass,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Authentication failed. Please check your credentials.');
+      }
+
+      setChallengeToken(data.challengeToken || 'chal_' + Date.now());
+      setTotpSecret(data.totpSecret || 'JBSWY3DPEHPK3PXP');
+      setTestOtp(data.testOtp || null);
       setAuthStep('2fa');
       setTwoFaCode('');
     } catch (err: any) {
@@ -81,13 +94,29 @@ function LoginContent() {
     setLoading(true);
 
     try {
-      const res = await authClient.verify2fa(challengeToken, twoFaMethod, twoFaCode);
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'verify-2fa',
+          email: loginEmail,
+          code: twoFaCode,
+          totpSecret,
+          challengeToken,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Invalid 2FA verification code. Please check your authenticator or email.');
+      }
+
       loginCustomer(
-        res.user.email,
-        res.user.name,
-        '+234 803 123 4567',
-        res.user.role,
-        res.token
+        data.user.email,
+        data.user.name,
+        data.user.phone || '+234 803 123 4567',
+        data.user.role || 'BUYER',
+        data.token
       );
       router.push('/account');
     } catch (err: any) {
@@ -107,7 +136,23 @@ function LoginContent() {
     setLoading(true);
 
     try {
-      // Direct registration and login with 2FA setup
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'register',
+          email: regEmail,
+          password: regPassword,
+          name: regName,
+          phone: regPhone,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Registration failed.');
+      }
+
       loginCustomer(regEmail, regName, regPhone || '+234 800 000 0000', 'BUYER');
       router.push('/account');
     } catch (err: any) {

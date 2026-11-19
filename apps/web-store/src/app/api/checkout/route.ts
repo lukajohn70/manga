@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createDbOrder } from '../../../lib/db-orders';
 
 interface CheckoutPayload {
   buyerId?: string;
@@ -6,123 +7,90 @@ interface CheckoutPayload {
     id: string;
     offerId?: string;
     name: string;
+    seller?: string;
     priceNgn: number;
     priceUsd: number;
     quantity: number;
+    image?: string;
   }>;
   customer: {
     name: string;
     email: string;
     phone: string;
     state: string;
-    lga: string;
+    lga?: string;
     address: string;
   };
-  deliveryType: 'doorstep' | 'pickup';
-  paymentMethod: string;
+  deliveryType?: 'doorstep' | 'pickup';
+  paymentMethod?: string;
+  paymentRef?: string;
+  totals?: {
+    subtotalNgn?: number;
+    deliveryFeeNgn?: number;
+    discountNgn?: number;
+    totalNgn?: number;
+    totalUsd?: number;
+  };
 }
-
-const DEFAULT_OFFER_IDS: Record<string, string> = {
-  '66666666-6666-6666-6666-666666666661': '88888888-8888-8888-8888-888888888881',
-  'prod-sony-wh1000xm5': '88888888-8888-8888-8888-888888888881',
-  '66666666-6666-6666-6666-666666666662': '88888888-8888-8888-8888-888888888882',
-  'prod-samsung-s24u': '88888888-8888-8888-8888-888888888882',
-  '66666666-6666-6666-6666-666666666663': '88888888-8888-8888-8888-888888888883',
-  'prod-macbook-air-m3': '88888888-8888-8888-8888-888888888883',
-  '66666666-6666-6666-6666-666666666664': '88888888-8888-8888-8888-888888888884',
-  'prod-delonghi-dedica': '88888888-8888-8888-8888-888888888884',
-  '66666666-6666-6666-6666-666666666665': '88888888-8888-8888-8888-888888888885',
-  'prod-kano-rucksack': '88888888-8888-8888-8888-888888888885',
-  '66666666-6666-6666-6666-666666666666': '88888888-8888-8888-8888-888888888886',
-  'prod-figma-kit': '88888888-8888-8888-8888-888888888886',
-};
 
 export async function POST(request: Request) {
   try {
     const payload: CheckoutPayload = await request.json();
 
-    const buyerId = payload.buyerId || '11111111-1111-1111-1111-111111111111';
-    const idempotencyKey = `CK-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const items = payload.items || [];
+    const subtotal = items.reduce((acc, it) => acc + (it.priceNgn || 0) * (it.quantity || 1), 0);
+    const deliveryFee = payload.deliveryType === 'doorstep' ? 2500 : 0;
+    const totalNgn = payload.totals?.totalNgn || subtotal + deliveryFee;
+    const totalUsd = payload.totals?.totalUsd || Math.round(totalNgn / 1400);
 
-    // Map checkout items to backend offer IDs
-    const backendItems = payload.items.map((item) => {
-      const offerId =
-        item.offerId ||
-        DEFAULT_OFFER_IDS[item.id] ||
-        '88888888-8888-8888-8888-888888888881'; // fallback to valid active offer
-      return {
-        offerId,
-        qty: item.quantity,
-      };
+    const result = await createDbOrder({
+      buyerId: payload.buyerId,
+      buyerEmail: payload.customer.email,
+      items: items.map((it) => ({
+        id: it.id,
+        name: it.name,
+        seller: it.seller || 'Manga Verified Vendor',
+        priceNgn: it.priceNgn,
+        priceUsd: it.priceUsd,
+        quantity: it.quantity,
+        image: it.image,
+      })),
+      customer: {
+        name: payload.customer.name,
+        phone: payload.customer.phone,
+        address: `${payload.customer.address}, ${payload.customer.lga || ''}`,
+        city: payload.customer.lga || 'Ikeja',
+        state: payload.customer.state,
+      },
+      deliveryType: payload.deliveryType || 'doorstep',
+      paymentMethod: payload.paymentMethod || 'Paystack Escrow Card',
+      paymentRef: payload.paymentRef,
+      totals: {
+        subtotalNgn: subtotal,
+        deliveryFeeNgn: deliveryFee,
+        discountNgn: 0,
+        totalNgn,
+        totalUsd,
+      },
     });
 
-    const backendBody = {
-      buyerId,
-      items: backendItems,
-      shippingAddress: {
-        recipientName: payload.customer.name || 'Valued Buyer',
-        phone: payload.customer.phone || '+2348000000000',
-        streetAddress: payload.customer.address || 'Standard Address',
-        city: payload.customer.lga || 'Ikeja',
-        stateOrProvince: payload.customer.state || 'Lagos',
-        countryCode: 'NG',
-      },
-      paymentMethod: payload.paymentMethod || 'paystack',
-      idempotencyKey,
-    };
-
-    // Forward to backend modular monolith
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 6000);
-
-      const apiBase =
-        process.env.INTERNAL_API_URL ||
-        process.env.NEXT_PUBLIC_API_URL ||
-        'http://localhost:4000';
-
-      const res = await fetch(`${apiBase}/v1/checkout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(backendBody),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-
-      if (res.ok) {
-        const orderData = await res.json();
-        return NextResponse.json({
-          success: true,
-          orderNumber: orderData.orderNumber,
-          orderId: orderData.orderId,
-          status: orderData.status,
-          currency: orderData.currency,
-          paymentRef: orderData.paymentRef,
-          message: 'Payment secured and protected successfully.',
-          source: 'backend_monolith',
-        });
-      }
-    } catch (backendErr: any) {
-      console.warn('[API /api/checkout] Backend checkout invocation note:', backendErr.message);
-    }
-
-    // Graceful fallback order confirmation
-    const fallbackOrderRef = `MNG-${Math.floor(100000 + Math.random() * 900000)}-NG`;
     return NextResponse.json({
       success: true,
-      orderNumber: fallbackOrderRef,
-      orderId: crypto.randomUUID(),
-      status: 'confirmed',
-      currency: 'NGN',
-      paymentRef: `PSK-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-      message: 'Payment authorized and buyer protected.',
-      source: 'fallback_resilient',
+      orderNumber: result.orderNumber,
+      orderId: result.orderId,
+      status: result.status,
+      currency: result.currency,
+      paymentRef: result.paymentRef,
+      placedAt: result.placedAt,
+      message: 'Payment authorized and verified in database.',
+      source: result.source,
     });
   } catch (error: any) {
+    console.error('[API Checkout Error]', error);
     return NextResponse.json(
       {
         success: false,
-        message: 'Unable to process checkout at this moment. Please try again.',
+        message: error.message || 'Unable to process checkout. Please try again.',
       },
       { status: 400 }
     );

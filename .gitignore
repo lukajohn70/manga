@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 **/.next/cache/
+**/.next/trace
 out/
 *.tsbuildinfo
 .expo/
