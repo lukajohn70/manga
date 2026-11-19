@@ -20,9 +20,57 @@ function getPgDriver(): { Pool: any } | null {
 }
 
 /**
+ * Reads DATABASE_URL from process.env or looks for .env on disk.
+ */
+export function getRawDatabaseUrl(): string {
+  let rawUrl =
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.POSTGRES_PRISMA_URL ||
+    '';
+
+  // Ignore dummy template values from .env.example
+  if (rawUrl.includes('REPLACE_WITH_SECURE_DATABASE_PASSWORD')) {
+    rawUrl = '';
+  }
+
+  if (!rawUrl) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const candidates = [
+        path.join(process.cwd(), '.env'),
+        path.join(process.cwd(), '..', '.env'),
+        '/home/gwylvxeo/manga.jlm.com.ng/.env',
+        '/home/gwylvxeo/manga.jlm.com.ng/apps/web-store/.env',
+      ];
+      for (const f of candidates) {
+        if (fs.existsSync(f)) {
+          const content = fs.readFileSync(f, 'utf8');
+          for (const line of content.split(/\r?\n/)) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('DATABASE_URL=')) {
+              const val = trimmed.slice('DATABASE_URL='.length).trim().replace(/^["']|["']$/g, '');
+              if (val && !val.includes('REPLACE_WITH_SECURE_DATABASE_PASSWORD')) {
+                rawUrl = val;
+                process.env.DATABASE_URL = rawUrl;
+                break;
+              }
+            }
+          }
+          if (rawUrl) break;
+        }
+      }
+    } catch {}
+  }
+
+  return rawUrl;
+}
+
+/**
  * Auto-corrects common formatting issues in DATABASE_URL:
  * - Accidental spaces (e.g. before/after @, :, /)
- * - Placeholder 'hostname' replaced with 'localhost'
+ * - Forces IPv4 '127.0.0.1' instead of 'localhost' / 'hostname' to avoid IPv6 '::1' pg_hba.conf rejection
  * - Unencoded '%' in passwords (which causes URIError: URI malformed)
  */
 export function sanitizeConnectionString(raw: string): string {
@@ -34,10 +82,9 @@ export function sanitizeConnectionString(raw: string): string {
   str = str.replace(/\s*:\s*/g, ':');
   str = str.replace(/\s*\/\s*/g, '/');
 
-  // If user left literal 'hostname' as host, auto-replace with localhost (cPanel default)
-  if (str.includes('@hostname:') || str.endsWith('@hostname') || str.includes('@hostname/')) {
-    str = str.replace('@hostname:', '@localhost:').replace('@hostname/', '@localhost/').replace('@hostname', '@localhost');
-  }
+  // Replace 'localhost' or 'hostname' with '127.0.0.1' so Node connects over IPv4
+  // cPanel PostgreSQL default pg_hba.conf only permits 127.0.0.1/32 and rejects ::1
+  str = str.replace(/@(localhost|hostname)([:\/]|$)/g, '@127.0.0.1$2');
 
   // Percent-encode any '%' in the password that is not followed by two valid hex digits
   const match = str.match(/^(postgres(?:ql)?:\/\/[^:]+:)(.+)(@[^@\/]+(?::\d+)?\/.*)$/);
@@ -65,12 +112,7 @@ export function getDbPool(): Pool {
     );
   }
 
-  const rawUrl =
-    process.env.DATABASE_URL ||
-    process.env.POSTGRES_URL ||
-    process.env.POSTGRES_PRISMA_URL ||
-    '';
-
+  const rawUrl = getRawDatabaseUrl();
   const connectionString = sanitizeConnectionString(rawUrl);
 
   const isExplicitlyDisabled =
@@ -101,6 +143,9 @@ export function getDbPool(): Pool {
 
   const sslConfig = useSsl ? { rejectUnauthorized: false } : undefined;
 
+  // Always use 127.0.0.1 for host on cPanel to ensure IPv4 connection
+  const host = (process.env.POSTGRES_HOST || '127.0.0.1').replace('localhost', '127.0.0.1');
+
   const config: PoolConfig = connectionString
     ? {
         connectionString,
@@ -110,11 +155,11 @@ export function getDbPool(): Pool {
         connectionTimeoutMillis: 6000,
       }
     : {
-        host: process.env.POSTGRES_HOST || 'localhost',
+        host,
         port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
-        user: process.env.POSTGRES_USER || 'manga_user',
+        user: process.env.POSTGRES_USER || 'gwylvxeo_manga_user',
         password: process.env.POSTGRES_PASSWORD || 'manga_password',
-        database: process.env.POSTGRES_DB || 'manga_db',
+        database: process.env.POSTGRES_DB || 'gwylvxeo_manga',
         ssl: sslConfig,
         max: 10,
         idleTimeoutMillis: 30000,
@@ -161,12 +206,7 @@ export async function checkDatabaseConnection(): Promise<{
     };
   }
 
-  const rawUrl =
-    process.env.DATABASE_URL ||
-    process.env.POSTGRES_URL ||
-    process.env.POSTGRES_PRISMA_URL ||
-    '';
-
+  const rawUrl = getRawDatabaseUrl();
   const cleanUrl = sanitizeConnectionString(rawUrl);
   const maskedHost = cleanUrl ? cleanUrl.replace(/:[^:@]*@/, ':****@') : 'configured via host/user/port';
 

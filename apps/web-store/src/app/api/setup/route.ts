@@ -16,7 +16,7 @@ export async function GET() {
         configuredTarget: conn.sanitizedUrl || 'not_configured',
         instructions: !conn.driverInstalled
           ? 'The "pg" PostgreSQL driver module is missing in cPanel node_modules. Please click "Run NPM Install" in cPanel Setup Node.js App.'
-          : 'Check DATABASE_URL: for cPanel local PostgreSQL, ensure the host is @localhost:5432 and remove any spaces. Example: postgres://USER:PASSWORD@localhost:5432/DB_NAME',
+          : 'Ensure DATABASE_URL is set in cPanel with host 127.0.0.1: postgres://USER:PASSWORD@127.0.0.1:5432/DB_NAME, then click the blue SAVE button at the top-right and RESTART.',
       });
     }
 
