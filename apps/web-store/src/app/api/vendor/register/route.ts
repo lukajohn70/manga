@@ -1,89 +1,145 @@
 import { NextResponse } from 'next/server';
 import { query } from '../../../../lib/db';
 import { ensureDatabaseReady } from '../../../../lib/db-schema-init';
-import crypto from 'crypto';
+import {
+  hashPassword,
+  validateEmail,
+  validatePasswordStrength,
+  validatePhone,
+  sanitizeString,
+  verifyCsrf,
+  getSessionFromRequest,
+} from '../../../../lib/security';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { businessName, ownerName, email, phone, city, category, notes } = body;
-
-    if (!businessName || !email || !ownerName) {
+    // 1. CSRF Protection
+    if (!verifyCsrf(request)) {
       return NextResponse.json(
-        { success: false, message: 'Store Name, Contact Person, and Email are required.' },
+        { success: false, message: 'Invalid or missing CSRF token / cross-origin request rejected.' },
+        { status: 403 }
+      );
+    }
+
+    const session = getSessionFromRequest(request);
+    const body = await request.json().catch(() => ({}));
+    const { businessName, ownerName, email, phone, password } = body;
+
+    // 2. Server-Side Form Validation
+    const cleanBusiness = sanitizeString(businessName);
+    if (!cleanBusiness || cleanBusiness.length < 2 || cleanBusiness.length > 100) {
+      return NextResponse.json(
+        { success: false, message: 'Store Name must be between 2 and 100 characters.' },
         { status: 400 }
       );
     }
 
-    const cleanEmail = String(email).toLowerCase().trim();
-    const cleanBusiness = String(businessName).trim();
-    const cleanPhone = String(phone || '+234 800 000 0000').trim();
-    const cleanName = String(ownerName).trim();
+    const cleanName = sanitizeString(ownerName);
+    if (!cleanName || cleanName.length < 2 || cleanName.length > 100) {
+      return NextResponse.json(
+        { success: false, message: 'Contact Person name must be between 2 and 100 characters.' },
+        { status: 400 }
+      );
+    }
 
-    try {
-      await ensureDatabaseReady();
+    const cleanEmail = (email || '').toLowerCase().trim();
+    if (!validateEmail(cleanEmail)) {
+      return NextResponse.json(
+        { success: false, message: 'Please provide a valid business email address.' },
+        { status: 400 }
+      );
+    }
 
-      // Check if user exists
-      let userId: string | null = null;
-      const userRes = await query('SELECT id, role FROM identity.users WHERE email ILIKE $1 LIMIT 1', [cleanEmail]);
+    const cleanPhone = sanitizeString(phone || '+234 800 000 0000');
+    if (!validatePhone(cleanPhone)) {
+      return NextResponse.json(
+        { success: false, message: 'Please provide a valid telephone number.' },
+        { status: 400 }
+      );
+    }
 
-      if (userRes.rows && userRes.rows.length > 0) {
-        userId = userRes.rows[0].id;
-        // Upgrade role if currently buyer
-        await query(
-          "UPDATE identity.users SET role = 'vendor_admin', name = COALESCE(NULLIF(name, ''), $1), phone = COALESCE(NULLIF(phone, ''), $2) WHERE id = $3",
-          [cleanName, cleanPhone, userId]
+    await ensureDatabaseReady();
+
+    // 3. User Resolution & Authorization
+    let userId: string | null = null;
+    const userRes = await query('SELECT id, role, email FROM identity.users WHERE email ILIKE $1 LIMIT 1', [cleanEmail]);
+
+    if (userRes.rows && userRes.rows.length > 0) {
+      const existingUser = userRes.rows[0];
+
+      // Prevent unauthorized role hijack: require existing user to be signed in
+      if (!session || session.email !== existingUser.email) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'An account with this email already exists. Please log in first to register your merchant store.',
+          },
+          { status: 401 }
         );
-      } else {
-        const dummyHash = crypto.createHash('sha256').update('VendorPass2026!').digest('hex');
-        const insertUser = await query(
-          `INSERT INTO identity.users (email, phone, name, role, password_hash, status)
-           VALUES ($1, $2, $3, 'vendor_admin', $4, 'active')
-           RETURNING id;`,
-          [cleanEmail, cleanPhone, cleanName, dummyHash]
-        );
-        if (insertUser.rows && insertUser.rows.length > 0) {
-          userId = insertUser.rows[0].id;
-        }
       }
 
-      // Check if vendor record already exists for this business name or user
-      const vendorCheck = await query(
-        'SELECT id, business_name FROM vendor.vendors WHERE user_id = $1 OR business_name ILIKE $2 LIMIT 1',
+      userId = existingUser.id;
+
+      // Upgrade existing authenticated user to vendor_admin
+      await query(
+        `UPDATE identity.users 
+         SET role = 'vendor_admin', 
+             name = COALESCE(NULLIF(name, ''), $1), 
+             phone = COALESCE(NULLIF(phone, ''), $2) 
+         WHERE id = $3`,
+        [cleanName, cleanPhone, userId]
+      );
+    } else {
+      // New user registration requires a strong password
+      const pwdCheck = validatePasswordStrength(password);
+      if (!pwdCheck.valid) {
+        return NextResponse.json(
+          { success: false, message: pwdCheck.reason || 'A secure password is required for merchant registration.' },
+          { status: 400 }
+        );
+      }
+
+      const pwdHash = hashPassword(password);
+      const insertUser = await query(
+        `INSERT INTO identity.users (email, phone, name, role, password_hash, status)
+         VALUES ($1, $2, $3, 'vendor_admin', $4, 'active')
+         RETURNING id;`,
+        [cleanEmail, cleanPhone, cleanName, pwdHash]
+      );
+      if (insertUser.rows && insertUser.rows.length > 0) {
+        userId = insertUser.rows[0].id;
+      }
+    }
+
+    // 4. Vendor Store Record Creation (Parameterized query)
+    const vendorCheck = await query(
+      'SELECT id, business_name FROM vendor.vendors WHERE user_id = $1 OR business_name ILIKE $2 LIMIT 1',
+      [userId, cleanBusiness]
+    );
+
+    let vendorId: string;
+    if (vendorCheck.rows && vendorCheck.rows.length > 0) {
+      vendorId = vendorCheck.rows[0].id;
+    } else {
+      const insertVendor = await query(
+        `INSERT INTO vendor.vendors (user_id, business_name, legal_entity_type, tier, status, rating)
+         VALUES ($1, $2, 'Enterprise Partner', 'tier_1', 'active', 4.95)
+         RETURNING id;`,
         [userId, cleanBusiness]
       );
-
-      let vendorId: string;
-      if (vendorCheck.rows && vendorCheck.rows.length > 0) {
-        vendorId = vendorCheck.rows[0].id;
-      } else {
-        const insertVendor = await query(
-          `INSERT INTO vendor.vendors (user_id, business_name, legal_entity_type, tier, status, rating)
-           VALUES ($1, $2, 'Enterprise Partner', 'tier_1', 'active', 4.95)
-           RETURNING id;`,
-          [userId, cleanBusiness]
-        );
-        vendorId = insertVendor.rows[0]?.id || 'ven-' + Date.now().toString(36);
-      }
-
-      return NextResponse.json({
-        success: true,
-        vendorId,
-        businessName: cleanBusiness,
-        message: `Welcome aboard, ${cleanBusiness}! Your merchant partner store is registered and verified.`,
-      });
-    } catch (dbErr: any) {
-      console.warn('[Vendor Registration] Fallback triggered:', dbErr.message);
-      return NextResponse.json({
-        success: true,
-        vendorId: 'ven-' + Date.now().toString(36),
-        businessName: cleanBusiness,
-        message: `Welcome aboard, ${cleanBusiness}! Your merchant registration has been received.`,
-      });
+      vendorId = insertVendor.rows[0]?.id || `ven-${Date.now().toString(36)}`;
     }
+
+    return NextResponse.json({
+      success: true,
+      vendorId,
+      businessName: cleanBusiness,
+      message: `Welcome aboard, ${cleanBusiness}! Your merchant partner store is registered and verified.`,
+    });
   } catch (err: any) {
+    console.error('[Vendor Registration Error]', err.message);
     return NextResponse.json(
-      { success: false, message: err.message || 'Failed to process vendor registration' },
+      { success: false, message: 'Failed to process vendor registration. Please try again.' },
       { status: 500 }
     );
   }

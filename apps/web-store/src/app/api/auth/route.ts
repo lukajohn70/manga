@@ -1,17 +1,148 @@
 import { NextResponse } from 'next/server';
-import { authenticateDbUser, registerDbUser } from '../../../lib/db-auth';
+import {
+  authenticateDbUser,
+  registerDbUser,
+  createDbPasswordReset,
+  resetDbUserPassword,
+} from '../../../lib/db-auth';
 import { getDbOrdersByEmail } from '../../../lib/db-orders';
-import { calculateTotpCode, verifyTotp } from '@manga/api-client';
+import {
+  createSessionToken,
+  getSessionCookieOptions,
+  SESSION_COOKIE_NAME,
+  CSRF_COOKIE_NAME,
+  generateCsrfToken,
+  checkRateLimit,
+  resetRateLimit,
+  verifyCsrf,
+  getSessionFromRequest,
+} from '../../../lib/security';
 
-const DEFAULT_TOTP_SECRET = 'JBSWY3DPEHPK3PXP';
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  return request.headers.get('x-real-ip') || '127.0.0.1';
+}
+
+export async function GET(request: Request) {
+  try {
+    const session = getSessionFromRequest(request);
+    if (!session) {
+      return NextResponse.json({ authenticated: false, user: null }, { status: 200 });
+    }
+
+    return NextResponse.json({
+      authenticated: true,
+      user: {
+        id: session.userId,
+        email: session.email,
+        role: session.role,
+        name: session.name,
+      },
+    });
+  } catch (err: any) {
+    return NextResponse.json({ authenticated: false, error: 'Session check failed' }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const clientIp = getClientIp(request);
+
+    // 1. CSRF Protection
+    if (!verifyCsrf(request)) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid or missing CSRF token / cross-origin request rejected.' },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json().catch(() => ({}));
     const action = body.action || 'login';
 
-    // 1. Registration
+    // 2. Action: LOGOUT
+    if (action === 'logout') {
+      const response = NextResponse.json({
+        success: true,
+        message: 'Signed out successfully.',
+      });
+      response.cookies.set(SESSION_COOKIE_NAME, '', {
+        ...getSessionCookieOptions(),
+        maxAge: 0,
+      });
+      return response;
+    }
+
+    // 3. Action: FORGOT PASSWORD (Request expiring reset link)
+    if (action === 'forgot-password') {
+      const rateLimitKey = `pw_reset:${clientIp}`;
+      const rateCheck = checkRateLimit(rateLimitKey, 3, 15 * 60 * 1000);
+      if (!rateCheck.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Too many password reset requests. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
+          },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(rateCheck.retryAfterSeconds) },
+          }
+        );
+      }
+
+      const res = await createDbPasswordReset(body.email);
+      return NextResponse.json({
+        success: true,
+        message: res.message,
+        // In local/test mode, provide reset token for immediate verification testing
+        resetToken: process.env.NODE_ENV !== 'production' ? res.token : undefined,
+      });
+    }
+
+    // 4. Action: RESET PASSWORD (Consume single-use token)
+    if (action === 'reset-password') {
+      const rateLimitKey = `pw_confirm:${clientIp}`;
+      const rateCheck = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
+      if (!rateCheck.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Too many attempts. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
+          },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(rateCheck.retryAfterSeconds) },
+          }
+        );
+      }
+
+      const res = await resetDbUserPassword(body.email, body.token, body.password);
+      if (!res.success) {
+        return NextResponse.json({ success: false, message: res.message }, { status: 400 });
+      }
+
+      return NextResponse.json({ success: true, message: res.message });
+    }
+
+    // 5. Action: REGISTRATION
     if (action === 'register') {
+      const rateLimitKey = `register:${clientIp}`;
+      const rateCheck = checkRateLimit(rateLimitKey, 5, 60 * 60 * 1000); // 5 per hour
+      if (!rateCheck.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Registration rate limit reached. Please retry in ${rateCheck.retryAfterSeconds} seconds.`,
+          },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(rateCheck.retryAfterSeconds) },
+          }
+        );
+      }
+
       const res = await registerDbUser({
         email: body.email,
         password: body.password,
@@ -19,19 +150,51 @@ export async function POST(request: Request) {
         phone: body.phone,
       });
 
-      if (!res.success) {
+      if (!res.success || !res.user) {
         return NextResponse.json({ success: false, message: res.message }, { status: 400 });
       }
 
-      return NextResponse.json({
+      const sessionToken = createSessionToken(res.user);
+      const csrfToken = generateCsrfToken();
+
+      const response = NextResponse.json({
         success: true,
         user: res.user,
+        token: sessionToken,
+        csrfToken,
         message: 'Account registered successfully.',
       });
+
+      // Secure Session Cookie
+      response.cookies.set(SESSION_COOKIE_NAME, sessionToken, getSessionCookieOptions());
+      response.cookies.set(CSRF_COOKIE_NAME, csrfToken, {
+        httpOnly: false, // Accessible to client JS for double-submit header
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60,
+      });
+
+      return response;
     }
 
-    // 2. Dedicated Admin Login Step
+    // 6. Action: DEDICATED ADMIN LOGIN
     if (action === 'admin-login') {
+      const rateLimitKey = `admin_login:${clientIp}`;
+      const rateCheck = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
+      if (!rateCheck.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Too many administrative login attempts. Locked for ${rateCheck.retryAfterSeconds} seconds.`,
+          },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(rateCheck.retryAfterSeconds) },
+          }
+        );
+      }
+
       const authRes = await authenticateDbUser(body.email, body.password);
       if (!authRes.success || !authRes.user) {
         return NextResponse.json(
@@ -47,51 +210,49 @@ export async function POST(request: Request) {
         );
       }
 
-      return NextResponse.json({
+      resetRateLimit(rateLimitKey);
+
+      const sessionToken = createSessionToken(authRes.user);
+      const csrfToken = generateCsrfToken();
+
+      const response = NextResponse.json({
         success: true,
-        token: 'jwt_admin_' + Buffer.from(JSON.stringify({ email: authRes.user.email, role: 'ADMIN', time: Date.now() })).toString('base64'),
         user: authRes.user,
+        token: sessionToken,
+        csrfToken,
         message: 'Administrator authentication verified.',
       });
-    }
 
-    // 3. 2FA Verification Step
-    if (action === 'verify-2fa') {
-      const email = body.email;
-      const code = body.code || '';
-      const secret = body.totpSecret || DEFAULT_TOTP_SECRET;
-
-      const isValidTotp = verifyTotp(secret, code) || code === '123456' || code === calculateTotpCode(secret);
-
-      if (!isValidTotp) {
-        return NextResponse.json(
-          { success: false, message: 'Invalid 6-digit verification code. Please check your authenticator app.' },
-          { status: 400 }
-        );
-      }
-
-      const authRes = await authenticateDbUser(email);
-      const user = authRes.user || {
-        id: 'usr-' + Date.now().toString(36),
-        name: email.split('@')[0],
-        email,
-        role: 'BUYER' as const,
-        status: 'active',
-      };
-
-      const orders = await getDbOrdersByEmail(email);
-
-      return NextResponse.json({
-        success: true,
-        token: 'jwt_' + Buffer.from(JSON.stringify({ email, time: Date.now() })).toString('base64'),
-        user,
-        orders,
-        message: `Authentication successful. Welcome, ${user.name}!`,
+      response.cookies.set(SESSION_COOKIE_NAME, sessionToken, getSessionCookieOptions());
+      response.cookies.set(CSRF_COOKIE_NAME, csrfToken, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60,
       });
+
+      return response;
     }
 
-    // 3. Primary Login Step
-    const authRes = await authenticateDbUser(body.email, body.password);
+    // 7. Action: PRIMARY LOGIN (Buyers & Merchants)
+    const loginEmail = (body.email || '').toLowerCase().trim();
+    const rateLimitKey = `login:${clientIp}:${loginEmail}`;
+    const rateCheck = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Too many failed login attempts. Account temporarily locked for ${rateCheck.retryAfterSeconds} seconds.`,
+        },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(rateCheck.retryAfterSeconds) },
+        }
+      );
+    }
+
+    const authRes = await authenticateDbUser(loginEmail, body.password);
     if (!authRes.success || !authRes.user) {
       return NextResponse.json(
         { success: false, message: authRes.message || 'Authentication failed. Please check credentials.' },
@@ -99,24 +260,38 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate real-time OTP for easy testing
-    const testOtp = calculateTotpCode(DEFAULT_TOTP_SECRET);
-    const challengeToken = 'chal_' + Buffer.from(body.email).toString('base64');
+    // Login succeeded: reset failed rate counter
+    resetRateLimit(rateLimitKey);
 
-    // Fetch buyer's real orders from database
+    const sessionToken = createSessionToken(authRes.user);
+    const csrfToken = generateCsrfToken();
+
+    // Fetch buyer's real orders strictly for this authenticated user
     const orders = await getDbOrdersByEmail(authRes.user.email);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
-      require2fa: true,
-      challengeToken,
-      totpSecret: DEFAULT_TOTP_SECRET,
-      testOtp,
       user: authRes.user,
+      token: sessionToken,
+      csrfToken,
       orders,
-      message: 'Credentials verified. Complete 2FA to continue.',
+      message: `Authentication successful. Welcome, ${authRes.user.name}!`,
     });
+
+    response.cookies.set(SESSION_COOKIE_NAME, sessionToken, getSessionCookieOptions());
+    response.cookies.set(CSRF_COOKIE_NAME, csrfToken, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60,
+    });
+
+    return response;
   } catch (err: any) {
-    return NextResponse.json({ success: false, message: err.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: 'Authentication processing error. Please try again.' },
+      { status: 500 }
+    );
   }
 }

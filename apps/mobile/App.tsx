@@ -392,121 +392,7 @@ interface OrderItem {
   timeline: { title: string; desc: string; done: boolean; active?: boolean }[];
 }
 
-const INITIAL_ORDERS: OrderItem[] = [
-  {
-    id: 'ord-1',
-    orderNumber: '#MNG-769149-F92D',
-    date: 'Today, 8:15 AM',
-    status: 'Out for Delivery',
-    statusColor: '#C85A32',
-    type: 'active',
-    products: [
-      {
-        title: 'Sony WH-1000XM5 Wireless Noise Cancelling Headphones',
-        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80',
-        priceNgn: 450000,
-        qty: 1,
-        storeName: 'Sony Audio Official Store',
-      },
-    ],
-    totalNgn: 452500,
-    deliveryType: 'Kaduna Same-Day Dispatch',
-    deliveryAddress: '14 Isa Kaita Road, Malali, Kaduna, Kaduna State',
-    riderName: 'Ibrahim Danladi',
-    riderPhone: '+234 812 345 6789',
-    escrowStatus: 'Payment held in Manga Escrow until buyer inspection',
-    timeline: [
-      { title: 'Order Placed', desc: 'Payment approved via Flutterwave', done: true },
-      { title: 'Escrow Secured', desc: '₦452,500 protected in Manga Escrow Vault', done: true },
-      { title: 'Picked Up from Hub', desc: 'Dispatched from Sony Kaduna Hub', done: true },
-      { title: 'Out for Delivery', desc: 'Rider Ibrahim is 15 mins away in Malali', done: false, active: true },
-    ],
-  },
-  {
-    id: 'ord-2',
-    orderNumber: '#MNG-520194-A12B',
-    date: 'Nov 12, 2026',
-    status: 'Delivered',
-    statusColor: '#4F6B3A',
-    type: 'completed',
-    products: [
-      {
-        title: 'Apple MacBook Air 15-inch M3 (16GB RAM, 512GB SSD)',
-        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80',
-        priceNgn: 1850000,
-        qty: 1,
-        storeName: 'Apple Authorized Reseller',
-      },
-    ],
-    totalNgn: 1850000,
-    deliveryType: 'Kaduna Express Courier',
-    deliveryAddress: '14 Isa Kaita Road, Malali, Kaduna, Kaduna State',
-    riderName: 'Musa Abdullahi',
-    riderPhone: '+234 802 987 6543',
-    escrowStatus: 'Escrow released to vendor after buyer confirmation',
-    timeline: [
-      { title: 'Order Placed', desc: 'Nov 10, 2026', done: true },
-      { title: 'Escrow Secured', desc: 'Funds verified', done: true },
-      { title: 'Dispatched', desc: 'Nov 11, 2026', done: true },
-      { title: 'Delivered & Confirmed', desc: 'Received & inspected by Customer', done: true },
-    ],
-  },
-  {
-    id: 'ord-3',
-    orderNumber: '#MNG-319402-C84E',
-    date: 'Oct 28, 2026',
-    status: 'Delivered',
-    statusColor: '#4F6B3A',
-    type: 'completed',
-    products: [
-      {
-        title: 'Handcrafted Kano Vegetable-Tanned Leather Weekender Bag',
-        image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=600&q=80',
-        priceNgn: 165000,
-        qty: 1,
-        storeName: 'Manga Signature Workshop',
-      },
-    ],
-    totalNgn: 167500,
-    deliveryType: 'Northern Regional Delivery',
-    deliveryAddress: 'Plot 7, Constitution Road, Kaduna Central',
-    riderName: 'Garba Sani',
-    riderPhone: '+234 803 555 1212',
-    escrowStatus: 'Escrow released after 7-day inspection period',
-    timeline: [
-      { title: 'Order Placed', desc: 'Oct 26, 2026', done: true },
-      { title: 'Artisan Crafted', desc: 'Inspected for quality', done: true },
-      { title: 'Dispatched', desc: 'Oct 27, 2026', done: true },
-      { title: 'Delivered', desc: 'Received by reception', done: true },
-    ],
-  },
-  {
-    id: 'ord-4',
-    orderNumber: '#MNG-109283-K55F',
-    date: 'Sep 15, 2026',
-    status: 'Delivered',
-    statusColor: '#4F6B3A',
-    type: 'completed',
-    products: [
-      {
-        title: "De'Longhi Dedica Deluxe Slim Espresso & Cappuccino Machine",
-        image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
-        priceNgn: 320000,
-        qty: 1,
-        storeName: 'KitchenPro Nigeria',
-      },
-    ],
-    totalNgn: 322500,
-    deliveryType: 'Kaduna Standard Delivery',
-    deliveryAddress: '14 Isa Kaita Road, Malali, Kaduna',
-    escrowStatus: 'Escrow completed successfully',
-    timeline: [
-      { title: 'Order Placed', desc: 'Sep 13, 2026', done: true },
-      { title: 'Dispatched', desc: 'Sep 14, 2026', done: true },
-      { title: 'Delivered', desc: 'Signed by Recipient', done: true },
-    ],
-  },
-];
+const INITIAL_ORDERS: OrderItem[] = [];
 
 interface InboxMsg {
   id: string;
@@ -520,39 +406,7 @@ interface InboxMsg {
   actionText?: string;
 }
 
-const INITIAL_INBOX: InboxMsg[] = [
-  {
-    id: '1',
-    title: 'Same-Day Delivery Dispatched (Kaduna)',
-    tag: 'Order Dispatch',
-    body: 'Your Sony WH-1000XM5 headphones are with our local rider for delivery in Kaduna today.',
-    fullContent: 'Great news John! Rider Ibrahim Danladi (+234 812 345 6789) has collected your package from the Sony Audio Official Store. Delivery to 14 Isa Kaita Road, Malali, Kaduna is scheduled for today before 2:00 PM. Remember: Your payment is held securely in Manga Escrow and will only be released to the seller after you inspect and accept the delivery.',
-    time: '15m ago',
-    unread: true,
-    orderId: 'ord-1',
-    actionText: 'Track Order',
-  },
-  {
-    id: '2',
-    title: 'Official Store Annual Compliance',
-    tag: 'Merchant Trust',
-    body: 'Sony Audio Official Store has renewed annual compliance and genuine manufacturer warranty.',
-    fullContent: 'MANGA MARKETSQUARE has completed the annual audit for Sony Audio Official Store. All serialized products are backed by a 1-year official manufacturer warranty and eligible for 7-day hassle-free returns under Kaduna consumer protection policies.',
-    time: '3h ago',
-    unread: false,
-    actionText: 'View Store',
-  },
-  {
-    id: '3',
-    title: 'Exclusive Flash Deals Live',
-    tag: 'Promotions',
-    body: 'Up to 30% discount on selected gadgets from official stores.',
-    fullContent: 'Get exclusive flash discounts on genuine Apple, Sony, and Samsung tech. Available for next 4 hours only. Use promo code SQUARE10 at checkout for an additional 10% discount.',
-    time: '1d ago',
-    unread: false,
-    actionText: 'Explore Flash Deals',
-  },
-];
+const INITIAL_INBOX: InboxMsg[] = [];
 
 interface AddressItem {
   id: string;
@@ -569,36 +423,7 @@ interface AddressItem {
   instructions: string;
 }
 
-const INITIAL_ADDRESSES: AddressItem[] = [
-  {
-    id: 'addr-1',
-    label: 'Home',
-    isDefault: true,
-    name: 'Chidi Okonkwo',
-    phone: '+234 803 123 4567',
-    street: '14 Isa Kaita Road',
-    area: 'Malali',
-    city: 'Kaduna',
-    state: 'Kaduna State',
-    landmark: 'Opposite State Library',
-    isKadunaEligible: true,
-    instructions: 'Call rider on arrival; ring gate bell 2B',
-  },
-  {
-    id: 'addr-2',
-    label: 'Office',
-    isDefault: false,
-    name: 'Chidi Okonkwo',
-    phone: '+234 803 123 4567',
-    street: 'Plot 7, Constitution Road',
-    area: 'Kaduna Central',
-    city: 'Kaduna',
-    state: 'Kaduna State',
-    landmark: 'Near Central Bank Building',
-    isKadunaEligible: true,
-    instructions: 'Leave with reception on 2nd floor',
-  },
-];
+const INITIAL_ADDRESSES: AddressItem[] = [];
 
 interface SellerItem {
   id: string;
@@ -610,72 +435,7 @@ interface SellerItem {
   products: { id: string; title: string; priceNgn: number; image: string }[];
 }
 
-const INITIAL_SELLERS: SellerItem[] = [
-  {
-    id: 's-1',
-    name: 'Sony Audio Official Store',
-    type: 'Official Flagship',
-    rating: '4.9 ★ (148 reviews)',
-    followers: '14,820 followers',
-    note: 'Official warranty & genuine parts',
-    products: [
-      {
-        id: '1',
-        title: 'Sony WH-1000XM5 Wireless Headphones',
-        priceNgn: 450000,
-        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80',
-      },
-    ],
-  },
-  {
-    id: 's-2',
-    name: 'Apple Authorized Reseller',
-    type: 'Official Flagship',
-    rating: '5.0 ★ (92 reviews)',
-    followers: '28,450 followers',
-    note: 'Factory sealed genuine devices',
-    products: [
-      {
-        id: '2',
-        title: 'Apple MacBook Air 15-inch M3',
-        priceNgn: 1850000,
-        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80',
-      },
-    ],
-  },
-  {
-    id: 's-3',
-    name: 'Samsung Direct Nigeria',
-    type: 'Official Store',
-    rating: '4.8 ★ (114 reviews)',
-    followers: '19,300 followers',
-    note: 'Smartphones & tablets with warranty',
-    products: [
-      {
-        id: '3',
-        title: 'Samsung Galaxy S24 Ultra 512GB',
-        priceNgn: 1650000,
-        image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=600&q=80',
-      },
-    ],
-  },
-  {
-    id: 's-4',
-    name: 'Manga Signature Workshop',
-    type: 'Kaduna Artisan',
-    rating: '4.9 ★ (42 reviews)',
-    followers: '5,120 followers',
-    note: 'Handcrafted genuine leather bags',
-    products: [
-      {
-        id: '5',
-        title: 'Handcrafted Kano Leather Bag',
-        priceNgn: 165000,
-        image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=600&q=80',
-      },
-    ],
-  },
-];
+const INITIAL_SELLERS: SellerItem[] = [];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'categories' | 'cart' | 'wishlist' | 'account'>('home');
@@ -683,9 +443,9 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Cart state: productId -> quantity
-  const [cart, setCart] = useState<{ [id: string]: number }>({ '1': 1 });
+  const [cart, setCart] = useState<{ [id: string]: number }>({});
   // Wishlist state: set of productIds
-  const [wishlist, setWishlist] = useState<string[]>(['2', '5']);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   
   // Promo code
   const [promoCode, setPromoCode] = useState('');
@@ -752,18 +512,13 @@ export default function App() {
 
   // Followed Sellers State
   const [followedSellers, setFollowedSellers] = useState<SellerItem[]>(INITIAL_SELLERS);
-  const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({
-    's-1': true,
-    's-2': true,
-    's-3': true,
-    's-4': true,
-  });
+  const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
 
   // Address Book State
   const [addresses, setAddresses] = useState<AddressItem[]>(INITIAL_ADDRESSES);
   const [newAddrLabel, setNewAddrLabel] = useState('Home');
   const [newAddrName, setNewAddrName] = useState('');
-  const [newAddrPhone, setNewAddrPhone] = useState('+234 803 123 4567');
+  const [newAddrPhone, setNewAddrPhone] = useState('');
   const [newAddrStreet, setNewAddrStreet] = useState('');
   const [newAddrArea, setNewAddrArea] = useState('Malali');
   const [newAddrLandmark, setNewAddrLandmark] = useState('');
@@ -916,6 +671,23 @@ export default function App() {
   };
 
   const toggleWishlist = (productId: string) => {
+    if (!isLoggedIn) {
+      Alert.alert(
+        'Sign In Required',
+        'Saved items are linked to your Manga buyer account. Please sign in to save items to your wishlist.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Sign In',
+            onPress: () => {
+              setAuthStep('signin');
+              setActiveTab('account');
+            },
+          },
+        ]
+      );
+      return;
+    }
     setWishlist((prev) =>
       prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
     );
@@ -1505,26 +1277,60 @@ export default function App() {
         {/* TAB 4: WISHLIST */}
         {activeTab === 'wishlist' && (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-            <View style={styles.screenTitleRow}>
-              <Text style={styles.screenTitle}>Saved Wishlist</Text>
-              <Text style={styles.screenItemCount}>{wishlistCount} items</Text>
-            </View>
+            {!isLoggedIn ? (
+              <View style={styles.authCard}>
+                <View style={styles.authLogoBox}>
+                  <View style={[styles.brandIconLarge, { backgroundColor: '#F6EDE0' }]}>
+                    <HeartIcon size={26} color="#B5532E" strokeWidth={2.4} fill="#B5532E" />
+                  </View>
+                  <Text style={styles.authTitle}>Sign In to View Your Wishlist</Text>
+                  <Text style={styles.authSub}>
+                    Saved items are tied to your Manga buyer account. Sign in to view and manage your saved wishlist across devices.
+                  </Text>
+                </View>
 
-            {wishlistCount === 0 ? (
-              <View style={styles.emptyContainer}>
-                <WishlistIcon size={64} color="#E7D5BC" />
-                <Text style={styles.emptyTitle}>Your wishlist is empty</Text>
-                <Text style={styles.emptySub}>
-                  Save items you love by tapping the heart icon on any product.
-                </Text>
-                <TouchableOpacity
-                  style={styles.primaryActionButton}
-                  onPress={() => setActiveTab('home')}
-                >
-                  <Text style={styles.primaryActionText}>Browse Products</Text>
-                </TouchableOpacity>
+                <View style={styles.authForm}>
+                  <TouchableOpacity
+                    style={styles.authPrimaryBtn}
+                    onPress={() => {
+                      setAuthStep('signin');
+                      setActiveTab('account');
+                    }}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.authPrimaryBtnText}>Sign In to Buyer Account</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.authToggleBtn}
+                    onPress={() => setActiveTab('home')}
+                  >
+                    <Text style={styles.authToggleText}>← Continue Browsing</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ) : (
+              <>
+                <View style={styles.screenTitleRow}>
+                  <Text style={styles.screenTitle}>Saved Wishlist</Text>
+                  <Text style={styles.screenItemCount}>{wishlistCount} items</Text>
+                </View>
+
+                {wishlistCount === 0 ? (
+                  <View style={styles.emptyContainer}>
+                    <WishlistIcon size={64} color="#E7D5BC" />
+                    <Text style={styles.emptyTitle}>Your wishlist is empty</Text>
+                    <Text style={styles.emptySub}>
+                      Save items you love by tapping the heart icon on any product.
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.primaryActionButton}
+                      onPress={() => setActiveTab('home')}
+                    >
+                      <Text style={styles.primaryActionText}>Browse Products</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
               <View>
                 {wishlist.map((id) => {
                   const prod = PRODUCTS.find((p) => p.id === id);
@@ -1557,6 +1363,8 @@ export default function App() {
                   );
                 })}
               </View>
+            )}
+              </>
             )}
           </ScrollView>
         )}
@@ -2235,7 +2043,25 @@ export default function App() {
                         </TouchableOpacity>
                       </View>
 
-                      {orders.filter(o => o.type === orderTab).map((order) => (
+                      {orders.filter(o => o.type === orderTab).length === 0 ? (
+                        <View style={[styles.emptyContainer, { paddingVertical: 32 }]}>
+                          <OrdersIcon size={56} color="#E7D5BC" />
+                          <Text style={styles.emptyTitle}>No {orderTab} orders</Text>
+                          <Text style={styles.emptySub}>
+                            You have no {orderTab} orders at the moment. Browse genuine marketplace products to order.
+                          </Text>
+                          <TouchableOpacity
+                            style={styles.primaryActionButton}
+                            onPress={() => {
+                              setAccountSubScreen(null);
+                              setActiveTab("home");
+                            }}
+                          >
+                            <Text style={styles.primaryActionText}>Start Shopping</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        orders.filter(o => o.type === orderTab).map((order) => (
                         <TouchableOpacity
                           key={order.id}
                           style={styles.subCard}
@@ -2296,14 +2122,23 @@ export default function App() {
                             <Text style={styles.viewDetailsText}>Tap to view receipt & tracking timeline &rarr;</Text>
                           </View>
                         </TouchableOpacity>
-                      ))}
+                      )))}
                     </View>
                   )}
 
                   {/* SUB-SCREEN 2: INBOX (Openable Messages with Read States) */}
                   {accountSubScreen === 'inbox' && (
                     <View>
-                      {inboxList.map((msg) => (
+                      {inboxList.length === 0 ? (
+                        <View style={[styles.emptyContainer, { paddingVertical: 32 }]}>
+                          <InboxIcon size={56} color="#E7D5BC" />
+                          <Text style={styles.emptyTitle}>No messages yet</Text>
+                          <Text style={styles.emptySub}>
+                            Updates regarding your orders, dispatch alerts, and verified notifications will appear here.
+                          </Text>
+                        </View>
+                      ) : (
+                        inboxList.map((msg) => (
                         <TouchableOpacity
                           key={msg.id}
                           style={[styles.inboxItem, msg.unread && styles.inboxItemUnread]}
@@ -2335,7 +2170,7 @@ export default function App() {
                             </View>
                           </View>
                         </TouchableOpacity>
-                      ))}
+                      )))}
                     </View>
                   )}
 
@@ -2346,39 +2181,49 @@ export default function App() {
                         <Text style={styles.subCardTitle}>Pending Review</Text>
                         <Text style={styles.subCardSub}>Share your experience with verified sellers.</Text>
                         
-                        <View style={styles.reviewItemPad}>
-                          <Text style={styles.orderItemName}>{PRODUCTS[0].title}</Text>
-                          <Text style={styles.orderItemVendor}>Sony Audio Official Store</Text>
-                          
-                          <View style={styles.starPickerRow}>
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <TouchableOpacity
-                                key={star}
-                                onPress={() => setReviewRating(star)}
-                                style={{ padding: 4 }}
-                              >
-                                <StarIcon
-                                  size={24}
-                                  color="#D9A441"
-                                  fill={star <= reviewRating ? '#D9A441' : 'none'}
-                                />
-                              </TouchableOpacity>
-                            ))}
+                        {orders.filter(o => o.type === 'completed').length === 0 ? (
+                          <View style={[styles.emptyContainer, { paddingVertical: 24 }]}>
+                            <ReviewsIcon size={48} color="#E7D5BC" />
+                            <Text style={styles.emptyTitle}>No Pending Reviews</Text>
+                            <Text style={styles.emptySub}>
+                              You have no pending product reviews. Completed orders eligible for seller reviews will appear here.
+                            </Text>
                           </View>
-
-                          {reviewSubmitted ? (
-                            <View style={styles.successBox}>
-                              <Text style={styles.successBoxText}>✓ Review submitted successfully! Thank you.</Text>
+                        ) : (
+                          <View style={styles.reviewItemPad}>
+                            <Text style={styles.orderItemName}>{orders.filter(o => o.type === 'completed')[0].products[0].title}</Text>
+                            <Text style={styles.orderItemVendor}>{orders.filter(o => o.type === 'completed')[0].products[0].storeName}</Text>
+                            
+                            <View style={styles.starPickerRow}>
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <TouchableOpacity
+                                  key={star}
+                                  onPress={() => setReviewRating(star)}
+                                  style={{ padding: 4 }}
+                                >
+                                  <StarIcon
+                                    size={24}
+                                    color="#D9A441"
+                                    fill={star <= reviewRating ? '#D9A441' : 'none'}
+                                  />
+                                </TouchableOpacity>
+                              ))}
                             </View>
-                          ) : (
-                            <TouchableOpacity
-                              style={styles.cardActionBtn}
-                              onPress={() => setReviewSubmitted(true)}
-                            >
-                              <Text style={styles.cardActionBtnText}>Submit 5-Star Review</Text>
-                            </TouchableOpacity>
-                          )}
-                        </View>
+
+                            {reviewSubmitted ? (
+                              <View style={styles.successBox}>
+                                <Text style={styles.successBoxText}>✓ Review submitted successfully! Thank you.</Text>
+                              </View>
+                            ) : (
+                              <TouchableOpacity
+                                style={styles.cardActionBtn}
+                                onPress={() => setReviewSubmitted(true)}
+                              >
+                                <Text style={styles.cardActionBtnText}>Submit 5-Star Review</Text>
+                              </TouchableOpacity>
+                            )}
+                          </View>
+                        )}
                       </View>
                     </View>
                   )}
@@ -2555,6 +2400,15 @@ export default function App() {
                   {/* SUB-SCREEN 7: ADDRESS BOOK (Professional Address Management) */}
                   {accountSubScreen === 'address_book' && (
                     <View>
+                      {addresses.length === 0 && (
+                        <View style={[styles.emptyContainer, { paddingVertical: 24, marginBottom: 16 }]}>
+                          <LocationPinIcon size={48} color="#E7D5BC" />
+                          <Text style={styles.emptyTitle}>No saved delivery addresses</Text>
+                          <Text style={styles.emptySub}>
+                            Add your home or office address for fast, secure doorstep dispatch in Kaduna and nationwide.
+                          </Text>
+                        </View>
+                      )}
                       {addresses.map((addr) => (
                         <View key={addr.id} style={[styles.subCard, addr.isDefault && styles.subCardDefaultAddress]}>
                           <View style={styles.addressHeaderRow}>
@@ -3411,10 +3265,25 @@ export default function App() {
 
                 <Text style={styles.checkoutSectionTitle}>Delivery Address</Text>
                 <View style={styles.checkoutCard}>
-                  <Text style={styles.checkoutName}>{userProfile.name ? `${userProfile.name} (${userProfile.phone || '+234 803 123 4567'})` : 'Chidi Okonkwo (+234 803 123 4567)'}</Text>
-                  <Text style={styles.checkoutAddress}>
-                    14 Isa Kaita Road, Malali, Kaduna, Kaduna State
-                  </Text>
+                  {addresses.length > 0 ? (
+                    <>
+                      <Text style={styles.checkoutName}>
+                        {addresses[0].name} ({addresses[0].phone})
+                      </Text>
+                      <Text style={styles.checkoutAddress}>
+                        {addresses[0].street}, {addresses[0].area}, {addresses[0].city}, {addresses[0].state}
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={styles.checkoutName}>
+                        {userProfile.name ? `${userProfile.name} (${userProfile.phone || '+234 800 000 0000'})` : 'No delivery address saved'}
+                      </Text>
+                      <Text style={styles.checkoutAddress}>
+                        {userProfile.city ? `${userProfile.city}, Nigeria` : 'Please add an address in your account.'}
+                      </Text>
+                    </>
+                  )}
                 </View>
 
                 <Text style={styles.checkoutSectionTitle}>Payment Method</Text>
@@ -3434,11 +3303,42 @@ export default function App() {
                 <TouchableOpacity
                   style={styles.checkoutBtn}
                   onPress={() => {
+                    const newRef = 'MNG-' + Math.floor(100000 + Math.random() * 900000) + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                    const orderLines = Object.entries(cart).map(([pId, qty]) => {
+                      const p = PRODUCTS.find((prod) => prod.id === pId);
+                      return {
+                        title: p?.title || 'Marketplace Item',
+                        image: p?.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80',
+                        priceNgn: p?.priceNgn || 50000,
+                        qty,
+                        storeName: p?.storeName || 'Verified Merchant',
+                      };
+                    });
+                    const placedOrder: OrderItem = {
+                      id: 'ord-' + Date.now(),
+                      orderNumber: '#' + newRef,
+                      date: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      status: 'Processing',
+                      statusColor: '#D9A441',
+                      type: 'active',
+                      products: orderLines.length > 0 ? orderLines : [{ title: 'Marketplace Item', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80', priceNgn: totalNgn, qty: 1, storeName: 'Verified Merchant' }],
+                      totalNgn,
+                      deliveryType: 'Kaduna Same-Day Dispatch',
+                      deliveryAddress: addresses[0] ? `${addresses[0].street}, ${addresses[0].city}` : (userProfile.city ? `${userProfile.city}, Nigeria` : 'Kaduna Hub'),
+                      escrowStatus: 'Payment held in Manga Escrow Vault',
+                      timeline: [
+                        { title: 'Order Placed', desc: 'Payment verified securely', done: true },
+                        { title: 'Vendor Packing', desc: 'Merchant preparing parcel', done: false, active: true },
+                        { title: 'Dispatched', desc: 'Handed to courier logistics', done: false },
+                        { title: 'Delivered', desc: 'Buyer inspection & escrow release', done: false },
+                      ],
+                    };
+                    setOrders((prev) => [placedOrder, ...prev]);
                     setIsCheckoutVisible(false);
                     setCart({});
                     Alert.alert(
                       'Order Placed Successfully!',
-                      'Order Ref: MNG-894120-E3A\nVerified seller has been notified for same-day dispatch.',
+                      `Order Ref: ${newRef}\nPayment held in Manga Escrow until your delivery is inspected.`,
                       [{ text: 'View Orders', onPress: () => {
                         setActiveTab('account');
                         setAccountSubScreen('orders');
@@ -3566,7 +3466,7 @@ export default function App() {
                   style={styles.modalPrimaryBtn}
                   onPress={() => {
                     if (selectedOrder.type === 'active') {
-                      Alert.alert('Live Tracking', 'Rider Ibrahim Danladi is 1.4km away on Isa Kaita Road, Malali.');
+                      Alert.alert('Live Tracking', `Rider ${selectedOrder.riderName || 'Courier Fleet'} is en route to your delivery location.`);
                     } else {
                       Alert.alert('Invoice Download', `Tax invoice for ${selectedOrder.orderNumber} saved to documents.`);
                     }
@@ -3663,6 +3563,8 @@ export default function App() {
               style={styles.confirmLogoutBtn}
               onPress={() => {
                 setIsLoggedIn(false);
+                setCart({});
+                setWishlist([]);
                 setAccountSubScreen(null);
                 setShowLogoutConfirm(false);
                 setAuthStep('signin');

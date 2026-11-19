@@ -1,5 +1,5 @@
 import { query } from './db';
-import crypto from 'crypto';
+import { hashPassword } from './security';
 
 const INIT_DDL = `
 CREATE SCHEMA IF NOT EXISTS identity;
@@ -22,6 +22,18 @@ CREATE TABLE IF NOT EXISTS identity.users (
     status VARCHAR(32) NOT NULL DEFAULT 'active',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- 1b. Password Reset Tokens (Expiring, Single-Use)
+CREATE TABLE IF NOT EXISTS identity.password_resets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL,
+    token_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    used_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_password_resets_token ON identity.password_resets(token_hash);
+CREATE INDEX IF NOT EXISTS idx_password_resets_email ON identity.password_resets(email);
 
 -- 2. Vendors
 CREATE TABLE IF NOT EXISTS vendor.vendors (
@@ -134,7 +146,8 @@ ON CONFLICT (slug) DO NOTHING;
 `;
 
 export const ADMIN_EMAIL = 'lukajohn70@gmail.com';
-export const ADMIN_PASSWORD_HASH = crypto.createHash('sha256').update('12').digest('hex');
+export const getAdminInitialPassword = () => process.env.ADMIN_INITIAL_PASSWORD || 'MangaAdmin2026!SecurePlatform#';
+export const ADMIN_PASSWORD_HASH = hashPassword(getAdminInitialPassword());
 
 let isInitialized = false;
 

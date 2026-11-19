@@ -18,6 +18,12 @@ interface SystemDiagnostics {
   error?: string;
 }
 
+function getCsrfTokenFromCookie(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const match = document.cookie.match(/(?:^|;\s*)manga_csrf=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
 export default function AdminHubPage() {
   const { user, loginCustomer, logoutCustomer, cartCount, wishlistCount } = useStore();
   const [diagnostics, setDiagnostics] = useState<SystemDiagnostics | null>(null);
@@ -68,9 +74,13 @@ export default function AdminHubPage() {
     setAuthLoading(true);
 
     try {
+      const csrfToken = getCsrfTokenFromCookie();
       const res = await fetch('/api/auth', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+        },
         body: JSON.stringify({
           action: 'admin-login',
           email: emailInput.trim(),
@@ -109,7 +119,15 @@ export default function AdminHubPage() {
     setPurging(true);
     setPurgeResult(null);
     try {
-      const res = await fetch('/api/setup?action=purge');
+      const csrfToken = getCsrfTokenFromCookie();
+      const res = await fetch('/api/setup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+        },
+        body: JSON.stringify({ action: 'purge' }),
+      });
       const data = await res.json();
       setDiagnostics(data);
       setPurgeResult(data.purgeMessage || 'Database purged successfully! Luka John (lukajohn70@gmail.com) active.');

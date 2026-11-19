@@ -312,6 +312,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setOrders([]);
     setWishlist([]);
     try {
+      fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'logout' }),
+      }).catch(() => {});
       localStorage.removeItem('manga_customer_user');
       localStorage.removeItem('manga_customer_token');
       localStorage.removeItem('manga_customer_orders');

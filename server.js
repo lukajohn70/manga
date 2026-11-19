@@ -59,6 +59,15 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   const server = createServer(async (req, res) => {
     try {
+      // Force HTTPS when behind reverse proxy (cPanel / CloudLinux / Nginx) in production
+      const proto = req.headers['x-forwarded-proto'];
+      const host = req.headers['host'];
+      if (proto === 'http' && host && !host.startsWith('localhost') && !host.startsWith('127.0.0.1')) {
+        res.writeHead(301, { Location: `https://${host}${req.url}` });
+        res.end();
+        return;
+      }
+
       const parsedUrl = parse(req.url, true);
       await handle(req, res, parsedUrl);
     } catch (err) {
