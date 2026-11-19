@@ -98,7 +98,7 @@ export async function POST(request: Request) {
           status: orderData.status,
           currency: orderData.currency,
           paymentRef: orderData.paymentRef,
-          message: 'Escrow payment secured successfully.',
+          message: 'Payment secured and protected successfully.',
           source: 'backend_monolith',
         });
       }
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
       status: 'confirmed',
       currency: 'NGN',
       paymentRef: `PSK-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-      message: 'Escrow payment authorized and held safely.',
+      message: 'Payment authorized and buyer protected.',
       source: 'fallback_resilient',
     });
   } catch (error: any) {

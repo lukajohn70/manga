@@ -52,8 +52,9 @@ export default function WishlistPage() {
 
   const savedProducts = products.filter((p) => wishlist.includes(p.id));
 
-  const handleMoveToCart = (item: any) => {
-    addToCart(item, 1);
+  const handleMoveToCart = (item: any, e?: React.MouseEvent) => {
+    const visualEl = document.getElementById(`wishlist-item-${item.id}`) || (e ? (e.currentTarget as HTMLElement) : null);
+    addToCart(item, 1, visualEl);
     toggleWishlist(item.id);
     showToast(`Moved ${item.title.slice(0, 30)}... to Cart!`);
   };
@@ -128,7 +129,10 @@ export default function WishlistPage() {
                 key={item.id}
                 className="bg-white rounded-2xl border border-[#E7D5BC] hover:border-[#B5532E]/40 overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
               >
-                <div className="relative aspect-square overflow-hidden bg-[#FAF6F0]">
+                <div
+                  id={`wishlist-item-${item.id}`}
+                  className="relative aspect-square overflow-hidden bg-[#FAF6F0]"
+                >
                   <Link href={`/product/${item.id}`} className="block w-full h-full">
                     <img
                       src={item.image}
@@ -171,8 +175,13 @@ export default function WishlistPage() {
 
                     <button
                       type="button"
-                      onClick={() => handleMoveToCart(item)}
-                      className="w-full py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-colors border-0 cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+                      onClick={(e) => {
+                        const btn = e.currentTarget;
+                        btn.classList.add('scale-95');
+                        setTimeout(() => btn.classList.remove('scale-95'), 150);
+                        handleMoveToCart(item, e);
+                      }}
+                      className="w-full py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-all border-0 cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
                     >
                       <i className="fas fa-cart-plus text-xs"></i>
                       <span>Move to Cart</span>

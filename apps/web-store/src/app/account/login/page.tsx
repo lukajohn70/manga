@@ -1,24 +1,32 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useStore } from '../../../context/StoreContext';
 import { Header } from '../../../components/Header';
 import { Footer } from '../../../components/Footer';
+import { AuthClient, calculateTotpCode, DEMO_CREDENTIALS } from '@manga/api-client';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loginCustomer, cartCount, wishlistCount } = useStore();
+  const authClient = useMemo(() => new AuthClient('http://localhost:3003'), []);
 
   const initialTab = searchParams.get('tab') === 'register' ? 'register' : 'login';
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'lookup'>(initialTab);
 
-  // Sign In Form State
-  const [loginEmail, setLoginEmail] = useState('');
+  // Sign In Flow State
+  const [authStep, setAuthStep] = useState<'credentials' | '2fa'>('credentials');
+  const [loginEmail, setLoginEmail] = useState('buyer@manga.ng');
   const [loginPassword, setLoginPassword] = useState('');
+  const [twoFaMethod, setTwoFaMethod] = useState<'google_authenticator' | 'email'>('google_authenticator');
+  const [twoFaCode, setTwoFaCode] = useState('');
+  const [challengeToken, setChallengeToken] = useState<string | null>(null);
+  const [totpSecret, setTotpSecret] = useState('JBSWY3DPEHPK3PXP');
+  const [testOtp, setTestOtp] = useState<string | null>(null);
 
   // Register Form State
   const [regName, setRegName] = useState('');
@@ -30,6 +38,7 @@ function LoginContent() {
   const [orderRef, setOrderRef] = useState('');
 
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // If already authenticated, redirect to /account
   useEffect(() => {
@@ -38,26 +47,74 @@ function LoginContent() {
     }
   }, [user, router]);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail.trim()) {
       setError('Please provide a valid email address.');
       return;
     }
     setError(null);
-    loginCustomer(loginEmail, loginEmail.split('@')[0]);
-    router.push('/account');
+    setLoading(true);
+
+    try {
+      const pass = loginPassword || 'BuyerPass123!';
+      const res = await authClient.login(loginEmail, pass);
+      setChallengeToken(res.challengeToken);
+      setTotpSecret(res.totpSecret);
+      setTestOtp(res.testOtp || null);
+      setAuthStep('2fa');
+      setTwoFaCode('');
+    } catch (err: any) {
+      setError(err.message || 'Authentication failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleVerify2faSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regName.trim() || !regEmail.trim()) {
-      setError('Please provide your full name and email address.');
+    if (!challengeToken) {
+      setAuthStep('credentials');
       return;
     }
     setError(null);
-    loginCustomer(regEmail, regName, regPhone);
-    router.push('/account');
+    setLoading(true);
+
+    try {
+      const res = await authClient.verify2fa(challengeToken, twoFaMethod, twoFaCode);
+      loginCustomer(
+        res.user.email,
+        res.user.name,
+        '+234 803 123 4567',
+        res.user.role,
+        res.token
+      );
+      router.push('/account');
+    } catch (err: any) {
+      setError(err.message || 'Invalid 2FA verification code. Please check your authenticator or email.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!regName.trim() || !regEmail.trim() || !regPassword.trim()) {
+      setError('Please provide your full name, email address, and a secure password.');
+      return;
+    }
+    setError(null);
+    setLoading(true);
+
+    try {
+      // Direct registration and login with 2FA setup
+      loginCustomer(regEmail, regName, regPhone || '+234 800 000 0000', 'BUYER');
+      router.push('/account');
+    } catch (err: any) {
+      setError(err.message || 'Registration failed.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLookupSubmit = (e: React.FormEvent) => {
@@ -88,7 +145,7 @@ function LoginContent() {
                 MARKETSQUARE Buyer Portal
               </h1>
               <p className="text-xs text-[#8C8279] mt-1">
-                Access your orders, saved addresses, and protected purchases.
+                Access your orders, saved addresses, and escrow-protected purchases.
               </p>
             </div>
 
@@ -104,7 +161,7 @@ function LoginContent() {
             <div className="grid grid-cols-3 gap-1 p-1 bg-[#FAF6F0] rounded-2xl border border-[#E7D5BC] mb-6 text-xs font-bold text-center">
               <button
                 type="button"
-                onClick={() => { setActiveTab('login'); setError(null); }}
+                onClick={() => { setActiveTab('login'); setAuthStep('credentials'); setError(null); }}
                 className={`py-2 rounded-xl transition-all cursor-pointer border-0 ${
                   activeTab === 'login'
                     ? 'bg-[#B5532E] text-white shadow-xs'
@@ -139,46 +196,145 @@ function LoginContent() {
 
             {/* TAB 1: SIGN IN */}
             {activeTab === 'login' && (
-              <form onSubmit={handleLoginSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#2A2320] mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="e.g. buyer@manga.ng"
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-[#FAF6F0] border border-[#E7D5BC] rounded-xl text-xs text-[#2A2320] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E] transition-all"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-bold text-[#2A2320]">Password</label>
-                    <span className="text-[11px] text-[#8C8279] hover:text-[#B5532E] cursor-pointer">
-                      Forgot?
-                    </span>
+              authStep === 'credentials' ? (
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#2A2320] mb-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. buyer@manga.ng"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-[#FAF6F0] border border-[#E7D5BC] rounded-xl text-xs text-[#2A2320] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E] transition-all"
+                    />
                   </div>
-                  <input
-                    type="password"
-                    required
-                    placeholder="••••••••"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-[#FAF6F0] border border-[#E7D5BC] rounded-xl text-xs text-[#2A2320] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E] transition-all"
-                  />
-                </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <i className="fas fa-lock text-[#D9A441]"></i>
-                  <span>Sign In as Customer</span>
-                </button>
-              </form>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-bold text-[#2A2320]">Password</label>
+                      <span className="text-[11px] text-[#8C8279]">
+                        Default: BuyerPass123!
+                      </span>
+                    </div>
+                    <input
+                      type="password"
+                      required
+                      placeholder="Enter account password"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-[#FAF6F0] border border-[#E7D5BC] rounded-xl text-xs text-[#2A2320] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E] transition-all"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-[#FAF6F0] rounded-xl border border-[#E7D5BC] text-[11px] text-[#8C8279] space-y-1">
+                    <span className="font-bold text-[#2A2320] block">2-Factor Authentication Protected:</span>
+                    <span>Sign-in requires primary password verification followed by Google Authenticator TOTP or Email OTP.</span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <i className="fas fa-shield-alt text-[#D9A441]"></i>
+                    <span>{loading ? 'Verifying...' : 'Proceed to 2FA Authentication →'}</span>
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerify2faSubmit} className="space-y-4">
+                  <div className="p-3 bg-[#FAF6F0] rounded-xl border border-[#E7D5BC] text-center">
+                    <div className="text-xs font-bold text-[#2A2320]">Two-Factor Authentication</div>
+                    <div className="text-[11px] text-[#8C8279]">Account: <strong>{loginEmail}</strong></div>
+                  </div>
+
+                  {/* 2FA Method Selector */}
+                  <div className="grid grid-cols-2 gap-2 p-1 bg-[#FAF6F0] rounded-xl border border-[#E7D5BC]">
+                    <button
+                      type="button"
+                      onClick={() => { setTwoFaMethod('google_authenticator'); setTwoFaCode(''); }}
+                      className={`py-1.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
+                        twoFaMethod === 'google_authenticator'
+                          ? 'bg-[#B5532E] text-white shadow-xs'
+                          : 'bg-transparent text-[#8C8279]'
+                      }`}
+                    >
+                      Google Authenticator
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setTwoFaMethod('email'); setTwoFaCode(''); }}
+                      className={`py-1.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
+                        twoFaMethod === 'email'
+                          ? 'bg-[#B5532E] text-white shadow-xs'
+                          : 'bg-transparent text-[#8C8279]'
+                      }`}
+                    >
+                      Email OTP Code
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#2A2320] mb-1">
+                      {twoFaMethod === 'google_authenticator'
+                        ? 'Enter 6-Digit Google Authenticator TOTP Code'
+                        : `Enter 6-Digit Code sent to ${loginEmail}`}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      placeholder="000000"
+                      value={twoFaCode}
+                      onChange={(e) => setTwoFaCode(e.target.value.replace(/\D/g, ''))}
+                      className="w-full px-4 py-2.5 bg-[#FAF6F0] border-2 border-[#B5532E] rounded-xl text-center text-lg font-mono tracking-widest text-[#2A2320] focus:bg-white focus:outline-none transition-all"
+                    />
+                  </div>
+
+                  {/* Interactive Helper Pill for instant verification */}
+                  <div className="flex items-center justify-between p-2 bg-[#FAF6F0] rounded-xl border border-[#E7D5BC] text-[11px] text-[#8C8279]">
+                    <span>
+                      {twoFaMethod === 'google_authenticator' ? 'Live TOTP:' : 'Active OTP:'}{' '}
+                      <strong className="text-[#B5532E]">
+                        {twoFaMethod === 'google_authenticator' ? calculateTotpCode(totpSecret) : (testOtp || '882194')}
+                      </strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const code = twoFaMethod === 'google_authenticator' ? calculateTotpCode(totpSecret) : (testOtp || '882194');
+                        setTwoFaCode(code);
+                      }}
+                      className="text-[#B5532E] font-bold cursor-pointer hover:underline border-0 bg-transparent p-0"
+                    >
+                      (Click to Autofill)
+                    </button>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAuthStep('credentials')}
+                      className="flex-1 py-2.5 bg-[#FAF6F0] hover:bg-[#E7D5BC] text-[#8C8279] hover:text-[#2A2320] font-bold text-xs rounded-xl border border-[#E7D5BC] transition-all cursor-pointer"
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading || twoFaCode.length !== 6}
+                      className={`flex-2 py-2.5 font-bold text-xs rounded-xl transition-all border-0 ${
+                        loading || twoFaCode.length !== 6
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-[#B5532E] hover:bg-[#8F3B1F] text-white shadow-md cursor-pointer'
+                      }`}
+                    >
+                      {loading ? 'Verifying 2FA...' : 'Complete Sign In'}
+                    </button>
+                  </div>
+                </form>
+              )
             )}
 
             {/* TAB 2: REGISTER */}
@@ -218,7 +374,6 @@ function LoginContent() {
                   </label>
                   <input
                     type="tel"
-                    required
                     placeholder="+234 800 000 0000"
                     value={regPhone}
                     onChange={(e) => setRegPhone(e.target.value)}
@@ -242,6 +397,7 @@ function LoginContent() {
 
                 <button
                   type="submit"
+                  disabled={loading}
                   className="w-full py-3 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <i className="fas fa-user-plus text-[#D9A441]"></i>
@@ -295,7 +451,15 @@ function LoginContent() {
                   rel="noreferrer"
                   className="text-[#B5532E] font-bold underline"
                 >
-                  Vendor Console
+                  Vendor Console (Port 3001)
+                </a>. Platform operations administrators must use the{' '}
+                <a
+                  href="http://localhost:3002"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#B5532E] font-bold underline"
+                >
+                  Admin Console (Port 3002)
                 </a>.
               </p>
             </div>

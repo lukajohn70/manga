@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Button, Badge } from '@manga/ui';
+import { AuthClient, calculateTotpCode, DEMO_CREDENTIALS } from '@manga/api-client';
 import {
   Camera,
   Printer,
@@ -62,23 +63,36 @@ function NokTriangleIcon({ size = 18, color = '#B5532E' }: { size?: number; colo
 }
 
 export function App() {
+  const authClient = React.useMemo(() => new AuthClient('http://localhost:3003'), []);
+
   const [vendorSession, setVendorSession] = React.useState<{
     email: string;
     storeName: string;
     role: 'VENDOR';
+    token?: string;
   } | null>(() => {
     try {
       const saved = localStorage.getItem('manga_vendor_session');
-      return saved
-        ? JSON.parse(saved)
-        : { email: 'vendor@manga.ng', storeName: 'Apex Electronics Ltd', role: 'VENDOR' };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.role === 'VENDOR') return parsed;
+      }
+      return null;
     } catch {
-      return { email: 'vendor@manga.ng', storeName: 'Apex Electronics Ltd', role: 'VENDOR' };
+      return null;
     }
   });
 
+  const [authStep, setAuthStep] = React.useState<'credentials' | '2fa'>('credentials');
   const [authError, setAuthError] = React.useState<string | null>(null);
+  const [authLoading, setAuthLoading] = React.useState(false);
   const [loginEmail, setLoginEmail] = React.useState('vendor@manga.ng');
+  const [loginPassword, setLoginPassword] = React.useState('');
+  const [twoFaMethod, setTwoFaMethod] = React.useState<'google_authenticator' | 'email'>('google_authenticator');
+  const [twoFaCode, setTwoFaCode] = React.useState('');
+  const [challengeToken, setChallengeToken] = React.useState<string | null>(null);
+  const [totpSecret, setTotpSecret] = React.useState('KRSXG5CTMVRXEZLU');
+  const [testOtp, setTestOtp] = React.useState<string | null>(null);
 
   const [activeTab, setActiveTab] = React.useState<
     'needs_action' | 'pack_scan' | 'ready_to_ship' | 'all' | 'inventory' | 'payouts'
@@ -260,36 +274,68 @@ export function App() {
     } catch {}
   };
 
-  const handleVendorLoginSubmit = (e: React.FormEvent) => {
+  const handleVendorLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginEmail.toLowerCase().includes('buyer') || loginEmail.toLowerCase().includes('customer')) {
-      setAuthError('403 Forbidden: Buyer accounts are not authorized to access the Merchant Console. Role required: VENDOR.');
+    setAuthError(null);
+    setAuthLoading(true);
+
+    try {
+      const pass = loginPassword || 'VendorPass123!';
+      const res = await authClient.login(loginEmail, pass, 'VENDOR');
+      setChallengeToken(res.challengeToken);
+      setTotpSecret(res.totpSecret);
+      setTestOtp(res.testOtp || null);
+      setAuthStep('2fa');
+      setTwoFaCode('');
+    } catch (err: any) {
+      setAuthError(err.message || 'Authentication failed. Please verify credentials.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleVendorVerify2faSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!challengeToken) {
+      setAuthStep('credentials');
       return;
     }
-    const session = {
-      email: loginEmail,
-      storeName: 'Apex Electronics Ltd',
-      role: 'VENDOR' as const,
-    };
-    setVendorSession(session);
+
     setAuthError(null);
+    setAuthLoading(true);
+
     try {
-      localStorage.setItem('manga_vendor_session', JSON.stringify(session));
-    } catch {}
+      const res = await authClient.verify2fa(challengeToken, twoFaMethod, twoFaCode);
+      const session = {
+        email: res.user.email,
+        storeName: res.user.name || 'Apex Electronics Ltd',
+        role: 'VENDOR' as const,
+        token: res.token,
+      };
+      setVendorSession(session);
+      setAuthStep('credentials');
+      try {
+        localStorage.setItem('manga_vendor_session', JSON.stringify(session));
+      } catch {}
+    } catch (err: any) {
+      setAuthError(err.message || 'Invalid 2FA verification code. Please check your authenticator or email.');
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   if (!vendorSession) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#F6EDE0', color: '#2A2320', fontFamily: 'Inter, -apple-system, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <div style={{ maxWidth: '440px', width: '100%', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E7D5BC', padding: '2rem', boxShadow: '0 8px 24px rgba(42, 35, 32, 0.08)', textAlign: 'center' }}>
+        <div style={{ maxWidth: '460px', width: '100%', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E7D5BC', padding: '2rem', boxShadow: '0 8px 24px rgba(42, 35, 32, 0.08)', textAlign: 'center' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#FEF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
             <NokTriangleIcon size={24} color="#B5532E" />
           </div>
           <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '22px', fontWeight: 800, color: '#B5532E', marginBottom: '0.25rem' }}>
             MANGA MARKETSQUARE Merchant Console
           </h1>
-          <p style={{ fontSize: '12px', color: '#8C8279', marginBottom: '1.5rem' }}>
-            Role-Based Access Guard • Requires <strong>ROLE: VENDOR</strong>
+          <p style={{ fontSize: '12px', color: '#8C8279', marginBottom: '1.25rem' }}>
+            Role-Based Access Guard • Required Role: <strong style={{ color: '#B5532E' }}>VENDOR</strong>
           </p>
 
           {authError && (
@@ -298,42 +344,156 @@ export function App() {
             </div>
           )}
 
-          <form onSubmit={handleVendorLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
-                Merchant Account Email
-              </label>
-              <input
-                type="email"
-                required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="vendor@manga.ng"
-                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
+          {authStep === 'credentials' ? (
+            <form onSubmit={handleVendorLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
+                  Merchant Account Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  placeholder="vendor@manga.ng"
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
-                Merchant Password
-              </label>
-              <input
-                type="password"
-                required
-                defaultValue="vendor123"
-                placeholder="••••••••"
-                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: '#2A2320' }}>
+                    Password
+                  </label>
+                  <span style={{ fontSize: '10px', color: '#8C8279' }}>Seed: VendorPass123!</span>
+                </div>
+                <input
+                  type="password"
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="Enter merchant password"
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              style={{ width: '100%', backgroundColor: '#B5532E', color: '#FFFFFF', padding: '10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', marginTop: '0.5rem' }}
-            >
-              Sign In to Merchant Hub
-            </Button>
-          </form>
+              <div style={{ padding: '8px 10px', backgroundColor: '#FAF6F0', borderRadius: '6px', border: '1px dashed #D9A441', fontSize: '10px', color: '#8C8279' }}>
+                <span style={{ color: '#B5532E', fontWeight: 700 }}>Role Isolation Notice:</span> Only accounts with role <strong>VENDOR</strong> are granted access to merchant orders, warehouse scans, and payout ledgers. Shopper (BUYER) accounts are rejected with 403 Forbidden.
+              </div>
+
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={authLoading}
+                style={{ width: '100%', backgroundColor: '#B5532E', color: '#FFFFFF', padding: '10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: authLoading ? 'not-allowed' : 'pointer', marginTop: '0.25rem' }}
+              >
+                {authLoading ? 'Verifying Merchant...' : 'Proceed to 2FA Authentication →'}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleVendorVerify2faSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
+              <div style={{ padding: '10px', backgroundColor: '#FAF6F0', borderRadius: '8px', border: '1px solid #E7D5BC', textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#2A2320', marginBottom: '2px' }}>
+                  Merchant Two-Factor Verification
+                </div>
+                <div style={{ fontSize: '10px', color: '#8C8279' }}>
+                  Account: <strong style={{ color: '#B5532E' }}>{loginEmail}</strong>
+                </div>
+              </div>
+
+              {/* 2FA Method Selector */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', backgroundColor: '#FAF6F0', padding: '4px', borderRadius: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => { setTwoFaMethod('google_authenticator'); setTwoFaCode(''); }}
+                  style={{
+                    padding: '6px 8px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: twoFaMethod === 'google_authenticator' ? '#B5532E' : 'transparent',
+                    color: twoFaMethod === 'google_authenticator' ? '#FFFFFF' : '#8C8279',
+                  }}
+                >
+                  Authenticator App
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setTwoFaMethod('email'); setTwoFaCode(''); }}
+                  style={{
+                    padding: '6px 8px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: twoFaMethod === 'email' ? '#B5532E' : 'transparent',
+                    color: twoFaMethod === 'email' ? '#FFFFFF' : '#8C8279',
+                  }}
+                >
+                  Email OTP Code
+                </button>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
+                  {twoFaMethod === 'google_authenticator'
+                    ? 'Enter 6-Digit Google Authenticator Code'
+                    : `Enter 6-Digit Code dispatched to ${loginEmail}`}
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  value={twoFaCode}
+                  onChange={(e) => setTwoFaCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #B5532E', backgroundColor: '#FAF6F0', color: '#2A2320', fontSize: '18px', textAlign: 'center', letterSpacing: '6px', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                />
+              </div>
+
+              {/* Interactive Helper Pill for instant verification */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', backgroundColor: '#FAF6F0', borderRadius: '6px', fontSize: '10px', color: '#8C8279' }}>
+                <span>
+                  {twoFaMethod === 'google_authenticator' ? 'Live TOTP:' : 'Active OTP:'}{' '}
+                  <strong style={{ color: '#B5532E' }}>
+                    {twoFaMethod === 'google_authenticator' ? calculateTotpCode(totpSecret) : (testOtp || '882194')}
+                  </strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const code = twoFaMethod === 'google_authenticator' ? calculateTotpCode(totpSecret) : (testOtp || '882194');
+                    setTwoFaCode(code);
+                  }}
+                  style={{ background: 'none', border: 'none', color: '#B5532E', cursor: 'pointer', fontSize: '10px', fontWeight: 700 }}
+                >
+                  (Click to Autofill)
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: '0.25rem' }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setAuthStep('credentials')}
+                  style={{ flex: 1, padding: '9px', fontSize: '11px', color: '#8C8279', borderColor: '#E7D5BC', backgroundColor: 'transparent' }}
+                >
+                  ← Back
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={authLoading || twoFaCode.length !== 6}
+                  style={{ flex: 2, backgroundColor: '#B5532E', color: '#FFFFFF', padding: '9px', fontSize: '11px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: authLoading || twoFaCode.length !== 6 ? 'not-allowed' : 'pointer' }}
+                >
+                  {authLoading ? 'Verifying 2FA...' : 'Complete Sign In'}
+                </Button>
+              </div>
+            </form>
+          )}
 
           <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #E7D5BC', fontSize: '11px', color: '#8C8279' }}>
             <p style={{ marginBottom: '8px' }}>Are you a shopper / customer?</p>

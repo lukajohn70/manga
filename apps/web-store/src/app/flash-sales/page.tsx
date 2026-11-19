@@ -226,7 +226,10 @@ export default function FlashSalesPage() {
                 key={item.id}
                 className="bg-white rounded-2xl border border-[#E7D5BC] hover:border-[#B5532E]/40 overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
               >
-                <div className="relative aspect-square overflow-hidden bg-[#FAF6F0]">
+                <div
+                  id={`flash-visual-${item.id}`}
+                  className="relative aspect-square overflow-hidden bg-[#FAF6F0]"
+                >
                   <Link href={`/product/${item.id}`} className="block w-full h-full">
                     <img
                       src={item.image}
@@ -280,8 +283,14 @@ export default function FlashSalesPage() {
                     {/* CTA */}
                     <button
                       type="button"
-                      onClick={() => addToCart(item, 1)}
-                      className="w-full py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-colors border-0 cursor-pointer shadow-2xs flex items-center justify-center gap-1.5"
+                      onClick={(e) => {
+                        const btn = e.currentTarget;
+                        btn.classList.add('scale-95');
+                        setTimeout(() => btn.classList.remove('scale-95'), 150);
+                        const visualEl = document.getElementById(`flash-visual-${item.id}`) || btn;
+                        addToCart(item, 1, visualEl);
+                      }}
+                      className="w-full py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-all border-0 cursor-pointer shadow-2xs flex items-center justify-center gap-1.5 active:scale-95"
                     >
                       <span>Claim Deal</span>
                     </button>

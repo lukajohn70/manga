@@ -123,12 +123,28 @@ export default function AccountPage() {
                       {user.name}
                     </h1>
                     <span className="px-2.5 py-0.5 rounded-full bg-[#4F6B3A]/30 text-[#D9A441] border border-[#D9A441]/40 text-[10px] font-black uppercase tracking-wider">
-                      Verified Buyer (RBAC: BUYER)
+                      {user.role === 'ADMIN' ? 'Platform Administrator (RBAC: ADMIN)' : user.role === 'VENDOR' ? 'Merchant Partner (RBAC: VENDOR)' : 'Verified Buyer (RBAC: BUYER)'}
                     </span>
                   </div>
                   <p className="text-xs text-[#E7D5BC] mt-0.5">
                     {user.email} • {user.phone || '+234 803 123 4567'}
                   </p>
+                  {user.role !== 'BUYER' && (
+                    <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-lg text-[11px] text-[#D9A441] border border-[#D9A441]/30">
+                      <i className="fas fa-arrow-up-right-from-square"></i>
+                      <span>
+                        Access your dedicated console:{' '}
+                        <a
+                          href={user.role === 'ADMIN' ? 'http://localhost:3002' : 'http://localhost:3001'}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline font-bold text-white hover:text-[#D9A441]"
+                        >
+                          {user.role === 'ADMIN' ? 'Platform Operations Admin Console (Port 3002)' : 'Merchant Vendor Console (Port 3001)'}
+                        </a>
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 

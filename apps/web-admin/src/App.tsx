@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Badge, Button } from '@manga/ui';
+import { AuthClient, calculateTotpCode, DEMO_CREDENTIALS } from '@manga/api-client';
 import {
   LayoutDashboard,
   Scale,
@@ -84,23 +85,36 @@ interface PlatformCoupon {
 }
 
 export function App() {
+  const authClient = React.useMemo(() => new AuthClient('http://localhost:3003'), []);
+
   const [adminSession, setAdminSession] = React.useState<{
     email: string;
     role: 'ADMIN';
     operatorName: string;
+    token?: string;
   } | null>(() => {
     try {
       const saved = localStorage.getItem('manga_admin_session');
-      return saved
-        ? JSON.parse(saved)
-        : { email: 'admin@manga.ng', role: 'ADMIN', operatorName: 'Platform Operations Admin' };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.role === 'ADMIN') return parsed;
+      }
+      return null;
     } catch {
-      return { email: 'admin@manga.ng', role: 'ADMIN', operatorName: 'Platform Operations Admin' };
+      return null;
     }
   });
 
-  const [adminAuthError, setAdminAuthError] = React.useState<string | null>(null);
+  const [authStep, setAuthStep] = React.useState<'credentials' | '2fa'>('credentials');
   const [adminEmail, setAdminEmail] = React.useState('admin@manga.ng');
+  const [adminPassword, setAdminPassword] = React.useState('');
+  const [twoFaMethod, setTwoFaMethod] = React.useState<'google_authenticator' | 'email'>('google_authenticator');
+  const [twoFaCode, setTwoFaCode] = React.useState('');
+  const [challengeToken, setChallengeToken] = React.useState<string | null>(null);
+  const [totpSecret, setTotpSecret] = React.useState('MFRGGZDFMZTWQ2LK');
+  const [testOtp, setTestOtp] = React.useState<string | null>(null);
+  const [adminAuthError, setAdminAuthError] = React.useState<string | null>(null);
+  const [authLoading, setAuthLoading] = React.useState(false);
 
   // Active Tab state: defaults to overview Control Tower
   const [activeTab, setActiveTab] = React.useState<
@@ -350,36 +364,68 @@ export function App() {
     } catch {}
   };
 
-  const handleAdminLoginSubmit = (e: React.FormEvent) => {
+  const handleAdminLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminEmail.toLowerCase().includes('buyer') || adminEmail.toLowerCase().includes('vendor')) {
-      setAdminAuthError('403 Forbidden: Only authorized Platform Administrators with role [ADMIN] may access this system.');
+    setAdminAuthError(null);
+    setAuthLoading(true);
+
+    try {
+      const pass = adminPassword || 'AdminPass123!';
+      const res = await authClient.login(adminEmail, pass, 'ADMIN');
+      setChallengeToken(res.challengeToken);
+      setTotpSecret(res.totpSecret);
+      setTestOtp(res.testOtp || null);
+      setAuthStep('2fa');
+      setTwoFaCode('');
+    } catch (err: any) {
+      setAdminAuthError(err.message || 'Authentication failed. Please verify credentials.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleAdminVerify2faSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!challengeToken) {
+      setAuthStep('credentials');
       return;
     }
-    const session = {
-      email: adminEmail,
-      role: 'ADMIN' as const,
-      operatorName: 'Manga Operations Admin',
-    };
-    setAdminSession(session);
+
     setAdminAuthError(null);
+    setAuthLoading(true);
+
     try {
-      localStorage.setItem('manga_admin_session', JSON.stringify(session));
-    } catch {}
+      const res = await authClient.verify2fa(challengeToken, twoFaMethod, twoFaCode);
+      const session = {
+        email: res.user.email,
+        role: 'ADMIN' as const,
+        operatorName: res.user.name,
+        token: res.token,
+      };
+      setAdminSession(session);
+      setAuthStep('credentials');
+      try {
+        localStorage.setItem('manga_admin_session', JSON.stringify(session));
+      } catch {}
+    } catch (err: any) {
+      setAdminAuthError(err.message || 'Invalid 2FA verification code. Please check your authenticator or email.');
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   if (!adminSession) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#1E1815', color: '#F6EDE0', fontFamily: 'Inter, -apple-system, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <div style={{ maxWidth: '440px', width: '100%', backgroundColor: '#2A2320', borderRadius: '16px', border: '1px solid #3E3430', padding: '2rem', boxShadow: '0 12px 32px rgba(0, 0, 0, 0.4)', textAlign: 'center' }}>
+        <div style={{ maxWidth: '460px', width: '100%', backgroundColor: '#2A2320', borderRadius: '16px', border: '1px solid #3E3430', padding: '2rem', boxShadow: '0 12px 32px rgba(0, 0, 0, 0.4)', textAlign: 'center' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#1E1815', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', border: '1px solid #3E3430' }}>
             <NokTriangleIcon size={24} color="#B5532E" />
           </div>
           <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '20px', fontWeight: 800, color: '#F6EDE0', marginBottom: '0.25rem' }}>
             MANGA MARKETSQUARE Operations Console
           </h1>
-          <p style={{ fontSize: '11px', color: '#D5C7B8', marginBottom: '1.5rem' }}>
-            OWASP ASVS Level 2 Strict RBAC • Required: <strong>ROLE: ADMIN</strong>
+          <p style={{ fontSize: '11px', color: '#D5C7B8', marginBottom: '1.25rem' }}>
+            OWASP ASVS Level 2 Strict RBAC • Required Role: <strong style={{ color: '#D9A441' }}>ADMIN</strong>
           </p>
 
           {adminAuthError && (
@@ -388,42 +434,156 @@ export function App() {
             </div>
           )}
 
-          <form onSubmit={handleAdminLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#D5C7B8', marginBottom: '4px' }}>
-                Administrator Email
-              </label>
-              <input
-                type="email"
-                required
-                value={adminEmail}
-                onChange={(e) => setAdminEmail(e.target.value)}
-                placeholder="admin@manga.ng"
-                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #3E3430', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
+          {authStep === 'credentials' ? (
+            <form onSubmit={handleAdminLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#D5C7B8', marginBottom: '4px' }}>
+                  Administrator Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  placeholder="admin@manga.ng"
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #3E3430', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#D5C7B8', marginBottom: '4px' }}>
-                Operations Passcode (MFA)
-              </label>
-              <input
-                type="password"
-                required
-                defaultValue="admin123"
-                placeholder="••••••••"
-                style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #3E3430', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: '#D5C7B8' }}>
+                    Password
+                  </label>
+                  <span style={{ fontSize: '10px', color: '#8C8279' }}>Seed: AdminPass123!</span>
+                </div>
+                <input
+                  type="password"
+                  required
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="Enter administrator password"
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #3E3430', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              style={{ width: '100%', backgroundColor: '#B5532E', color: '#FFFFFF', padding: '10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', marginTop: '0.5rem' }}
-            >
-              Authenticate Admin Session
-            </Button>
-          </form>
+              <div style={{ padding: '8px 10px', backgroundColor: '#1E1815', borderRadius: '6px', border: '1px dashed #4F382E', fontSize: '10px', color: '#D5C7B8' }}>
+                <span style={{ color: '#D9A441', fontWeight: 700 }}>Role Isolation Notice:</span> Only accounts with role <strong>ADMIN</strong> are granted access. Shopper (BUYER) and Merchant (VENDOR) logins are rejected with 403 Forbidden.
+              </div>
+
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={authLoading}
+                style={{ width: '100%', backgroundColor: '#B5532E', color: '#FFFFFF', padding: '10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: authLoading ? 'not-allowed' : 'pointer', marginTop: '0.25rem' }}
+              >
+                {authLoading ? 'Verifying Credentials...' : 'Proceed to 2FA Authentication →'}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleAdminVerify2faSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
+              <div style={{ padding: '10px', backgroundColor: '#1E1815', borderRadius: '8px', border: '1px solid #3E3430', textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#F6EDE0', marginBottom: '2px' }}>
+                  Two-Factor Authentication (2FA)
+                </div>
+                <div style={{ fontSize: '10px', color: '#8C8279' }}>
+                  Account: <strong style={{ color: '#D9A441' }}>{adminEmail}</strong>
+                </div>
+              </div>
+
+              {/* 2FA Method Switcher */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', backgroundColor: '#1E1815', padding: '4px', borderRadius: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => { setTwoFaMethod('google_authenticator'); setTwoFaCode(''); }}
+                  style={{
+                    padding: '6px 8px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: twoFaMethod === 'google_authenticator' ? '#B5532E' : 'transparent',
+                    color: twoFaMethod === 'google_authenticator' ? '#FFFFFF' : '#8C8279',
+                  }}
+                >
+                  Authenticator App
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setTwoFaMethod('email'); setTwoFaCode(''); }}
+                  style={{
+                    padding: '6px 8px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: twoFaMethod === 'email' ? '#B5532E' : 'transparent',
+                    color: twoFaMethod === 'email' ? '#FFFFFF' : '#8C8279',
+                  }}
+                >
+                  Email OTP Code
+                </button>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#D5C7B8', marginBottom: '4px' }}>
+                  {twoFaMethod === 'google_authenticator'
+                    ? 'Enter 6-Digit Google Authenticator Code'
+                    : `Enter 6-Digit Code sent to ${adminEmail}`}
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  value={twoFaCode}
+                  onChange={(e) => setTwoFaCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #B5532E', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '18px', textAlign: 'center', letterSpacing: '6px', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                />
+              </div>
+
+              {/* Interactive Helper Pill for instant verification */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', backgroundColor: '#1E1815', borderRadius: '6px', fontSize: '10px', color: '#8C8279' }}>
+                <span>
+                  {twoFaMethod === 'google_authenticator' ? 'Live TOTP:' : 'Active OTP:'}{' '}
+                  <strong style={{ color: '#D9A441' }}>
+                    {twoFaMethod === 'google_authenticator' ? calculateTotpCode(totpSecret) : (testOtp || '882194')}
+                  </strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const code = twoFaMethod === 'google_authenticator' ? calculateTotpCode(totpSecret) : (testOtp || '882194');
+                    setTwoFaCode(code);
+                  }}
+                  style={{ background: 'none', border: 'none', color: '#B5532E', cursor: 'pointer', fontSize: '10px', fontWeight: 700 }}
+                >
+                  (Click to Autofill)
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: '0.25rem' }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setAuthStep('credentials')}
+                  style={{ flex: 1, padding: '9px', fontSize: '11px', color: '#D5C7B8', borderColor: '#3E3430', backgroundColor: 'transparent' }}
+                >
+                  ← Back
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={authLoading || twoFaCode.length !== 6}
+                  style={{ flex: 2, backgroundColor: '#B5532E', color: '#FFFFFF', padding: '9px', fontSize: '11px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: authLoading || twoFaCode.length !== 6 ? 'not-allowed' : 'pointer' }}
+                >
+                  {authLoading ? 'Verifying 2FA...' : 'Complete Sign In'}
+                </Button>
+              </div>
+            </form>
+          )}
 
           <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #3E3430', fontSize: '11px', color: '#8C8279' }}>
             <p style={{ marginBottom: '8px' }}>Manga Customer Storefront</p>

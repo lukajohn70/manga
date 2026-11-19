@@ -21,7 +21,8 @@ export interface CustomerUser {
   name: string;
   email: string;
   phone?: string;
-  role: 'BUYER';
+  role: 'BUYER' | 'VENDOR' | 'ADMIN';
+  token?: string;
   defaultAddress?: {
     recipientName: string;
     phone: string;
@@ -72,7 +73,13 @@ export interface StoreContextType {
   // Customer RBAC & Auth Session
   user: CustomerUser | null;
   orders: PlacedOrder[];
-  loginCustomer: (email: string, name?: string, phone?: string) => void;
+  loginCustomer: (
+    email: string,
+    name?: string,
+    phone?: string,
+    role?: 'BUYER' | 'VENDOR' | 'ADMIN',
+    token?: string
+  ) => void;
   logoutCustomer: () => void;
   updateCustomerProfile: (data: Partial<CustomerUser>) => void;
   recordPlacedOrder: (order: PlacedOrder) => void;
@@ -254,14 +261,21 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const loginCustomer = (email: string, name?: string, phone?: string) => {
+  const loginCustomer = (
+    email: string,
+    name?: string,
+    phone?: string,
+    role: 'BUYER' | 'VENDOR' | 'ADMIN' = 'BUYER',
+    token?: string
+  ) => {
     const formattedName = name && name.trim() ? name.trim() : email.split('@')[0];
     const customer: CustomerUser = {
       id: `usr-${Date.now().toString(36)}`,
       name: formattedName.charAt(0).toUpperCase() + formattedName.slice(1),
       email: email.trim().toLowerCase(),
       phone: phone || '+234 800 000 0000',
-      role: 'BUYER',
+      role,
+      token,
       defaultAddress: {
         recipientName: formattedName,
         phone: phone || '+234 800 000 0000',
@@ -271,7 +285,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       },
     };
     setUser(customer);
-    showToast(`Welcome back, ${customer.name}!`);
+    showToast(`Welcome back, ${customer.name}! Authenticated as [${role}].`);
   };
 
   const logoutCustomer = () => {

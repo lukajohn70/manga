@@ -448,7 +448,7 @@ const INITIAL_ORDERS: OrderItem[] = [
       { title: 'Order Placed', desc: 'Nov 10, 2026', done: true },
       { title: 'Escrow Secured', desc: 'Funds verified', done: true },
       { title: 'Dispatched', desc: 'Nov 11, 2026', done: true },
-      { title: 'Delivered & Confirmed', desc: 'Received & inspected by John Luka', done: true },
+      { title: 'Delivered & Confirmed', desc: 'Received & inspected by Customer', done: true },
     ],
   },
   {
@@ -503,7 +503,7 @@ const INITIAL_ORDERS: OrderItem[] = [
     timeline: [
       { title: 'Order Placed', desc: 'Sep 13, 2026', done: true },
       { title: 'Dispatched', desc: 'Sep 14, 2026', done: true },
-      { title: 'Delivered', desc: 'Signed by John Luka', done: true },
+      { title: 'Delivered', desc: 'Signed by Recipient', done: true },
     ],
   },
 ];
@@ -574,7 +574,7 @@ const INITIAL_ADDRESSES: AddressItem[] = [
     id: 'addr-1',
     label: 'Home',
     isDefault: true,
-    name: 'John Luka',
+    name: 'Chidi Okonkwo',
     phone: '+234 803 123 4567',
     street: '14 Isa Kaita Road',
     area: 'Malali',
@@ -588,7 +588,7 @@ const INITIAL_ADDRESSES: AddressItem[] = [
     id: 'addr-2',
     label: 'Office',
     isDefault: false,
-    name: 'John Luka',
+    name: 'Chidi Okonkwo',
     phone: '+234 803 123 4567',
     street: 'Plot 7, Constitution Road',
     area: 'Kaduna Central',
@@ -762,7 +762,7 @@ export default function App() {
   // Address Book State
   const [addresses, setAddresses] = useState<AddressItem[]>(INITIAL_ADDRESSES);
   const [newAddrLabel, setNewAddrLabel] = useState('Home');
-  const [newAddrName, setNewAddrName] = useState('John Luka');
+  const [newAddrName, setNewAddrName] = useState('');
   const [newAddrPhone, setNewAddrPhone] = useState('+234 803 123 4567');
   const [newAddrStreet, setNewAddrStreet] = useState('');
   const [newAddrArea, setNewAddrArea] = useState('Malali');
@@ -2287,7 +2287,7 @@ export default function App() {
                             <View style={styles.completedBadgeStrip}>
                               <CheckIcon size={14} color="#4F6B3A" />
                               <Text style={styles.completedBadgeText}>
-                                Delivered & Verified by John Luka
+                                Delivered & Verified by Customer
                               </Text>
                             </View>
                           )}
@@ -2734,7 +2734,7 @@ export default function App() {
                                   id: `addr-${Date.now()}`,
                                   label: newAddrLabel,
                                   isDefault: addresses.length === 0,
-                                  name: newAddrName.trim() || 'John Luka',
+                                  name: newAddrName.trim() || userProfile.name || 'Customer',
                                   phone: newAddrPhone.trim() || '+234 803 123 4567',
                                   street: newAddrStreet.trim(),
                                   area: newAddrArea.trim() || 'Kaduna Central',
@@ -3411,7 +3411,7 @@ export default function App() {
 
                 <Text style={styles.checkoutSectionTitle}>Delivery Address</Text>
                 <View style={styles.checkoutCard}>
-                  <Text style={styles.checkoutName}>John Luka (+234 803 123 4567)</Text>
+                  <Text style={styles.checkoutName}>{userProfile.name ? `${userProfile.name} (${userProfile.phone || '+234 803 123 4567'})` : 'Chidi Okonkwo (+234 803 123 4567)'}</Text>
                   <Text style={styles.checkoutAddress}>
                     14 Isa Kaita Road, Malali, Kaduna, Kaduna State
                   </Text>
