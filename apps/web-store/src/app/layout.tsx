@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js" async></script>
       </head>
-      <body className="min-h-screen flex flex-col antialiased overflow-x-clip bg-[#FAF6F0] text-[#2A2320]">
+      <body className="min-h-screen flex flex-col antialiased bg-[#FAF6F0] text-[#2A2320]">
         <StoreProvider>
           {children}
         </StoreProvider>

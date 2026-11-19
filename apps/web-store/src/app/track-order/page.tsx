@@ -19,28 +19,44 @@ function TrackOrderContent() {
     lastOrderRef,
   } = useStore();
 
-  const initialRef = searchParams.get('ref') || lastOrderRef || 'MNG-769149-F92D';
+  const initialRef = searchParams.get('ref') || lastOrderRef || '';
   const [orderRefInput, setOrderRefInput] = useState(initialRef);
   const [searchedRef, setSearchedRef] = useState(initialRef);
   const [trackingData, setTrackingData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    if (!searchedRef.trim()) return;
+    if (!searchedRef.trim()) {
+      setTrackingData(null);
+      setNotFound(false);
+      return;
+    }
 
     let active = true;
     const fetchTracking = async () => {
       setLoading(true);
+      setNotFound(false);
       try {
         const res = await fetch(`/api/tracking/${encodeURIComponent(searchedRef.trim())}`);
         if (res.ok) {
           const json = await res.json();
           if (active && json.data) {
             setTrackingData(json.data);
+            setNotFound(false);
+          } else if (active) {
+            setTrackingData(null);
+            setNotFound(true);
           }
+        } else if (active) {
+          setTrackingData(null);
+          setNotFound(true);
         }
       } catch (err) {
-        console.warn('Tracking lookup note:', err);
+        if (active) {
+          setTrackingData(null);
+          setNotFound(true);
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -116,8 +132,40 @@ function TrackOrderContent() {
 
         {/* Tracking Details Container */}
         <div className="container mx-auto px-4 lg:px-8 py-10 sm:py-14 max-w-3xl">
-          
-          <div className="bg-white rounded-3xl border border-[#E7D5BC] p-6 sm:p-8 shadow-2xs space-y-6">
+          {!searchedRef ? (
+            <div className="bg-white rounded-3xl border border-[#E7D5BC] p-10 text-center shadow-2xs">
+              <div className="w-16 h-16 rounded-2xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-2xl mx-auto mb-4">
+                <i className="fas fa-barcode"></i>
+              </div>
+              <h3 className="font-display font-black text-lg text-[#2A2320] mb-2">Track Your Delivery Waybill</h3>
+              <p className="text-xs text-[#8C8279] max-w-md mx-auto mb-6">
+                Enter your order reference code (e.g. from your order confirmation or checkout receipt) in the search field above to view real-time courier checkpoints.
+              </p>
+              <Link
+                href="/shop"
+                className="px-6 py-2.5 bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold rounded-xl transition-colors inline-block"
+              >
+                Browse Marketplace Products
+              </Link>
+            </div>
+          ) : notFound ? (
+            <div className="bg-white rounded-3xl border border-rose-200 p-10 text-center shadow-2xs">
+              <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-2xl mx-auto mb-4">
+                <i className="fas fa-circle-exclamation"></i>
+              </div>
+              <h3 className="font-display font-black text-lg text-[#2A2320] mb-2">Order Reference Not Found</h3>
+              <p className="text-xs text-[#8C8279] max-w-md mx-auto mb-6">
+                No active shipment was found matching <span className="font-mono font-bold text-[#2A2320]">{searchedRef}</span>. Please verify your reference number or sign in to your buyer account.
+              </p>
+              <Link
+                href="/account"
+                className="px-6 py-2.5 bg-[#2A2320] hover:bg-[#B5532E] text-white text-xs font-bold rounded-xl transition-colors inline-block"
+              >
+                View Account Orders
+              </Link>
+            </div>
+          ) : (
+            <div className="bg-white rounded-3xl border border-[#E7D5BC] p-6 sm:p-8 shadow-2xs space-y-6">
             
             {/* Overview Card */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[#F6EDE0]/50 border border-[#E7D5BC] text-xs">
@@ -269,6 +317,7 @@ function TrackOrderContent() {
             </div>
 
           </div>
+          )}
 
         </div>
 

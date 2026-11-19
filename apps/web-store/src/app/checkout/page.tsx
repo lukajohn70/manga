@@ -192,7 +192,25 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmitOrder} className="grid lg:grid-cols-12 gap-8 items-start">
+        {cartItems.length === 0 ? (
+          <div className="py-20 text-center bg-white rounded-3xl border border-[#E7D5BC] p-8 shadow-2xs max-w-lg mx-auto">
+            <div className="w-20 h-20 rounded-full bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-3xl mx-auto mb-4">
+              <i className="fas fa-bag-shopping"></i>
+            </div>
+            <h3 className="font-display font-black text-xl text-[#2A2320] mb-2">Your Cart is Empty</h3>
+            <p className="text-xs text-[#8C8279] max-w-sm mx-auto mb-6 leading-relaxed">
+              You do not have any items in your cart to checkout. Browse our marketplace catalog to add products before completing payment.
+            </p>
+            <Link
+              href="/shop"
+              className="px-8 py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-extrabold text-xs transition-colors shadow-sm inline-flex items-center gap-2"
+            >
+              <span>Explore Marketplace Products</span>
+              <i className="fas fa-arrow-right text-[10px]"></i>
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmitOrder} className="grid lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Column: Delivery Address & Payment Method (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
@@ -490,6 +508,7 @@ export default function CheckoutPage() {
           </aside>
 
         </form>
+        )}
 
       </main>
 

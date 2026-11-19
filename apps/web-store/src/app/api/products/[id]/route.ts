@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { getDbProductById } from '../../../../lib/db-catalog';
-import { findProductById } from '../../../../lib/catalog';
 
 export async function GET(
   request: Request,
@@ -19,18 +18,22 @@ export async function GET(
       });
     }
 
-    const fallback = findProductById(id);
-    return NextResponse.json({
-      success: true,
-      product: fallback,
-      source: 'fallback_resilient',
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Product not found',
+        product: null,
+      },
+      { status: 404 }
+    );
   } catch (err: any) {
-    return NextResponse.json({
-      success: true,
-      product: findProductById('66666666-6666-6666-6666-666666666661'),
-      source: 'fallback_resilient',
-      error: err?.message,
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        product: null,
+        error: err?.message,
+      },
+      { status: 500 }
+    );
   }
 }

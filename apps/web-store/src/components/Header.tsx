@@ -63,13 +63,12 @@ export const Header: React.FC<HeaderProps> = ({
   const queryValue = searchQuery !== undefined && searchQuery !== '' ? searchQuery : internalQuery;
 
   const suggestions = [
-    'iPhone 16 Pro Max',
-    'Sony WH-1000XM5',
-    'MacBook Air M3',
-    'DeLonghi Dedica',
-    'Samsung Galaxy S24 Ultra',
-    'Figma UI Kit Pro',
-    'Kano Leather Rucksack',
+    'Smartphones & Accessories',
+    'Laptops & Computing',
+    'Audio & Headphones',
+    'Home & Kitchen Appliances',
+    'Fashion & Apparel',
+    'Software & Digital Assets',
   ].filter((s) => s.toLowerCase().includes(queryValue.toLowerCase()));
 
   const handleSearchSubmit = (e: React.FormEvent) => {

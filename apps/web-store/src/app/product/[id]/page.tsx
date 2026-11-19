@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useStore } from '../../../context/StoreContext';
-import { findProductById } from '../../../lib/catalog';
 import { Header } from '../../../components/Header';
 import { Footer } from '../../../components/Footer';
 
@@ -13,8 +12,6 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const productId = params.id as string;
-
-  const initialProd = findProductById(productId);
 
   const {
     currency,
@@ -28,21 +25,19 @@ export default function ProductDetailPage() {
     showToast,
   } = useStore();
 
-  const [product, setProduct] = useState<any>(initialProd);
-  const [loading, setLoading] = useState(false);
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   // Gallery & Lightbox state
   const [currentGalleryIdx, setCurrentGalleryIdx] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // Selected Variant & Quantity state
-  const [selectedVariantId, setSelectedVariantId] = useState<string>(
-    initialProd?.variants?.[0]?.id || initialProd?.variants?.[0]?.name || ''
-  );
+  const [selectedVariantId, setSelectedVariantId] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
 
-  // Customer Reviews state
+  // Customer Reviews state (clean live state)
   const [reviews, setReviews] = useState<Array<{
     name: string;
     rating: number;
@@ -50,32 +45,7 @@ export default function ProductDetailPage() {
     comment: string;
     date: string;
     isVerified?: boolean;
-  }>>([
-    {
-      name: 'Babajide Adeleke',
-      rating: 5,
-      title: 'Flawless sound quality and rapid delivery!',
-      comment: 'Arrived in Ikeja within 24 hours of placing the order. Genuine factory sealed packaging with official warranty card inside. Battery life easily hits 30+ hours.',
-      date: 'Nov 14, 2026',
-      isVerified: true,
-    },
-    {
-      name: 'Ngozi Eze',
-      rating: 5,
-      title: 'Top tier build and 100% authentic',
-      comment: 'I was hesitant about ordering flagship electronics online, but the verified seller guarantee gave me full peace of mind. The noise cancellation isolates office commotion completely.',
-      date: 'Nov 10, 2026',
-      isVerified: true,
-    },
-    {
-      name: 'Tunde Bakare',
-      rating: 4,
-      title: 'Great craftsmanship and secure courier delivery',
-      comment: 'Very solid item. Delivery courier called ahead of arrival at Victoria Island. Exactly as described in the specs matrix.',
-      date: 'Nov 04, 2026',
-      isVerified: true,
-    },
-  ]);
+  }>>([]);
 
   // Review Form state
   const [reviewName, setReviewName] = useState('');
@@ -86,6 +56,7 @@ export default function ProductDetailPage() {
   useEffect(() => {
     let active = true;
     const fetchProduct = async () => {
+      setLoading(true);
       try {
         const res = await fetch(`/api/products/${encodeURIComponent(productId)}`);
         if (res.ok) {
@@ -95,15 +66,23 @@ export default function ProductDetailPage() {
             if (!selectedVariantId && data.product.variants && data.product.variants.length > 0) {
               setSelectedVariantId(data.product.variants[0].id || data.product.variants[0].name);
             }
+          } else if (active) {
+            setProduct(null);
           }
+        } else if (active) {
+          setProduct(null);
         }
       } catch (err) {
-        console.warn('Error fetching product details:', err);
+        if (active) setProduct(null);
+      } finally {
+        if (active) setLoading(false);
       }
     };
 
     if (productId) {
       fetchProduct();
+    } else {
+      setLoading(false);
     }
     return () => {
       active = false;

@@ -438,24 +438,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }}
     >
       {children}
-
-      {/* Sleek, Non-Intrusive Floating Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out">
-          <div className="bg-[#1A1512]/95 backdrop-blur-md text-[#F6EDE0] border border-[#D9A441]/30 shadow-2xl rounded-2xl px-4 py-3 flex items-center gap-3 text-xs font-medium">
-            <span className="w-2 h-2 rounded-full bg-[#D9A441]"></span>
-            <span className="leading-snug">{toastMessage}</span>
-            <button
-              type="button"
-              onClick={() => setToastMessage(null)}
-              className="text-[#8C8279] hover:text-white ml-2 text-xs font-bold transition-colors bg-transparent border-0 cursor-pointer p-0"
-              title="Dismiss"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
     </StoreContext.Provider>
   );
 };

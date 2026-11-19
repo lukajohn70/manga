@@ -21,15 +21,55 @@ function OrderConfirmationContent() {
     showToast,
   } = useStore();
 
-  const ref = searchParams.get('ref') || lastOrderRef || 'MNG-769149-F92D';
+  const ref = searchParams.get('ref') || lastOrderRef || '';
   const [copied, setCopied] = useState(false);
 
   const handleCopyRef = () => {
+    if (!ref) return;
     navigator.clipboard.writeText(ref);
     setCopied(true);
     showToast('Order reference copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (!ref) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+        <Header
+          cartCount={cartCount}
+          wishlistCount={wishlistCount}
+          onOpenCart={() => router.push('/cart')}
+          onOpenWishlist={() => router.push('/wishlist')}
+          onOpenTrackOrder={() => router.push('/track-order')}
+          onSelectCategory={(cat) => router.push(`/shop?category=${cat}`)}
+          searchQuery=""
+          onSearchChange={(q) => router.push(`/shop?q=${encodeURIComponent(q)}`)}
+          currency={currency}
+          onToggleCurrency={toggleCurrency}
+        />
+        <main className="flex-1 container mx-auto px-4 lg:px-8 py-16 max-w-xl text-center">
+          <div className="bg-white rounded-3xl border border-[#E7D5BC] p-8 sm:p-12 shadow-2xs">
+            <div className="w-16 h-16 rounded-full bg-[#E7D5BC]/40 flex items-center justify-center mx-auto mb-4 text-[#8C8279]">
+              <i className="fas fa-receipt text-2xl"></i>
+            </div>
+            <h1 className="text-2xl font-black font-display text-[#2A2320] mb-2">No Active Order Found</h1>
+            <p className="text-sm text-[#8C8279] mb-6">
+              You haven't completed an order in this session, or the order reference is missing.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/shop" className="px-6 py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-extrabold text-xs transition-colors">
+                Browse Marketplace
+              </Link>
+              <Link href="/track-order" className="px-6 py-2.5 rounded-xl bg-white hover:bg-[#FAF6F0] text-[#2A2320] border border-[#E7D5BC] font-bold text-xs transition-colors">
+                Track Existing Order
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">

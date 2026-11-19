@@ -1,8 +1,6 @@
 import { query } from './db';
 import { ensureDatabaseReady } from './db-schema-init';
-import { CATALOG_PRODUCTS_MAP, findProductById, ProductDetailItem } from './catalog';
-
-const PRODUCTS_FALLBACK_LIST: ProductDetailItem[] = Object.values(CATALOG_PRODUCTS_MAP);
+import type { ProductDetailItem } from './catalog';
 
 export interface DbProductListItem {
   id: string;
