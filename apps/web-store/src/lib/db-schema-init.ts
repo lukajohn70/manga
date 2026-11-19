@@ -1,8 +1,6 @@
 import { query } from './db';
 
 const INIT_DDL = `
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE SCHEMA IF NOT EXISTS identity;
 CREATE SCHEMA IF NOT EXISTS vendor;
 CREATE SCHEMA IF NOT EXISTS catalog;
@@ -336,8 +334,10 @@ let isInitialized = false;
 /**
  * Automatically initializes database schemas and seeds standard catalog if missing.
  */
-export async function ensureDatabaseReady(): Promise<{ initialized: boolean; message: string }> {
-  if (isInitialized) {
+export async function ensureDatabaseReady(
+  force = false
+): Promise<{ initialized: boolean; message: string }> {
+  if (isInitialized && !force) {
     return { initialized: true, message: 'Already initialized in-memory' };
   }
 

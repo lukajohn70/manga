@@ -1,6 +1,4 @@
 exports.id=605,exports.ids=[605],exports.modules={1927:(a,b,c)=>{"use strict";c.d(b,{l:()=>h});var d=c(84326);let e=`
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE SCHEMA IF NOT EXISTS identity;
 CREATE SCHEMA IF NOT EXISTS vendor;
 CREATE SCHEMA IF NOT EXISTS catalog;
@@ -325,7 +323,7 @@ VALUES (
     {"status": "in_transit", "location": "Kaduna Sort Facility", "time": "2026-11-17T08:15:00Z", "description": "Package in transit to delivery station"}
   ]'
 ) ON CONFLICT (tracking_number) DO NOTHING;
-`,g=!1;async function h(){if(g)return{initialized:!0,message:"Already initialized in-memory"};try{let a=await (0,d.P)(`
+`,g=!1;async function h(a=!1){if(g&&!a)return{initialized:!0,message:"Already initialized in-memory"};try{let a=await (0,d.P)(`
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
         WHERE table_schema = 'catalog' 

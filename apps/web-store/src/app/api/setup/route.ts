@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 import { query, checkDatabaseConnection, sanitizeConnectionString } from '../../../lib/db';
 import { ensureDatabaseReady } from '../../../lib/db-schema-init';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const force = searchParams.get('force') === 'true';
     const conn = await checkDatabaseConnection();
 
     if (!conn.connected) {
@@ -21,7 +23,7 @@ export async function GET() {
     }
 
     // Database is connected! Ensure schemas & tables exist
-    const initResult = await ensureDatabaseReady();
+    const initResult = await ensureDatabaseReady(force);
 
     // Inspect table row counts
     let counts: Record<string, number> = {};
