@@ -33,6 +33,9 @@ module.exports = {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
       },
+      boxShadow: {
+        '2xs': '0 1px 2px 0 rgba(42, 35, 32, 0.05)',
+      },
     },
   },
   plugins: [],

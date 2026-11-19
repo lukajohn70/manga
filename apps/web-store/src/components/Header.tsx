@@ -48,6 +48,16 @@ export const Header: React.FC<HeaderProps> = ({
   const [internalQuery, setInternalQuery] = useState(searchQuery);
   const [showDepartmentMenu, setShowDepartmentMenu] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
 
   const queryValue = searchQuery !== undefined && searchQuery !== '' ? searchQuery : internalQuery;
@@ -141,7 +151,13 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* 2. Main High-Conversion Navigation Bar */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#E7D5BC] shadow-2xs">
+      <header
+        className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b transition-all duration-200 ${
+          isScrolled
+            ? 'border-[#E7D5BC] shadow-md bg-white/98'
+            : 'border-[#E7D5BC]/60 shadow-2xs bg-white/95'
+        }`}
+      >
         <div className="container mx-auto px-4 lg:px-8 py-3 sm:py-3.5 flex items-center justify-between gap-3 sm:gap-6">
           
           {/* Brand Logo */}

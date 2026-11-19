@@ -26,6 +26,30 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/account": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/account",
+      "dataRoute": "/account.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/account/login": {
       "experimentalBypassFor": [
         {
@@ -146,6 +170,30 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/official-stores": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/official-stores",
+      "dataRoute": "/official-stores.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/interactions": {
       "experimentalBypassFor": [
         {
@@ -170,7 +218,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/official-stores": {
+    "/order-confirmation": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -183,8 +231,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/official-stores",
-      "dataRoute": "/official-stores.rsc",
+      "srcRoute": "/order-confirmation",
+      "dataRoute": "/order-confirmation.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -290,7 +338,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/terms-of-service": {
+    "/track-order": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -303,8 +351,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/terms-of-service",
-      "dataRoute": "/terms-of-service.rsc",
+      "srcRoute": "/track-order",
+      "dataRoute": "/track-order.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -338,7 +386,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/track-order": {
+    "/terms-of-service": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -351,56 +399,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/track-order",
-      "dataRoute": "/track-order.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/order-confirmation": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/order-confirmation",
-      "dataRoute": "/order-confirmation.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/account": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/account",
-      "dataRoute": "/account.rsc",
+      "srcRoute": "/terms-of-service",
+      "dataRoute": "/terms-of-service.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -414,8 +414,8 @@
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "de2fbaadb5ba48af71c3dd91e6def448",
-    "previewModeSigningKey": "541becd11927054572e9acd597aaebe9424ea721fdca3e5b1e03146a9ed877fc",
-    "previewModeEncryptionKey": "97e258ece235e95721815ac1f688c045d3dd95a39626c59a5ed54f3fd04c8659"
+    "previewModeId": "dcf70bc4b62201ad8f82713c6ad21c3c",
+    "previewModeSigningKey": "1f0f979960f9230933179b4cce71654d68c33a9125c199e4d7e4c69ea6e701a4",
+    "previewModeEncryptionKey": "e45ef20088293947bde1b8d74f83b2c410b380cde60f1288d31668280192fd5c"
   }
 }
