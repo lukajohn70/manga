@@ -458,7 +458,9 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="hidden sm:inline">Cart</span>
               <span
                 id="header-cart-badge"
-                className="bg-[#D9A441] text-[#2A2320] text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center"
+                className={`bg-[#D9A441] text-[#2A2320] text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center ${
+                  activeCartCount > 0 ? 'inline-block' : 'hidden'
+                }`}
               >
                 {activeCartCount}
               </span>

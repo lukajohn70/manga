@@ -156,7 +156,7 @@ export function StorefrontClient() {
         <HeroBanner
           onExploreClick={() => router.push('/shop')}
           onFlashDealsClick={() => router.push('/flash-sales')}
-          onSelectFeatured={() => router.push('/product/66666666-6666-6666-6666-666666666661')}
+          onSelectFeatured={() => router.push(products.length > 0 ? `/product/${products[0].id}` : '/shop')}
           currency={currency}
         />
 

@@ -24,8 +24,8 @@ export default function CartPage() {
   } = useStore();
 
   const [promoCode, setPromoCode] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState<string | null>('SQUARE10');
-  const [promoDiscountRate, setPromoDiscountRate] = useState<number>(0.10); // 10% default discount demo
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [promoDiscountRate, setPromoDiscountRate] = useState<number>(0);
 
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();

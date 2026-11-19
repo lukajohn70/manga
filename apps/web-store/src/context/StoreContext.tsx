@@ -107,10 +107,50 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem('manga_cart');
-      if (savedCart) setCartItems(JSON.parse(savedCart));
+      if (savedCart) {
+        try {
+          const items: CartItem[] = JSON.parse(savedCart);
+          // Purge stale mock products from prior demo seeds
+          const hasLegacyMock = items.some(
+            (i) =>
+              !i.id ||
+              i.id.startsWith('66666666') ||
+              i.id === '1' ||
+              i.name?.toLowerCase().includes('sony') ||
+              i.name?.toLowerCase().includes('figma') ||
+              i.name?.toLowerCase().includes('saas') ||
+              i.seller?.toLowerCase().includes('sony audio') ||
+              i.seller?.toLowerCase().includes('designcraft') ||
+              i.offerId?.startsWith('88888888')
+          );
+          if (hasLegacyMock) {
+            localStorage.removeItem('manga_cart');
+            setCartItems([]);
+          } else {
+            setCartItems(items);
+          }
+        } catch {
+          localStorage.removeItem('manga_cart');
+          setCartItems([]);
+        }
+      } else {
+        setCartItems([]);
+      }
 
       const savedWishlist = localStorage.getItem('manga_wishlist');
-      if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+      if (savedWishlist) {
+        try {
+          const wish: string[] = JSON.parse(savedWishlist);
+          const cleanWish = wish.filter((id) => typeof id === 'string' && !id.startsWith('66666666'));
+          if (cleanWish.length !== wish.length) {
+            localStorage.setItem('manga_wishlist', JSON.stringify(cleanWish));
+          }
+          setWishlist(cleanWish);
+        } catch {
+          localStorage.removeItem('manga_wishlist');
+          setWishlist([]);
+        }
+      }
 
       const savedCurr = localStorage.getItem('manga_currency');
       if (savedCurr === 'NGN' || savedCurr === 'USD') setCurrency(savedCurr);
@@ -212,7 +252,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    setTimeout(() => {
+      setToastMessage((curr) => (curr === msg ? null : curr));
+    }, 2200);
   };
 
   const loginCustomer = (
@@ -397,11 +439,21 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     >
       {children}
 
-      {/* Global Toast Notification */}
+      {/* Sleek, Non-Intrusive Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-5 z-50 bg-[#2A2320] text-white px-4 py-3 rounded-2xl shadow-2xl border border-[#E7D5BC]/30 flex items-center gap-3 text-xs animate-bounce font-medium pointer-events-none">
-          <i className="fas fa-check-circle text-[#4F6B3A] text-sm"></i>
-          <span>{toastMessage}</span>
+        <div className="fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out">
+          <div className="bg-[#1A1512]/95 backdrop-blur-md text-[#F6EDE0] border border-[#D9A441]/30 shadow-2xl rounded-2xl px-4 py-3 flex items-center gap-3 text-xs font-medium">
+            <span className="w-2 h-2 rounded-full bg-[#D9A441]"></span>
+            <span className="leading-snug">{toastMessage}</span>
+            <button
+              type="button"
+              onClick={() => setToastMessage(null)}
+              className="text-[#8C8279] hover:text-white ml-2 text-xs font-bold transition-colors bg-transparent border-0 cursor-pointer p-0"
+              title="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       )}
     </StoreContext.Provider>
