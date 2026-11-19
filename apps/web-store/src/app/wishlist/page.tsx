@@ -11,6 +11,7 @@ import { Footer } from '../../components/Footer';
 export default function WishlistPage() {
   const router = useRouter();
   const {
+    user,
     currency,
     formatPrice,
     wishlist,
@@ -19,7 +20,6 @@ export default function WishlistPage() {
     addToCart,
     cartCount,
     toggleCurrency,
-    showToast,
   } = useStore();
 
   const [products, setProducts] = useState<any[]>([]);
@@ -56,7 +56,6 @@ export default function WishlistPage() {
     const visualEl = document.getElementById(`wishlist-item-${item.id}`) || (e ? (e.currentTarget as HTMLElement) : null);
     addToCart(item, 1, visualEl);
     toggleWishlist(item.id);
-    showToast(`Moved ${item.title.slice(0, 30)}... to Cart!`);
   };
 
   return (
@@ -99,6 +98,25 @@ export default function WishlistPage() {
             Explore More Products →
           </Link>
         </div>
+
+        {!user && (
+          <div className="mb-6 p-4 rounded-2xl bg-white border border-[#E7D5BC] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-3 text-xs text-[#8C8279]">
+              <div className="w-8 h-8 rounded-full bg-[#FAF6F0] text-[#B5532E] flex items-center justify-center text-sm flex-shrink-0">
+                <i className="fas fa-bookmark"></i>
+              </div>
+              <span>
+                <strong>Browsing as guest:</strong> Sign in to your Manga account to permanently sync your saved items across all your devices.
+              </span>
+            </div>
+            <Link
+              href="/account/login"
+              className="px-4 py-2 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs transition-colors whitespace-nowrap shadow-xs"
+            >
+              Sign In to Account
+            </Link>
+          </div>
+        )}
 
         {loading ? (
           <div className="py-24 text-center">

@@ -141,7 +141,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (savedWishlist) {
         try {
           const wish: string[] = JSON.parse(savedWishlist);
-          const cleanWish = wish.filter((id) => typeof id === 'string' && !id.startsWith('66666666'));
+          const cleanWish = Array.isArray(wish)
+            ? wish.filter(
+                (id) =>
+                  typeof id === 'string' &&
+                  id.length >= 10 &&
+                  !id.startsWith('66666666') &&
+                  !id.startsWith('88888888') &&
+                  id !== '1' &&
+                  id !== '2' &&
+                  id !== '3'
+              )
+            : [];
           if (cleanWish.length !== wish.length) {
             localStorage.setItem('manga_wishlist', JSON.stringify(cleanWish));
           }
