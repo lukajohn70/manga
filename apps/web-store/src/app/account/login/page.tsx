@@ -742,18 +742,18 @@ function LoginContent() {
                       />
                     </div>
 
-                    <div className="flex items-center gap-2 pt-1">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
                       <button
                         type="button"
                         onClick={() => { setRegStep('email'); setError(null); }}
-                        className="px-4 py-3 bg-[#FAF6F0] hover:bg-[#F0E6D8] text-[#8C8279] hover:text-[#2A2320] font-bold text-xs rounded-xl border border-[#E7D5BC] transition cursor-pointer"
+                        className="w-full sm:w-auto px-5 py-3 bg-[#FAF6F0] hover:bg-[#F0E6D8] text-[#8C8279] hover:text-[#2A2320] font-bold text-xs rounded-xl border border-[#E7D5BC] transition cursor-pointer flex items-center justify-center whitespace-nowrap"
                       >
                         Change Email
                       </button>
                       <button
                         type="submit"
                         disabled={loading || regOtp.length !== 6}
-                        className="flex-1 py-3 px-6 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                        className="w-full sm:flex-1 py-3 px-6 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 whitespace-nowrap"
                       >
                         <i className="fas fa-check-circle text-[#D9A441]"></i>
                         <span>{loading ? 'Verifying...' : 'Verify Code & Proceed →'}</span>
@@ -1022,20 +1022,20 @@ function LoginContent() {
                   />
                 </div>
 
-                {/* Fixed Action Button Row: Generous padding, no text clipping */}
-                <div className="flex items-center gap-3 pt-2">
+                {/* Fixed Action Button Row: Generous padding, fully responsive, no text clipping */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => { setActiveTab('login'); setError(null); }}
-                    className="px-5 py-3 bg-[#FAF6F0] hover:bg-[#F0E6D8] text-[#8C8279] hover:text-[#2A2320] font-bold text-xs rounded-xl border border-[#E7D5BC] transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
+                    className="w-full sm:w-auto px-5 py-3.5 bg-[#FAF6F0] hover:bg-[#F0E6D8] text-[#8C8279] hover:text-[#2A2320] font-bold text-xs rounded-xl border border-[#E7D5BC] transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
                   >
                     <i className="fas fa-arrow-left text-[10px]"></i>
-                    <span>Back</span>
+                    <span>Back to Sign In</span>
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 py-3 px-6 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap min-w-[150px]"
+                    className="w-full sm:flex-1 py-3.5 px-6 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
                   >
                     <i className="fas fa-paper-plane text-[11px] text-[#D9A441]"></i>
                     <span>{loading ? 'Sending Link...' : 'Send Reset Link'}</span>
@@ -1113,18 +1113,18 @@ function LoginContent() {
                   />
                 </div>
 
-                <div className="flex items-center gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => { setActiveTab('login'); setError(null); }}
-                    className="px-5 py-3 bg-[#FAF6F0] hover:bg-[#F0E6D8] text-[#8C8279] hover:text-[#2A2320] font-bold text-xs rounded-xl border border-[#E7D5BC] transition cursor-pointer whitespace-nowrap"
+                    className="w-full sm:w-auto px-5 py-3.5 bg-[#FAF6F0] hover:bg-[#F0E6D8] text-[#8C8279] hover:text-[#2A2320] font-bold text-xs rounded-xl border border-[#E7D5BC] transition cursor-pointer whitespace-nowrap flex items-center justify-center"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading || !resetPasswordStrength.isValid}
-                    className="flex-1 py-3 px-6 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap min-w-[150px] disabled:opacity-50"
+                    className="w-full sm:flex-1 py-3.5 px-6 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-50"
                   >
                     <span>{loading ? 'Updating Password...' : 'Save New Password'}</span>
                   </button>

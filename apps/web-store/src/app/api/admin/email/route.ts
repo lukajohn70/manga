@@ -26,7 +26,8 @@ export async function GET(request: Request) {
       );
     }
 
-    const config = getEmailConfig();
+    // Force fresh scan of .env files on disk
+    const config = getEmailConfig(true);
     const verification = await verifySmtpConnection();
 
     return NextResponse.json({
@@ -80,6 +81,8 @@ export async function POST(request: Request) {
         );
       }
 
+      // Force re-read of .env before test dispatch
+      getEmailConfig(true);
       const result = await sendTestEmail(recipient);
 
       return NextResponse.json({

@@ -1,4 +1,4 @@
-"use strict";exports.id=940,exports.ids=[940],exports.modules={90940:(a,b,c)=>{c.d(b,{xn:()=>m,JD:()=>s,m_:()=>r,J1:()=>q,FI:()=>t,TM:()=>p,s7:()=>u});var d=c(7005),e=c(29021),f=c.n(e),g=c(33873),h=c.n(g);let i=`
+"use strict";exports.id=940,exports.ids=[940],exports.modules={90940:(a,b,c)=>{c.d(b,{xn:()=>o,JD:()=>v,m_:()=>u,J1:()=>t,FI:()=>w,TM:()=>s,s7:()=>x});var d=c(7005),e=c(29021),f=c.n(e),g=c(33873),h=c.n(g);let i=`
   body {
     margin: 0;
     padding: 0;
@@ -159,7 +159,7 @@
   </div>
 </body>
 </html>
-  `.trim()}let k=null,l=null;function m(){if(k)return k;if(!process.env.SMTP_HOST)try{for(let a of[h().join(process.cwd(),".env"),h().join(process.cwd(),"..",".env"),h().join(process.cwd(),".env.local"),"/home/gwylvxeo/manga.jlm.com.ng/.env","/home/gwylvxeo/manga.jlm.com.ng/apps/web-store/.env"])if(f().existsSync(a))for(let b of f().readFileSync(a,"utf8").split(/\r?\n/)){let a=b.trim();if(!a||a.startsWith("#"))continue;let c=a.indexOf("=");if(c>0){let b=a.slice(0,c).trim(),d=a.slice(c+1).trim().replace(/^["']|["']$/g,"");!process.env[b]&&d&&(process.env[b]=d)}}}catch{}let a=process.env.SMTP_HOST||process.env.MAIL_HOST,b=parseInt(process.env.SMTP_PORT||process.env.MAIL_PORT||"465",10),c="true"===process.env.SMTP_SECURE||465===b,d=process.env.SMTP_USER||process.env.MAIL_USER||process.env.MAIL_USERNAME,e=process.env.SMTP_PASS||process.env.MAIL_PASS||process.env.MAIL_PASSWORD,g=process.env.MAIL_FROM_NAME||"MANGA MARKETSQUARE",i=process.env.MAIL_FROM_ADDRESS||d||"support@manga.jlm.com.ng";return k={host:a,port:b,secure:c,user:d,pass:e,fromName:g,fromAddress:i,isConfigured:!!(a&&d&&e)}}function n(){let a=m();return a.isConfigured?(l||(l=d.Ay.createTransport({host:a.host,port:a.port,secure:a.secure,auth:{user:a.user,pass:a.pass},tls:{rejectUnauthorized:!1}})),l):null}async function o(a){let b=m(),c=n(),d=`"${b.fromName}" <${b.fromAddress}>`;if(c&&b.isConfigured)try{let b=await c.sendMail({from:d,to:a.to,subject:a.subject,html:a.html,text:a.text});return console.log(`[Email Service] Live email sent to ${a.to}. MessageId: ${b.messageId}`),{success:!0,simulated:!1,messageId:b.messageId}}catch(b){return console.error(`[Email Service] Failed to send live email to ${a.to}:`,b.message),{success:!1,simulated:!1,error:b.message}}return console.log(`
+  `.trim()}let k=null,l=null,m=null;function n(a){let b=a.trim();return b.startsWith('"')&&b.endsWith('"')||b.startsWith("'")&&b.endsWith("'")?b.slice(1,-1):b}function o(a=!1){if(!a&&k&&k.isConfigured)return k;try{for(let b of[h().join(process.cwd(),".env"),h().join(process.cwd(),"..",".env"),h().join(process.cwd(),".env.local"),"/home/gwylvxeo/manga.jlm.com.ng/.env","/home/gwylvxeo/manga.jlm.com.ng/apps/web-store/.env","/home/gwylvxeo/.env"])if(f().existsSync(b))for(let c of f().readFileSync(b,"utf8").split(/\r?\n/)){let b=c.trim();if(!b||b.startsWith("#"))continue;let d=b.indexOf("=");if(d>0){let c=b.slice(0,d).trim(),e=b.slice(d+1),f=n(e);f&&(!process.env[c]||a)&&(process.env[c]=f)}}}catch(a){console.warn("[Email Service] Environment scan notice:",a.message)}let b=process.env.SMTP_HOST||process.env.MAIL_HOST,c=b?function(a){if(!a)return"mail.jlm.com.ng";let b=a.trim().toLowerCase();return"mail.manga.jlm.com.ng"===b||"smtp.manga.jlm.com.ng"===b||"manga.jlm.com.ng"===b?"mail.jlm.com.ng":a.trim()}(b):void 0,d=parseInt(process.env.SMTP_PORT||process.env.MAIL_PORT||"465",10),e="true"===process.env.SMTP_SECURE||465===d,g=n(process.env.SMTP_USER||process.env.MAIL_USER||process.env.MAIL_USERNAME||""),i=n(process.env.SMTP_PASS||process.env.MAIL_PASS||process.env.MAIL_PASSWORD||""),j=n(process.env.MAIL_FROM_NAME||"MANGA MARKETSQUARE"),p=n(process.env.MAIL_FROM_ADDRESS||g||"support@manga.jlm.com.ng"),q=!!(c&&g&&i&&"YourEmailPasswordHere"!==i&&"YourActualPassword"!==i),r={host:c,port:d,secure:e,user:g,pass:i,fromName:j,fromAddress:p,isConfigured:q};return q?k=r:(k=null,l=null,m=null),r}function p(){let a=o();return a.isConfigured&&a.host?(l||(l=d.Ay.createTransport({host:a.host,port:a.port,secure:a.secure,auth:{user:a.user,pass:a.pass},tls:{rejectUnauthorized:!1},connectionTimeout:1e4,greetingTimeout:1e4,socketTimeout:15e3})),l):null}function q(){let a=o();return a.isConfigured&&a.host?(m||(m=d.Ay.createTransport({host:a.host,port:587,secure:!1,auth:{user:a.user,pass:a.pass},tls:{rejectUnauthorized:!1},connectionTimeout:1e4,greetingTimeout:1e4,socketTimeout:15e3})),m):null}async function r(a){let b=o(),c=p(),d=`"${b.fromName}" <${b.fromAddress}>`;if(c&&b.isConfigured)try{let e=await c.sendMail({from:d,to:a.to,subject:a.subject,html:a.html,text:a.text});return console.log(`[Email Service] Live email sent to ${a.to} via Port ${b.port}. MessageId: ${e.messageId}`),{success:!0,simulated:!1,messageId:e.messageId}}catch(e){console.warn(`[Email Service] Primary SMTP port ${b.port} failed: ${e.message}. Attempting fallback port 587...`);let c=q();if(c&&587!==b.port)try{let b=await c.sendMail({from:d,to:a.to,subject:a.subject,html:a.html,text:a.text});return console.log(`[Email Service] Fallback email sent to ${a.to} via Port 587. MessageId: ${b.messageId}`),{success:!0,simulated:!1,messageId:b.messageId}}catch(a){return console.error("[Email Service] Fallback port 587 also failed:",a.message),{success:!1,simulated:!1,error:`Primary (port ${b.port}): ${e.message} | Fallback (port 587): ${a.message}`}}return{success:!1,simulated:!1,error:e.message}}return console.log(`
 ================================================================================
 [Email Service — Simulated Dispatch (SMTP not configured or in dev mode)]
 From: ${d}
@@ -168,7 +168,7 @@ Subject: ${a.subject}
 --------------------------------------------------------------------------------
 ${a.text}
 ================================================================================
-  `.trim()),{success:!0,simulated:!0,messageId:`simulated-${Date.now()}-${Math.random().toString(36).substring(2,9)}`}}async function p(a,b){let c=function(a,b){let c=`${a} is your Manga Marketsquare verification code`;return{subject:c,html:j("Verify Your Email Address",`
+  `.trim()),{success:!0,simulated:!0,messageId:`simulated-${Date.now()}-${Math.random().toString(36).substring(2,9)}`}}async function s(a,b){let c=function(a,b){let c=`${a} is your Manga Marketsquare verification code`;return{subject:c,html:j("Verify Your Email Address",`
       <div style="margin-bottom: 20px;">
         <span class="badge badge-green">&#10003; Verification Security</span>
       </div>
@@ -195,7 +195,7 @@ ${a.text}
 
 Your 6-digit verification code is: ${a}
 
-This code is valid for 15 minutes. If you did not request this code, please ignore this email.`}}(b,a);return o({to:a,subject:c.subject,html:c.html,text:c.text})}async function q(a,b){var c,d,e;let f=process.env.NEXT_PUBLIC_STORE_URL||"https://manga.jlm.com.ng",g=(c=`${f}/account/login?token=${encodeURIComponent(b)}&email=${encodeURIComponent(a)}`,d=a,e=b,{subject:"Reset your Manga Marketsquare password",html:j("Password Reset Request",`
+This code is valid for 15 minutes. If you did not request this code, please ignore this email.`}}(b,a);return r({to:a,subject:c.subject,html:c.html,text:c.text})}async function t(a,b){var c,d,e;let f=(c=`https://manga.jlm.com.ng/account/login?token=${encodeURIComponent(b)}&email=${encodeURIComponent(a)}`,d=a,e=b,{subject:"Reset your Manga Marketsquare password",html:j("Password Reset Request",`
       <div style="margin-bottom: 20px;">
         <span class="badge" style="background: #FEF7ED; color: #B5532E; border: 1px solid #F3E2CB;">
           Account Security
@@ -227,7 +227,7 @@ Reset your password here: ${c}
 
 Reset Token: ${e}
 
-This link is valid for 15 minutes. If you did not make this request, please ignore this email.`});return o({to:a,subject:g.subject,html:g.html,text:g.text})}async function r(a){let b=process.env.NEXT_PUBLIC_STORE_URL||"https://manga.jlm.com.ng",c=`${b}/track-order?ref=${encodeURIComponent(a.orderNumber)}`,d=function(a){let b=`Order Confirmed: ${a.orderNumber} — Manga Marketsquare`,c=Number(a.totalAmount).toLocaleString("en-NG",{style:"currency",currency:"NGN",maximumFractionDigits:0}),d=a.items.map(a=>`
+This link is valid for 15 minutes. If you did not make this request, please ignore this email.`});return r({to:a,subject:f.subject,html:f.html,text:f.text})}async function u(a){let b=`https://manga.jlm.com.ng/track-order?ref=${encodeURIComponent(a.orderNumber)}`,c=function(a){let b=`Order Confirmed: ${a.orderNumber} — Manga Marketsquare`,c=Number(a.totalAmount).toLocaleString("en-NG",{style:"currency",currency:"NGN",maximumFractionDigits:0}),d=a.items.map(a=>`
         <tr>
           <td><strong>${a.title}</strong></td>
           <td style="text-align: center;">${a.quantity}</td>
@@ -281,7 +281,7 @@ Order Number: ${a.orderNumber}
 Customer: ${a.customerName}
 Total: ${c}
 
-Track your order: ${a.trackingUrl}`}}({...a,trackingUrl:c});return o({to:a.customerEmail,subject:d.subject,html:d.html,text:d.text})}async function s(a){let b=function(a){let b=`Welcome to Manga Partner Network — ${a.businessName}`;return{subject:b,html:j("Merchant Welcome",`
+Track your order: ${a.trackingUrl}`}}({...a,trackingUrl:b});return r({to:a.customerEmail,subject:c.subject,html:c.html,text:c.text})}async function v(a){let b=function(a){let b=`Welcome to Manga Partner Network — ${a.businessName}`;return{subject:b,html:j("Merchant Welcome",`
       <div style="margin-bottom: 20px;">
         <span class="badge badge-green">&#10003; Merchant Application Received</span>
       </div>
@@ -309,7 +309,7 @@ Track your order: ${a.trackingUrl}`}}({...a,trackingUrl:c});return o({to:a.custo
       </p>
     `),text:`MANGA MARKETSQUARE - Merchant Registration
 
-Welcome ${a.ownerName} (${a.businessName}) to Manga Marketsquare Partner Network. Access your console: https://manga.jlm.com.ng/sell`}}(a);return o({to:a.email,subject:b.subject,html:b.html,text:b.text})}async function t(a){var b;let c=(b=a,{subject:"Test Dispatch: Manga Marketsquare Mail Service is Active",html:j("Mailing System Test",`
+Welcome ${a.ownerName} (${a.businessName}) to Manga Marketsquare Partner Network. Access your console: https://manga.jlm.com.ng/sell`}}(a);return r({to:a.email,subject:b.subject,html:b.html,text:b.text})}async function w(a){var b;let c=(b=a,{subject:"Test Dispatch: Manga Marketsquare Mail Service is Active",html:j("Mailing System Test",`
       <div style="margin-bottom: 20px;">
         <span class="badge badge-green">&#10003; SMTP Delivery Verified</span>
       </div>
@@ -327,4 +327,4 @@ Welcome ${a.ownerName} (${a.businessName}) to Manga Marketsquare Partner Network
       </div>
     `),text:`MANGA MARKETSQUARE - Test Email
 
-Your mailing configuration is active and working. Sent to: ${b} at ${new Date().toISOString()}`});return o({to:a,subject:c.subject,html:c.html,text:c.text})}async function u(){let a=m();if(!a.isConfigured)return{configured:!1,connected:!1,host:a.host||"Not configured",port:a.port,user:a.user||"None",error:"SMTP_HOST, SMTP_USER, or SMTP_PASS not set in environment or .env file."};let b=n();if(!b)return{configured:!1,connected:!1,error:"Could not initialize transporter."};try{return await b.verify(),{configured:!0,connected:!0,host:a.host,port:a.port,user:a.user}}catch(b){return{configured:!0,connected:!1,host:a.host,port:a.port,user:a.user,error:b.message}}}}};
+Your mailing configuration is active and working. Sent to: ${b} at ${new Date().toISOString()}`});return r({to:a,subject:c.subject,html:c.html,text:c.text})}async function x(){let a=o();if(!a.isConfigured)return{configured:!1,connected:!1,host:a.host||"Not configured",port:a.port,user:a.user||"None",error:"SMTP_HOST, SMTP_USER, or SMTP_PASS not set in environment or .env file."};let b=p();if(!b)return{configured:!1,connected:!1,error:"Could not initialize transporter."};try{return await b.verify(),{configured:!0,connected:!0,host:a.host,port:a.port,user:a.user}}catch(c){let b=q();if(b&&587!==a.port)try{return await b.verify(),{configured:!0,connected:!0,host:a.host,port:587,user:a.user}}catch(b){return{configured:!0,connected:!1,host:a.host,port:a.port,user:a.user,error:`Port ${a.port} failed: ${c.message} | Port 587 failed: ${b.message}`}}return{configured:!0,connected:!1,host:a.host,port:a.port,user:a.user,error:c.message}}}}};
