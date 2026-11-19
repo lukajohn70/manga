@@ -58,6 +58,61 @@ export default function WishlistPage() {
     toggleWishlist(item.id);
   };
 
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+        <Header
+          cartCount={cartCount}
+          wishlistCount={0}
+          onOpenCart={() => router.push('/cart')}
+          onOpenWishlist={() => router.push('/account/login?redirect=/wishlist')}
+          onOpenTrackOrder={() => router.push('/track-order')}
+          onSelectCategory={(cat) => router.push(`/shop?category=${cat}`)}
+          searchQuery=""
+          onSearchChange={(q) => router.push(`/shop?q=${encodeURIComponent(q)}`)}
+          currency={currency}
+          onToggleCurrency={toggleCurrency}
+        />
+        <main className="flex-1 container mx-auto px-4 lg:px-8 py-16 flex items-center justify-center">
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-[#E7D5BC] shadow-xl text-center">
+            <div className="w-16 h-16 rounded-2xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-2xl mx-auto mb-4">
+              <i className="fas fa-heart"></i>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#B5532E]/10 text-[#B5532E] border border-[#B5532E]/20 mb-3">
+              <i className="fas fa-lock text-[10px]"></i> Member Saved List
+            </span>
+            <h2 className="text-xl font-black font-display text-[#2A2320] mb-2">
+              Sign In to View Your Wishlist
+            </h2>
+            <p className="text-xs text-[#8C8279] mb-6 leading-relaxed">
+              Saved items are tied to your Manga buyer account. Sign in to view and manage your saved wishlist across devices.
+            </p>
+            <Link
+              href="/account/login?redirect=/wishlist"
+              className="block w-full py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs shadow-md transition-all text-center mb-3"
+            >
+              Sign In to Buyer Account
+            </Link>
+            <Link
+              href="/shop"
+              className="text-xs font-bold text-[#8C8279] hover:text-[#2A2320]"
+            >
+              ← Continue Shopping
+            </Link>
+          </div>
+        </main>
+        <Footer
+          onOpenCart={() => router.push('/cart')}
+          onOpenWishlist={() => router.push('/account/login?redirect=/wishlist')}
+          onOpenTrackOrder={() => router.push('/track-order')}
+          onSelectCategory={(cat) => router.push(`/shop?category=${cat}`)}
+          cartCount={cartCount}
+          wishlistCount={0}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
       <Header
@@ -98,25 +153,6 @@ export default function WishlistPage() {
             Explore More Products →
           </Link>
         </div>
-
-        {!user && (
-          <div className="mb-6 p-4 rounded-2xl bg-white border border-[#E7D5BC] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
-            <div className="flex items-center gap-3 text-xs text-[#8C8279]">
-              <div className="w-8 h-8 rounded-full bg-[#FAF6F0] text-[#B5532E] flex items-center justify-center text-sm flex-shrink-0">
-                <i className="fas fa-bookmark"></i>
-              </div>
-              <span>
-                <strong>Browsing as guest:</strong> Sign in to your Manga account to permanently sync your saved items across all your devices.
-              </span>
-            </div>
-            <Link
-              href="/account/login"
-              className="px-4 py-2 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs transition-colors whitespace-nowrap shadow-xs"
-            >
-              Sign In to Account
-            </Link>
-          </div>
-        )}
 
         {loading ? (
           <div className="py-24 text-center">

@@ -15,6 +15,7 @@ function LoginContent() {
   const { user, loginCustomer, cartCount, wishlistCount } = useStore();
 
   const initialTab = searchParams.get('tab') === 'register' ? 'register' : 'login';
+  const redirectTarget = searchParams.get('redirect') || '/account';
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'lookup'>(initialTab);
 
   // Sign In Flow State
@@ -39,12 +40,16 @@ function LoginContent() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // If already authenticated, redirect to /account
+  // If already authenticated, redirect
   useEffect(() => {
     if (user) {
-      router.push('/account');
+      if (user.role === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push(redirectTarget);
+      }
     }
-  }, [user, router]);
+  }, [user, router, redirectTarget]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +125,7 @@ function LoginContent() {
       if (data.user.role === 'ADMIN') {
         router.push('/admin');
       } else {
-        router.push('/account');
+        router.push(redirectTarget);
       }
     } catch (err: any) {
       setError(err.message || 'Invalid 2FA verification code. Please check your authenticator or email.');
@@ -157,7 +162,7 @@ function LoginContent() {
       }
 
       loginCustomer(regEmail, regName, regPhone || '+234 800 000 0000', 'BUYER');
-      router.push('/account');
+      router.push(redirectTarget);
     } catch (err: any) {
       setError(err.message || 'Registration failed.');
     } finally {

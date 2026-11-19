@@ -184,8 +184,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (isDummy) {
             localStorage.removeItem('manga_customer_user');
             localStorage.removeItem('manga_customer_orders');
+            localStorage.removeItem('manga_wishlist');
             setUser(null);
             setOrders([]);
+            setWishlist([]);
           } else {
             setUser(u);
             if (u.email) {
@@ -201,8 +203,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           }
         } catch {
           localStorage.removeItem('manga_customer_user');
+          localStorage.removeItem('manga_wishlist');
           setUser(null);
+          setWishlist([]);
         }
+      } else {
+        localStorage.removeItem('manga_wishlist');
+        setWishlist([]);
       }
 
       const savedOrders = localStorage.getItem('manga_customer_orders');
@@ -303,9 +310,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const logoutCustomer = () => {
     setUser(null);
     setOrders([]);
+    setWishlist([]);
     try {
       localStorage.removeItem('manga_customer_user');
+      localStorage.removeItem('manga_customer_token');
       localStorage.removeItem('manga_customer_orders');
+      localStorage.removeItem('manga_wishlist');
       localStorage.removeItem('manga_last_order');
     } catch {}
     showToast('Signed out of account');
@@ -386,6 +396,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const toggleWishlist = (id: string, sourceEl?: HTMLElement | null, item?: any) => {
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/account/login?redirect=' + encodeURIComponent(window.location.pathname);
+      }
+      return;
+    }
     if (wishlist.includes(id)) {
       setWishlist((prev) => prev.filter((item) => item !== id));
       showToast('Removed from saved wishlist');

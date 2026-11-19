@@ -95,6 +95,10 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const handleWishlistClick = () => {
+    if (!storeContext?.user) {
+      router.push('/account/login?redirect=/wishlist');
+      return;
+    }
     if (onOpenWishlist) onOpenWishlist();
     else router.push('/wishlist');
   };
