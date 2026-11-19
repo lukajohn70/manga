@@ -3,13 +3,35 @@ const { parse } = require('url');
 const path = require('path');
 const fs = require('fs');
 
+// Resolve path to app containing .next directory
+const subAppDir = path.resolve(__dirname, 'apps/web-store');
+
+// Load .env into process.env if present
+const envFiles = [path.join(__dirname, '.env'), path.join(subAppDir, '.env')];
+for (const envPath of envFiles) {
+  if (fs.existsSync(envPath)) {
+    try {
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      envContent.split(/\r?\n/).forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+          const idx = trimmed.indexOf('=');
+          const k = trimmed.slice(0, idx).trim();
+          const v = trimmed.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
+          if (!process.env[k] && v) {
+            process.env[k] = v;
+          }
+        }
+      });
+    } catch {}
+  }
+}
+
 // Always run in production mode on cPanel to serve pre-built optimized bundle
 const dev = false;
 const hostname = '0.0.0.0';
 const port = parseInt(process.env.PORT, 10) || 3000;
 
-// Resolve path to app containing .next directory
-const subAppDir = path.resolve(__dirname, 'apps/web-store');
 const appDir = fs.existsSync(path.join(subAppDir, '.next'))
   ? subAppDir
   : (fs.existsSync(path.join(__dirname, '.next')) ? __dirname : subAppDir);
