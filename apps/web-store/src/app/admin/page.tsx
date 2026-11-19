@@ -21,12 +21,26 @@ interface SystemDiagnostics {
 export default function AdminHubPage() {
   const { user, loginCustomer, logoutCustomer, cartCount, wishlistCount } = useStore();
   const [diagnostics, setDiagnostics] = useState<SystemDiagnostics | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'tables' | 'products'>('overview');
 
-  const isAdmin = user?.role === 'ADMIN';
+  // Admin Login State
+  const [emailInput, setEmailInput] = useState('lukajohn70@gmail.com');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
 
+  // Purge State
+  const [purging, setPurging] = useState(false);
+  const [purgeResult, setPurgeResult] = useState<string | null>(null);
+
+  const isAdmin = user && user.role === 'ADMIN';
+
+  // Fetch telemetry ONLY when authenticated as ADMIN
   useEffect(() => {
+    if (!isAdmin) return;
+
+    setLoading(true);
     fetch('/api/setup')
       .then((res) => res.json())
       .then((data) => {
@@ -41,10 +55,52 @@ export default function AdminHubPage() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [isAdmin]);
 
-  const [purging, setPurging] = useState(false);
-  const [purgeResult, setPurgeResult] = useState<string | null>(null);
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailInput.trim() || !passwordInput.trim()) {
+      setAuthError('Please enter both administrator email and password.');
+      return;
+    }
+
+    setAuthError(null);
+    setAuthLoading(true);
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'admin-login',
+          email: emailInput.trim(),
+          password: passwordInput,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Invalid administrator credentials. Access denied.');
+      }
+
+      if (data.user?.role !== 'ADMIN') {
+        throw new Error('Access denied. Administrator privileges required.');
+      }
+
+      loginCustomer(
+        data.user.email,
+        data.user.name,
+        data.user.phone || '+234 800 000 0000',
+        'ADMIN',
+        data.token
+      );
+      setPasswordInput('');
+    } catch (err: any) {
+      setAuthError(err.message || 'Authentication failed. Please verify credentials.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const handlePurgeDatabase = async () => {
     if (!confirm('Are you sure you want to purge all products, orders, and dummy details from the database? This cannot be undone.')) {
@@ -64,12 +120,143 @@ export default function AdminHubPage() {
     }
   };
 
-  const handleAdminQuickLogin = () => {
-    loginCustomer('lukajohn70@gmail.com', 'Luka John', '+234 800 000 0000', 'ADMIN');
-  };
-
   const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
+  // 1. GATE: Unauthenticated Visitors
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#1A1512] text-white">
+        <Header cartCount={cartCount} wishlistCount={wishlistCount} />
+
+        <main className="flex-1 flex items-center justify-center px-4 py-16">
+          <div className="max-w-md w-full bg-[#241D19] border border-[#D9A441]/30 rounded-3xl p-8 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-[#B5532E]/20 text-[#D9A441] flex items-center justify-center text-2xl mx-auto mb-4 border border-[#D9A441]/40">
+                <i className="fas fa-shield-halved"></i>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#B5532E]/30 text-[#D9A441] text-[11px] font-bold uppercase tracking-wider mb-2">
+                Restricted Operations Area
+              </div>
+              <h1 className="text-2xl font-black font-display text-white">
+                Platform Operations Gate
+              </h1>
+              <p className="text-xs text-[#C5BCB3] mt-2 leading-relaxed">
+                Enter authorized administrator credentials to manage database state, microservices, and system telemetry.
+              </p>
+            </div>
+
+            {authError && (
+              <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                <i className="fas fa-circle-exclamation text-rose-400"></i>
+                <span>{authError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#E7D5BC] mb-1.5">
+                  Administrator Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  placeholder="e.g. lukajohn70@gmail.com"
+                  className="w-full px-4 py-3 bg-[#1A1512] border border-[#4A3E38] rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#D9A441] transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#E7D5BC] mb-1.5">
+                  Admin Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Enter administrator password"
+                  className="w-full px-4 py-3 bg-[#1A1512] border border-[#4A3E38] rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#D9A441] transition"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full py-3.5 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer border-0 mt-2"
+              >
+                <i className={`fas ${authLoading ? 'fa-spinner fa-spin' : 'fa-key'} text-[#D9A441]`}></i>
+                <span>{authLoading ? 'Verifying Credentials...' : 'Authenticate as Administrator'}</span>
+              </button>
+            </form>
+
+            <div className="mt-6 pt-5 border-t border-[#4A3E38] text-center">
+              <Link
+                href="/"
+                className="text-xs text-[#8C8279] hover:text-[#E7D5BC] font-medium transition inline-flex items-center gap-1.5"
+              >
+                <i className="fas fa-arrow-left text-[10px]"></i>
+                <span>Return to Storefront</span>
+              </Link>
+            </div>
+          </div>
+        </main>
+
+        <Footer cartCount={cartCount} wishlistCount={wishlistCount} />
+      </div>
+    );
+  }
+
+  // 2. GATE: Authenticated but Non-Admin (403 Forbidden)
+  if (user && user.role !== 'ADMIN') {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#1A1512] text-white">
+        <Header cartCount={cartCount} wishlistCount={wishlistCount} />
+
+        <main className="flex-1 flex items-center justify-center px-4 py-16">
+          <div className="max-w-md w-full bg-[#241D19] border border-rose-500/30 rounded-3xl p-8 shadow-2xl text-center">
+            <div className="w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-2xl mx-auto mb-4 border border-rose-500/40">
+              <i className="fas fa-lock"></i>
+            </div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-[11px] font-bold uppercase tracking-wider mb-2">
+              403 Forbidden
+            </div>
+            <h1 className="text-2xl font-black font-display text-white mb-2">
+              Administrator Privileges Required
+            </h1>
+            <p className="text-xs text-[#C5BCB3] leading-relaxed mb-6">
+              You are currently authenticated as <strong className="text-white">{user.email}</strong> with role{' '}
+              <span className="px-2 py-0.5 rounded bg-white/10 text-[#D9A441] font-mono font-bold">[{user.role}]</span>.
+              Access to platform operations and database management is strictly restricted to authorized administrators.
+            </p>
+
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={logoutCustomer}
+                className="w-full py-3 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer border-0"
+              >
+                <i className="fas fa-right-from-bracket"></i>
+                <span>Sign Out & Switch Account</span>
+              </button>
+
+              <Link
+                href="/"
+                className="block w-full py-3 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl transition text-center"
+              >
+                Return to Storefront
+              </Link>
+            </div>
+          </div>
+        </main>
+
+        <Footer cartCount={cartCount} wishlistCount={wishlistCount} />
+      </div>
+    );
+  }
+
+  // 3. AUTHORIZED: Admin Operations Hub
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#2A2320]">
       <Header cartCount={cartCount} wishlistCount={wishlistCount} />
@@ -106,50 +293,28 @@ export default function AdminHubPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                {isAdmin ? (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                      Admin: {user.name} ({user.email})
-                    </span>
-                    <button
-                      type="button"
-                      disabled={purging}
-                      onClick={handlePurgeDatabase}
-                      className="px-3.5 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-xs font-bold text-white border border-rose-400/30 cursor-pointer transition flex items-center gap-1.5"
-                    >
-                      <i className={`fas ${purging ? 'fa-spinner fa-spin' : 'fa-trash-can'}`}></i>
-                      <span>{purging ? 'Purging DB...' : 'Purge All Products'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={logoutCustomer}
-                      className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs text-white border border-white/20 cursor-pointer transition"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={handleAdminQuickLogin}
-                      className="px-4 py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs shadow-md transition flex items-center gap-2 cursor-pointer"
-                    >
-                      <i className="fas fa-key"></i>
-                      <span>Sign In as Luka John (Admin)</span>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={purging}
-                      onClick={handlePurgeDatabase}
-                      className="px-4 py-2.5 rounded-xl bg-rose-600/90 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <i className={`fas ${purging ? 'fa-spinner fa-spin' : 'fa-trash-can'}`}></i>
-                      <span>{purging ? 'Purging...' : 'Purge Database'}</span>
-                    </button>
-                  </div>
-                )}
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Admin: {user.name} ({user.email})
+                  </span>
+                  <button
+                    type="button"
+                    disabled={purging}
+                    onClick={handlePurgeDatabase}
+                    className="px-3.5 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-xs font-bold text-white border border-rose-400/30 cursor-pointer transition flex items-center gap-1.5"
+                  >
+                    <i className={`fas ${purging ? 'fa-spinner fa-spin' : 'fa-trash-can'}`}></i>
+                    <span>{purging ? 'Purging DB...' : 'Purge All Products'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={logoutCustomer}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs text-white border border-white/20 cursor-pointer transition"
+                  >
+                    Sign Out
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -186,7 +351,7 @@ export default function AdminHubPage() {
                     diagnostics?.connected ? 'bg-emerald-500' : 'bg-rose-500'
                   }`}
                 ></span>
-                <span>{diagnostics?.connected ? 'Online & Responsive' : 'Connecting...'}</span>
+                <span>{diagnostics?.connected ? 'Online & Responsive' : loading ? 'Connecting...' : 'Offline'}</span>
               </div>
             </div>
 
@@ -263,152 +428,160 @@ export default function AdminHubPage() {
                   : 'border-transparent text-[#8C8279] hover:text-[#1A1512]'
               }`}
             >
-              Catalog Sample
+              Live Catalog Sample
             </button>
           </div>
 
           {/* Tab 1: System Diagnostics */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              <div className="bg-white p-6 rounded-3xl border border-[#E7D5BC] shadow-xs space-y-4">
-                <h3 className="text-sm font-black text-[#1A1512]">Database Connection Information</h3>
-
-                {loading ? (
-                  <div className="text-xs text-[#8C8279] py-4 flex items-center gap-2">
-                    <i className="fas fa-spinner fa-spin"></i>
-                    <span>Probing database connection...</span>
+              <div className="bg-white p-6 rounded-2xl border border-[#E7D5BC] shadow-xs">
+                <h3 className="text-sm font-bold text-[#1A1512] mb-4 flex items-center gap-2">
+                  <i className="fas fa-server text-[#B5532E]"></i>
+                  <span>PostgreSQL Environment Status</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div className="p-3.5 bg-[#FAF7F2] rounded-xl border border-[#E7D5BC]/60 space-y-1">
+                    <span className="text-[#8C8279] block">Server Connection Status</span>
+                    <span className={`font-bold flex items-center gap-2 ${diagnostics?.connected ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      <i className={`fas ${diagnostics?.connected ? 'fa-circle-check text-emerald-500' : 'fa-circle-xmark text-rose-500'}`}></i>
+                      <span>{diagnostics?.connected ? 'Connected (Authenticated over IPv4 127.0.0.1)' : 'Unreachable or Connection Refused'}</span>
+                    </span>
                   </div>
-                ) : (
-                  <div className="space-y-3 text-xs">
-                    <div className="p-3 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC] flex items-center justify-between">
-                      <span className="font-bold text-[#8C8279]">PostgreSQL Version:</span>
-                      <span className="font-mono text-[#1A1512] text-[11px] truncate max-w-md">
-                        {diagnostics?.version || 'N/A'}
-                      </span>
-                    </div>
 
-                    <div className="p-3 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC] flex items-center justify-between">
-                      <span className="font-bold text-[#8C8279]">Sanitized Connection Endpoint:</span>
-                      <span className="font-mono text-[#1A1512] text-[11px]">
-                        {diagnostics?.host || '127.0.0.1:5432'}
-                      </span>
-                    </div>
+                  <div className="p-3.5 bg-[#FAF7F2] rounded-xl border border-[#E7D5BC]/60 space-y-1">
+                    <span className="text-[#8C8279] block">Engine Version</span>
+                    <span className="font-mono text-[11px] text-[#1A1512] font-semibold break-all">
+                      {diagnostics?.version || 'Querying engine version...'}
+                    </span>
+                  </div>
 
-                    <div className="p-3 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC] flex items-center justify-between">
-                      <span className="font-bold text-[#8C8279]">API Diagnostics Route:</span>
-                      <a
-                        href="/api/setup"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[#B5532E] font-bold hover:underline inline-flex items-center gap-1"
-                      >
-                        <span>Inspect Raw JSON</span>
-                        <i className="fas fa-arrow-up-right-from-square text-[10px]"></i>
-                      </a>
-                    </div>
+                  <div className="p-3.5 bg-[#FAF7F2] rounded-xl border border-[#E7D5BC]/60 space-y-1">
+                    <span className="text-[#8C8279] block">Target Connection Host</span>
+                    <span className="font-mono text-[11px] text-[#1A1512] font-semibold break-all">
+                      {diagnostics?.host || 'postgres://gwylvxeo_manga_user:****@127.0.0.1:5432/gwylvxeo_manga'}
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 bg-[#FAF7F2] rounded-xl border border-[#E7D5BC]/60 space-y-1">
+                    <span className="text-[#8C8279] block">Primary System Administrator</span>
+                    <span className="font-bold text-[#1A1512] flex items-center gap-1.5">
+                      <i className="fas fa-user-shield text-[#B5532E]"></i>
+                      <span>Luka John (lukajohn70@gmail.com)</span>
+                    </span>
+                  </div>
+                </div>
+
+                {diagnostics?.error && (
+                  <div className="mt-4 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                    <strong>Connection Diagnostic Note:</strong> {diagnostics.error}
                   </div>
                 )}
               </div>
 
-              {/* Quick Operation Links */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Link
-                  href="/shop"
-                  className="p-5 rounded-2xl bg-white border border-[#E7D5BC] hover:border-[#B5532E] transition shadow-xs group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#B5532E]/10 text-[#B5532E] flex items-center justify-center font-bold">
-                      <i className="fas fa-store"></i>
-                    </div>
-                    <div>
-                      <h4 className="font-black text-xs text-[#1A1512] group-hover:text-[#B5532E]">
-                        Storefront Catalog
-                      </h4>
-                      <p className="text-[11px] text-[#8C8279]">Browse live customer marketplace</p>
-                    </div>
+              {/* Monorepo Architecture Notice */}
+              <div className="bg-white p-6 rounded-2xl border border-[#E7D5BC] shadow-xs">
+                <h3 className="text-sm font-bold text-[#1A1512] mb-3 flex items-center gap-2">
+                  <i className="fas fa-network-wired text-[#D9A441]"></i>
+                  <span>Architecture & Domain Routing</span>
+                </h3>
+                <p className="text-xs text-[#8C8279] leading-relaxed mb-4">
+                  MANGA is built as an enterprise event-driven marketplace monorepo. On production, all microservices share the centralized PostgreSQL engine for zero-drift inventory, transactions, and role enforcement.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC]">
+                    <span className="font-bold text-[#1A1512] block">Web Storefront</span>
+                    <span className="text-[#8C8279] text-[11px]">manga.jlm.com.ng (Next.js)</span>
                   </div>
-                </Link>
-
-                <Link
-                  href="/sell"
-                  className="p-5 rounded-2xl bg-white border border-[#E7D5BC] hover:border-[#B5532E] transition shadow-xs group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#D9A441]/10 text-[#D9A441] flex items-center justify-center font-bold">
-                      <i className="fas fa-handshake"></i>
-                    </div>
-                    <div>
-                      <h4 className="font-black text-xs text-[#1A1512] group-hover:text-[#B5532E]">
-                        Merchant Onboarding
-                      </h4>
-                      <p className="text-[11px] text-[#8C8279]">Vendor registration & portal</p>
-                    </div>
+                  <div className="p-3 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC]">
+                    <span className="font-bold text-[#1A1512] block">Merchant Portal</span>
+                    <span className="text-[#8C8279] text-[11px]">manga.jlm.com.ng/sell</span>
                   </div>
-                </Link>
-
-                <Link
-                  href="/account"
-                  className="p-5 rounded-2xl bg-white border border-[#E7D5BC] hover:border-[#B5532E] transition shadow-xs group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#1A1512]/10 text-[#1A1512] flex items-center justify-center font-bold">
-                      <i className="fas fa-user-shield"></i>
-                    </div>
-                    <div>
-                      <h4 className="font-black text-xs text-[#1A1512] group-hover:text-[#B5532E]">
-                        Account Profile
-                      </h4>
-                      <p className="text-[11px] text-[#8C8279]">Orders, addresses & security</p>
-                    </div>
+                  <div className="p-3 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC]">
+                    <span className="font-bold text-[#1A1512] block">Operations Console</span>
+                    <span className="text-[#8C8279] text-[11px]">manga.jlm.com.ng/admin</span>
                   </div>
-                </Link>
+                </div>
               </div>
             </div>
           )}
 
           {/* Tab 2: PostgreSQL Tables */}
           {activeTab === 'tables' && (
-            <div className="bg-white rounded-3xl border border-[#E7D5BC] p-6 shadow-xs">
-              <h3 className="text-sm font-black text-[#1A1512] mb-4">PostgreSQL Schema Tables</h3>
-              {diagnostics?.tableCounts ? (
-                <div className="divide-y divide-[#E7D5BC]/60">
-                  {Object.entries(diagnostics.tableCounts).map(([tableName, count]) => (
-                    <div key={tableName} className="py-3 flex items-center justify-between text-xs">
-                      <span className="font-mono font-bold text-[#1A1512]">{tableName}</span>
-                      <span className="px-3 py-1 rounded-full bg-[#FAF7F2] border border-[#E7D5BC] font-mono font-black text-[#B5532E]">
-                        {count} {count === 1 ? 'row' : 'rows'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-xs text-[#8C8279]">No table metrics loaded.</div>
-              )}
+            <div className="bg-white rounded-2xl border border-[#E7D5BC] shadow-xs overflow-hidden">
+              <div className="p-5 border-b border-[#E7D5BC] flex items-center justify-between">
+                <h3 className="text-sm font-bold text-[#1A1512]">Database Table State</h3>
+                <span className="text-xs text-[#8C8279]">Live row counts in production database</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-[#FAF7F2] border-b border-[#E7D5BC] text-[#8C8279] font-bold">
+                    <tr>
+                      <th className="py-3 px-5">Schema.Table</th>
+                      <th className="py-3 px-5">Description</th>
+                      <th className="py-3 px-5 text-right">Row Count</th>
+                      <th className="py-3 px-5 text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E7D5BC]/60">
+                    {diagnostics?.tableCounts &&
+                      Object.entries(diagnostics.tableCounts).map(([tbl, count]) => (
+                        <tr key={tbl} className="hover:bg-[#FAF7F2]/50 transition">
+                          <td className="py-3 px-5 font-mono font-semibold text-[#1A1512]">{tbl}</td>
+                          <td className="py-3 px-5 text-[#8C8279]">
+                            {tbl.includes('master_products') && 'Core catalog items published to marketplace'}
+                            {tbl.includes('categories') && 'Department taxonomy (Electronics, Phones, Fashion...)'}
+                            {tbl.includes('variants') && 'SKUs, color/storage variants, barcodes'}
+                            {tbl.includes('offers') && 'Merchant prices, stock quantity, SLA guarantees'}
+                            {tbl.includes('vendors') && 'Registered partner seller profiles & CAC KYC'}
+                            {tbl.includes('users') && 'Buyers, merchants, and platform administrators'}
+                            {tbl.includes('orders') && 'Customer checkouts, transaction references, payments'}
+                            {tbl.includes('shipments') && 'Logistics dispatch legs, tracking waybills'}
+                          </td>
+                          <td className="py-3 px-5 font-mono text-right font-bold text-[#1A1512]">
+                            {count >= 0 ? count : 'Table missing'}
+                          </td>
+                          <td className="py-3 px-5 text-center">
+                            {count >= 0 ? (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                                Active
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-bold">
+                                Inactive
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
-          {/* Tab 3: Catalog Sample */}
+          {/* Tab 3: Live Catalog Sample */}
           {activeTab === 'products' && (
-            <div className="bg-white rounded-3xl border border-[#E7D5BC] p-6 shadow-xs">
-              <h3 className="text-sm font-black text-[#1A1512] mb-4">Sample Seeded Products</h3>
+            <div className="bg-white rounded-2xl border border-[#E7D5BC] shadow-xs p-5">
+              <h3 className="text-sm font-bold text-[#1A1512] mb-4">Sample Master Products in Database</h3>
               {diagnostics?.sampleProducts && diagnostics.sampleProducts.length > 0 ? (
-                <div className="divide-y divide-[#E7D5BC]/60">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {diagnostics.sampleProducts.map((p) => (
-                    <div key={p.id} className="py-3 flex items-center justify-between gap-4 text-xs">
-                      <div>
-                        <div className="font-bold text-[#1A1512]">{p.title}</div>
-                        <div className="text-[11px] text-[#8C8279]">
-                          {p.category} • Sold by {p.seller}
-                        </div>
-                      </div>
-                      <div className="font-mono font-black text-[#B5532E] shrink-0">
+                    <div key={p.id} className="p-4 rounded-xl border border-[#E7D5BC] bg-[#FAF7F2] space-y-2">
+                      <div className="text-[11px] font-bold text-[#B5532E] uppercase">{p.category}</div>
+                      <div className="text-xs font-bold text-[#1A1512] line-clamp-2">{p.title}</div>
+                      <div className="text-xs text-[#8C8279]">Seller: {p.seller}</div>
+                      <div className="text-sm font-black text-[#1A1512]">
                         ₦{Number(p.price_ngn).toLocaleString()}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-xs text-[#8C8279]">No sample products returned.</div>
+                <div className="text-center py-12 text-xs text-[#8C8279]">
+                  <i className="fas fa-boxes-stacked text-3xl text-[#E7D5BC] mb-2 block"></i>
+                  <span>No products currently in database (Clean purged state). New products will appear here when merchants list them.</span>
+                </div>
               )}
             </div>
           )}

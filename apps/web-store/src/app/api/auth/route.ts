@@ -30,7 +30,32 @@ export async function POST(request: Request) {
       });
     }
 
-    // 2. 2FA Verification Step
+    // 2. Dedicated Admin Login Step
+    if (action === 'admin-login') {
+      const authRes = await authenticateDbUser(body.email, body.password);
+      if (!authRes.success || !authRes.user) {
+        return NextResponse.json(
+          { success: false, message: authRes.message || 'Invalid administrator credentials.' },
+          { status: 401 }
+        );
+      }
+
+      if (authRes.user.role !== 'ADMIN') {
+        return NextResponse.json(
+          { success: false, message: 'Access denied: Administrator privileges required.' },
+          { status: 403 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        token: 'jwt_admin_' + Buffer.from(JSON.stringify({ email: authRes.user.email, role: 'ADMIN', time: Date.now() })).toString('base64'),
+        user: authRes.user,
+        message: 'Administrator authentication verified.',
+      });
+    }
+
+    // 3. 2FA Verification Step
     if (action === 'verify-2fa') {
       const email = body.email;
       const code = body.code || '';

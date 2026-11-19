@@ -41,16 +41,17 @@ export async function authenticateDbUser(
     const row = res.rows[0];
 
     // Password verification
-    if (password) {
-      const hashed = hashPassword(password);
-      const isMatch =
-        row.password_hash === hashed ||
-        row.password_hash === password ||
-        row.password_hash === 'hash';
+    if (!password) {
+      return { success: false, message: 'Password is required.' };
+    }
 
-      if (!isMatch) {
-        return { success: false, message: 'Invalid password provided.' };
-      }
+    const hashed = hashPassword(password);
+    const isMatch =
+      row.password_hash === hashed ||
+      row.password_hash === password;
+
+    if (!isMatch) {
+      return { success: false, message: 'Invalid password provided.' };
     }
 
     const roleMap: Record<string, 'BUYER' | 'VENDOR' | 'ADMIN'> = {
@@ -73,7 +74,7 @@ export async function authenticateDbUser(
   } catch (err: any) {
     console.warn('[DB Auth] Database query unreachable, using resilient admin fallback:', err.message);
     const normalized = email.toLowerCase().trim();
-    if (normalized === 'lukajohn70@gmail.com' && (!password || password === '12')) {
+    if (normalized === 'lukajohn70@gmail.com' && password === '12') {
       return {
         success: true,
         user: {

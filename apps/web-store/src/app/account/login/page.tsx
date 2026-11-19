@@ -253,7 +253,7 @@ function LoginContent() {
                     <input
                       type="email"
                       required
-                      placeholder="e.g. buyer@manga.ng"
+                      placeholder="Enter your registered email"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       className="w-full px-4 py-2.5 bg-[#FAF6F0] border border-[#E7D5BC] rounded-xl text-xs text-[#2A2320] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E] transition-all"
@@ -263,14 +263,11 @@ function LoginContent() {
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="text-xs font-bold text-[#2A2320]">Password</label>
-                      <span className="text-[11px] text-[#8C8279]">
-                        Default: BuyerPass123!
-                      </span>
                     </div>
                     <input
                       type="password"
                       required
-                      placeholder="Enter account password"
+                      placeholder="Enter your password"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       className="w-full px-4 py-2.5 bg-[#FAF6F0] border border-[#E7D5BC] rounded-xl text-xs text-[#2A2320] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E] transition-all"

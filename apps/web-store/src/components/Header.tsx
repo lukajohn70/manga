@@ -258,12 +258,37 @@ export const Header: React.FC<HeaderProps> = ({
                           <span className="font-bold text-[#2A2320] text-xs truncate">
                             {storeContext.user.name}
                           </span>
-                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-[#4F6B3A]/15 text-[#4F6B3A] border border-[#4F6B3A]/30">
-                            Verified Buyer
+                          <span
+                            className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${
+                              storeContext.user.role === 'ADMIN'
+                                ? 'bg-[#1A1512] text-[#D9A441] border-[#D9A441]/50'
+                                : storeContext.user.role === 'VENDOR'
+                                ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                                : 'bg-[#4F6B3A]/15 text-[#4F6B3A] border-[#4F6B3A]/30'
+                            }`}
+                          >
+                            {storeContext.user.role === 'ADMIN'
+                              ? 'Admin'
+                              : storeContext.user.role === 'VENDOR'
+                              ? 'Merchant'
+                              : 'Buyer'}
                           </span>
                         </div>
                         <p className="text-[11px] text-[#8C8279] truncate">{storeContext.user.email}</p>
                       </div>
+
+                      {storeContext.user.role === 'ADMIN' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAccountMenu(false);
+                            router.push('/admin');
+                          }}
+                          className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#B5532E] hover:bg-[#F6EDE0] font-bold border-0 bg-transparent cursor-pointer"
+                        >
+                          <i className="fas fa-shield-halved text-[#B5532E]"></i> Operations Console
+                        </button>
+                      )}
 
                       <button
                         type="button"

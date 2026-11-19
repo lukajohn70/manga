@@ -28,9 +28,9 @@ export default function AccountPage() {
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [recipientName, setRecipientName] = useState(user?.defaultAddress?.recipientName || user?.name || '');
   const [phone, setPhone] = useState(user?.defaultAddress?.phone || user?.phone || '');
-  const [street, setStreet] = useState(user?.defaultAddress?.street || '24 Admiralty Way, Lekki Phase 1');
-  const [city, setCity] = useState(user?.defaultAddress?.city || 'Lagos');
-  const [state, setState] = useState(user?.defaultAddress?.state || 'Lagos State');
+  const [street, setStreet] = useState(user?.defaultAddress?.street || '');
+  const [city, setCity] = useState(user?.defaultAddress?.city || '');
+  const [state, setState] = useState(user?.defaultAddress?.state || '');
 
   // Handle hash deep-linking (e.g. /account#orders)
   useEffect(() => {
@@ -330,10 +330,12 @@ export default function AccountPage() {
                         <span className="text-[10px] bg-white border border-[#E7D5BC] px-1.5 py-0.5 rounded font-normal text-[#8C8279]">Primary</span>
                       </div>
                       <p className="text-xs text-[#8C8279]">
-                        {user.defaultAddress?.street || '24 Admiralty Way, Lekki Phase 1'}, {user.defaultAddress?.city || 'Lagos'}, {user.defaultAddress?.state || 'Lagos State'}
+                        {user.defaultAddress?.street
+                          ? `${user.defaultAddress.street}, ${user.defaultAddress.city}, ${user.defaultAddress.state}`
+                          : 'No delivery address saved yet. Add your address in the Addresses tab.'}
                       </p>
                       <p className="text-xs text-[#8C8279] mt-0.5 font-mono">
-                        Phone: {user.defaultAddress?.phone || user.phone || '+234 803 123 4567'}
+                        Phone: {user.defaultAddress?.phone || user.phone || 'Not provided'}
                       </p>
                     </div>
                   </div>
@@ -549,13 +551,19 @@ export default function AccountPage() {
                         <h4 className="font-bold text-xs text-[#2A2320] mb-1">
                           {user.defaultAddress?.recipientName || user.name}
                         </h4>
-                        <p className="text-xs text-[#8C8279] leading-relaxed">
-                          {user.defaultAddress?.street || '24 Admiralty Way, Lekki Phase 1'}<br />
-                          {user.defaultAddress?.city || 'Lagos'}, {user.defaultAddress?.state || 'Lagos State'}<br />
-                          Nigeria
-                        </p>
+                        {user.defaultAddress?.street ? (
+                          <p className="text-xs text-[#8C8279] leading-relaxed">
+                            {user.defaultAddress.street}<br />
+                            {user.defaultAddress.city}, {user.defaultAddress.state}<br />
+                            Nigeria
+                          </p>
+                        ) : (
+                          <p className="text-xs text-[#8C8279] italic leading-relaxed">
+                            No default delivery address configured yet. Click Edit below to save your delivery location.
+                          </p>
+                        )}
                         <p className="text-xs font-mono text-[#8C8279] mt-2">
-                          Phone: {user.defaultAddress?.phone || user.phone || '+234 803 123 4567'}
+                          Phone: {user.defaultAddress?.phone || user.phone || 'Not provided'}
                         </p>
                       </div>
 

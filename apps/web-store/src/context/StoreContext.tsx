@@ -81,6 +81,7 @@ export interface StoreContextType {
     token?: string
   ) => void;
   logoutCustomer: () => void;
+  clearAllUserData: () => void;
   updateCustomerProfile: (data: Partial<CustomerUser>) => void;
   recordPlacedOrder: (order: PlacedOrder) => void;
 }
@@ -119,23 +120,47 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       const savedUser = localStorage.getItem('manga_customer_user');
       if (savedUser) {
-        const u = JSON.parse(savedUser);
-        setUser(u);
-        if (u?.email) {
-          fetch(`/api/orders?email=${encodeURIComponent(u.email)}`)
-            .then((r) => (r.ok ? r.json() : null))
-            .then((d) => {
-              if (d?.orders && d.orders.length > 0) {
-                setOrders(d.orders);
-              }
-            })
-            .catch(() => {});
+        try {
+          const u = JSON.parse(savedUser);
+          const isDummy =
+            !u?.email ||
+            u.email.includes('buyer@manga.ng') ||
+            u.email.includes('admin@manga.ng') ||
+            u.email.includes('vendor@manga.ng') ||
+            u.email.includes('chidi') ||
+            u.email.includes('demo');
+
+          if (isDummy) {
+            localStorage.removeItem('manga_customer_user');
+            localStorage.removeItem('manga_customer_orders');
+            setUser(null);
+            setOrders([]);
+          } else {
+            setUser(u);
+            if (u.email) {
+              fetch(`/api/orders?email=${encodeURIComponent(u.email)}`)
+                .then((r) => (r.ok ? r.json() : null))
+                .then((d) => {
+                  if (d?.orders && d.orders.length > 0) {
+                    setOrders(d.orders);
+                  }
+                })
+                .catch(() => {});
+            }
+          }
+        } catch {
+          localStorage.removeItem('manga_customer_user');
+          setUser(null);
         }
       }
 
       const savedOrders = localStorage.getItem('manga_customer_orders');
       if (savedOrders) {
-        setOrders(JSON.parse(savedOrders));
+        try {
+          setOrders(JSON.parse(savedOrders));
+        } catch {
+          localStorage.removeItem('manga_customer_orders');
+        }
       }
     } catch {}
   }, []);
@@ -202,16 +227,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       id: `usr-${Date.now().toString(36)}`,
       name: formattedName.charAt(0).toUpperCase() + formattedName.slice(1),
       email: email.trim().toLowerCase(),
-      phone: phone || '+234 800 000 0000',
+      phone: phone || '',
       role,
       token,
-      defaultAddress: {
-        recipientName: formattedName,
-        phone: phone || '+234 800 000 0000',
-        street: '15 Victoria Island Blvd',
-        city: 'Lagos',
-        state: 'Lagos State',
-      },
+      defaultAddress: undefined,
     };
     setUser(customer);
 
@@ -230,7 +249,29 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const logoutCustomer = () => {
     setUser(null);
-    showToast('Signed out of Marketsquare customer account');
+    setOrders([]);
+    try {
+      localStorage.removeItem('manga_customer_user');
+      localStorage.removeItem('manga_customer_orders');
+      localStorage.removeItem('manga_last_order');
+    } catch {}
+    showToast('Signed out of account');
+  };
+
+  const clearAllUserData = () => {
+    setUser(null);
+    setOrders([]);
+    setCartItems([]);
+    setWishlist([]);
+    setLastOrderRef(null);
+    try {
+      localStorage.removeItem('manga_customer_user');
+      localStorage.removeItem('manga_customer_orders');
+      localStorage.removeItem('manga_cart');
+      localStorage.removeItem('manga_wishlist');
+      localStorage.removeItem('manga_last_order');
+    } catch {}
+    showToast('All cached sessions and data cleared');
   };
 
   const updateCustomerProfile = (data: Partial<CustomerUser>) => {
@@ -349,6 +390,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         orders,
         loginCustomer,
         logoutCustomer,
+        clearAllUserData,
         updateCustomerProfile,
         recordPlacedOrder,
       }}
