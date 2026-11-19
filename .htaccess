@@ -1,0 +1,25 @@
+# ==============================================================================
+# MANGA MARKETSQUARE — LiteSpeed / Apache Web Server Configuration
+# ==============================================================================
+
+# Disable directory browsing (prevents "Index of /" file listings)
+Options -Indexes
+
+# Set directory index order
+DirectoryIndex index.html index.php
+
+# UTF-8 encoding
+AddDefaultCharset UTF-8
+
+# Security & CORS Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Gzip / Brotli Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json image/svg+xml
+</IfModule>

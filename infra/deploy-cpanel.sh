@@ -40,6 +40,7 @@ if command -v rsync &> /dev/null; then
 else
   echo "rsync not found, using cp..."
   /bin/cp -R * "$TARGET/" 2>/dev/null || true
+  /bin/cp -f .htaccess "$TARGET/" 2>/dev/null || true
 fi
 
 # Ensure .env is preserved or created from example if not already present

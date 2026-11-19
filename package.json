@@ -2,9 +2,15 @@
   "name": "manga-monorepo",
   "version": "0.1.0",
   "private": true,
+  "main": "server.js",
   "packageManager": "pnpm@12.21.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "build": "turbo run build",
+    "start": "node server.js",
     "dev": "turbo run dev",
     "dev:store": "pnpm --filter @manga/web-store dev",
     "dev:vendor": "pnpm --filter @manga/web-vendor dev",
