@@ -61,6 +61,12 @@ fi
 # Remove static index.html or index.htm so Passenger handles root traffic
 rm -f "$TARGET/index.html" "$TARGET/index.htm"
 
+# Ensure critical runtime production dependencies (like pg) are installed in target
+if [ ! -d "$TARGET/node_modules/pg" ]; then
+  echo "Installing missing runtime dependencies (including pg) into $TARGET..."
+  (cd "$TARGET" && npm install --omit=dev --no-audit --no-fund) || true
+fi
+
 # Ensure .htaccess has CloudLinux Passenger directives
 /bin/cp -f .htaccess "$TARGET/.htaccess" 2>/dev/null || true
 
