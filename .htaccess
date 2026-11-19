@@ -1,12 +1,17 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/gwylvxeo/manga.jlm.com.ng"
+PassengerBaseURI "/"
+PassengerNodejs "/home/gwylvxeo/nodevenv/manga.jlm.com.ng/20/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+
 # ==============================================================================
 # MANGA MARKETSQUARE — LiteSpeed / Apache Web Server Configuration
 # ==============================================================================
 
-# Disable directory browsing (prevents file listings)
+# Disable directory browsing
 Options -Indexes
-
-# UTF-8 encoding
-AddDefaultCharset UTF-8
 
 # Security & CORS Headers
 <IfModule mod_headers.c>

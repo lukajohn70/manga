@@ -44,8 +44,11 @@ else
   /bin/cp -rf apps/web-store/.next "$TARGET/apps/web-store/" 2>/dev/null || true
 fi
 
-# Remove static index.html if present so Passenger / Node.js handles root traffic
-rm -f "$TARGET/index.html"
+# Remove static index.html or index.htm so Passenger handles root traffic
+rm -f "$TARGET/index.html" "$TARGET/index.htm"
+
+# Ensure .htaccess has CloudLinux Passenger directives
+/bin/cp -f .htaccess "$TARGET/.htaccess" 2>/dev/null || true
 
 # Trigger Phusion Passenger reload
 mkdir -p "$TARGET/tmp"
