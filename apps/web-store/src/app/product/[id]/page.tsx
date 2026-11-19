@@ -250,15 +250,13 @@ export default function ProductDetailPage() {
             <span className="text-[#2A2320] font-bold truncate max-w-xs sm:max-w-md">{product.title}</span>
           </div>
 
-          <a
-            href="http://localhost:3001"
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href="/sell"
             className="px-3.5 py-1.5 bg-[#2A2320] hover:bg-[#8F3B1F] text-white text-xs font-black rounded-xl shadow-xs transition flex items-center gap-1.5"
           >
             <i className="fas fa-pen-to-square text-[#D9A441]"></i>
-            <span>Edit This Product</span>
-          </a>
+            <span>Merchant Console</span>
+          </Link>
         </div>
 
         {/* ════════════════════════════════════════════════════════════════════════
@@ -1175,15 +1173,13 @@ export default function ProductDetailPage() {
               <p className="text-xs text-[#F6EDE0]/90 leading-relaxed">
                 Update prices, manage key features, variety options, and stock allocations directly in the seller console.
               </p>
-              <a
-                href="http://localhost:3001"
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                href="/sell"
                 className="w-full py-3 bg-[#D9A441] hover:bg-[#D9A441]/90 text-[#2A2320] font-black text-xs rounded-xl shadow transition flex items-center justify-center gap-2"
               >
                 <i className="fas fa-pen-to-square"></i>
-                <span>Edit Product Listing</span>
-              </a>
+                <span>Manage Product Listing</span>
+              </Link>
             </div>
 
           </div>

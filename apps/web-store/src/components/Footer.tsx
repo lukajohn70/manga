@@ -190,24 +190,24 @@ export const Footer: React.FC<FooterProps> = ({
               <h4 className="font-bold text-white mb-4 text-xs tracking-wider uppercase text-[#E7D5BC]">Seller Hub</h4>
               <ul className="space-y-2.5 text-[#E7D5BC]/70 text-xs list-none p-0 m-0">
                 <li>
-                  <a href="http://localhost:3001" target="_blank" rel="noreferrer" className="hover:text-[#D9A441] transition-colors font-semibold text-[#D9A441]">
+                  <Link href="/sell" className="hover:text-[#D9A441] transition-colors font-semibold text-[#D9A441]">
                     Become a Verified Seller
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="http://localhost:3001" target="_blank" rel="noreferrer" className="hover:text-white transition-colors text-[#E7D5BC]/70">
-                    Seller Center Login
-                  </a>
+                  <Link href="/sell#register" className="hover:text-white transition-colors text-[#E7D5BC]/70">
+                    Seller Partner Registration
+                  </Link>
                 </li>
                 <li>
-                  <a href="http://localhost:3001" target="_blank" rel="noreferrer" className="hover:text-white transition-colors text-[#E7D5BC]/70">
-                    Merchant Dashboard
-                  </a>
+                  <Link href="/sell#benefits" className="hover:text-white transition-colors text-[#E7D5BC]/70">
+                    Merchant Benefits & Escrow
+                  </Link>
                 </li>
                 <li>
-                  <a href="http://localhost:3001" target="_blank" rel="noreferrer" className="hover:text-white transition-colors text-[#E7D5BC]/70">
-                    Merchant Quality Standards
-                  </a>
+                  <Link href="/sell#faq" className="hover:text-white transition-colors text-[#E7D5BC]/70">
+                    Merchant Quality Standards & FAQ
+                  </Link>
                 </li>
               </ul>
             </div>

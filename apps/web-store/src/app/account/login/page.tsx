@@ -490,22 +490,18 @@ function LoginContent() {
               </div>
               <p>
                 This portal is for <strong>Buyers & Shoppers</strong>. If you are a merchant selling goods, enter via the{' '}
-                <a
-                  href="http://localhost:3001"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#B5532E] font-bold underline"
+                <Link
+                  href="/sell"
+                  className="text-[#B5532E] font-bold underline hover:text-[#8F3B1F]"
                 >
-                  Vendor Console (Port 3001)
-                </a>. Platform operations administrators must use the{' '}
-                <a
-                  href="http://localhost:3002"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#B5532E] font-bold underline"
+                  Seller Partner Portal
+                </Link>. Platform operations administrators can access the{' '}
+                <Link
+                  href="/admin"
+                  className="text-[#B5532E] font-bold underline hover:text-[#8F3B1F]"
                 >
-                  Admin Console (Port 3002)
-                </a>.
+                  Operations Hub
+                </Link>.
               </p>
             </div>
 

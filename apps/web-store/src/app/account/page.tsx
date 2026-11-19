@@ -134,14 +134,12 @@ export default function AccountPage() {
                       <i className="fas fa-arrow-up-right-from-square"></i>
                       <span>
                         Access your dedicated console:{' '}
-                        <a
-                          href={user.role === 'ADMIN' ? 'http://localhost:3002' : 'http://localhost:3001'}
-                          target="_blank"
-                          rel="noreferrer"
+                        <Link
+                          href={user.role === 'ADMIN' ? '/admin' : '/sell'}
                           className="underline font-bold text-white hover:text-[#D9A441]"
                         >
-                          {user.role === 'ADMIN' ? 'Platform Operations Admin Console (Port 3002)' : 'Merchant Vendor Console (Port 3001)'}
-                        </a>
+                          {user.role === 'ADMIN' ? 'Platform Operations Hub' : 'Merchant Partner Portal'}
+                        </Link>
                       </span>
                     </div>
                   )}

@@ -137,15 +137,13 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Help Center</span>
             </a>
             <span className="text-white/20">|</span>
-            <a
-              href="http://localhost:3001"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              href="/sell"
               className="text-[#D9A441] hover:underline transition-colors inline-flex items-center gap-1 font-bold"
             >
               <i className="fas fa-shop text-[11px]"></i>
               <span>Sell on MANGA</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -390,14 +388,12 @@ export const Header: React.FC<HeaderProps> = ({
 
                       <div className="border-t border-[#E7D5BC]/60 my-1"></div>
 
-                      <a
-                        href="http://localhost:3001"
-                        target="_blank"
-                        rel="noreferrer"
+                      <Link
+                        href="/sell"
                         className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#B5532E] hover:bg-[#F6EDE0]/70 font-bold"
                       >
                         <i className="fas fa-store text-[#B5532E]"></i> Merchant Seller Console
-                      </a>
+                      </Link>
                     </>
                   )}
                 </div>

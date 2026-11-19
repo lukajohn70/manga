@@ -101,6 +101,12 @@
       "namedRegex": "^/account/login(?:/)?$"
     },
     {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
       "page": "/cart",
       "regex": "^/cart(?:/)?$",
       "routeKeys": {},
@@ -153,6 +159,12 @@
       "regex": "^/return\\-policy(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/return\\-policy(?:/)?$"
+    },
+    {
+      "page": "/sell",
+      "regex": "^/sell(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sell(?:/)?$"
     },
     {
       "page": "/shop",
