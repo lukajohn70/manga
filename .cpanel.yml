@@ -2,5 +2,7 @@
 deployment:
   tasks:
     - export DEPLOYPATH=$HOME/manga.jlm.com.ng/
+    - /bin/rm -f $DEPLOYPATH/index.html
+    - /bin/rm -f $DEPLOYPATH/index.htm
     - /bin/mkdir -p $DEPLOYPATH
     - /bin/bash ./infra/deploy-cpanel.sh
