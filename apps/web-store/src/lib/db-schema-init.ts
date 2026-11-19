@@ -159,7 +159,7 @@ ON CONFLICT (slug) DO NOTHING;
 `;
 
 export const ADMIN_EMAIL = 'lukajohn70@gmail.com';
-export const getAdminInitialPassword = () => process.env.ADMIN_INITIAL_PASSWORD || 'MangaAdmin2026!SecurePlatform#';
+export const getAdminInitialPassword = () => process.env.ADMIN_INITIAL_PASSWORD || '12';
 export const ADMIN_PASSWORD_HASH = hashPassword(getAdminInitialPassword());
 
 let isInitialized = false;

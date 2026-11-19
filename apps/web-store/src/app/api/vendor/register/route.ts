@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '../../../../lib/db';
 import { ensureDatabaseReady } from '../../../../lib/db-schema-init';
+import { sendMerchantWelcomeEmail } from '../../../../lib/email/email-service';
 import {
   hashPassword,
   validateEmail,
@@ -129,6 +130,15 @@ export async function POST(request: Request) {
       );
       vendorId = insertVendor.rows[0]?.id || `ven-${Date.now().toString(36)}`;
     }
+
+    // 5. Dispatch Merchant Welcome Email
+    sendMerchantWelcomeEmail({
+      businessName: cleanBusiness,
+      ownerName: cleanName,
+      email: cleanEmail,
+    }).catch((emailErr) => {
+      console.warn('[Vendor Registration] Welcome email dispatch note:', emailErr.message);
+    });
 
     return NextResponse.json({
       success: true,

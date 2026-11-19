@@ -28,7 +28,7 @@ export default function AdminHubPage() {
   const { user, loginCustomer, logoutCustomer, cartCount, wishlistCount } = useStore();
   const [diagnostics, setDiagnostics] = useState<SystemDiagnostics | null>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'tables' | 'products'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'tables' | 'products' | 'email'>('overview');
 
   // Admin Login State
   const [emailInput, setEmailInput] = useState('lukajohn70@gmail.com');
@@ -39,6 +39,13 @@ export default function AdminHubPage() {
   // Purge State
   const [purging, setPurging] = useState(false);
   const [purgeResult, setPurgeResult] = useState<string | null>(null);
+
+  // Mail Diagnostics State
+  const [mailInfo, setMailInfo] = useState<any>(null);
+  const [testRecipient, setTestRecipient] = useState('lukajohn70@gmail.com');
+  const [testMailStatus, setTestMailStatus] = useState<{ loading: boolean; result?: string; error?: string }>({
+    loading: false,
+  });
 
   const isAdmin = user && user.role === 'ADMIN';
 
@@ -62,6 +69,47 @@ export default function AdminHubPage() {
         setLoading(false);
       });
   }, [isAdmin]);
+
+  const fetchMailInfo = () => {
+    fetch('/api/admin/email')
+      .then((res) => res.json())
+      .then((data) => setMailInfo(data))
+      .catch((err) => setMailInfo({ success: false, error: err.message }));
+  };
+
+  useEffect(() => {
+    if (isAdmin && activeTab === 'email') {
+      fetchMailInfo();
+    }
+  }, [isAdmin, activeTab]);
+
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testRecipient.trim()) return;
+    setTestMailStatus({ loading: true });
+    try {
+      const csrfToken = getCsrfTokenFromCookie();
+      const res = await fetch('/api/admin/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+        },
+        body: JSON.stringify({
+          action: 'test-email',
+          recipient: testRecipient.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTestMailStatus({ loading: false, result: data.message });
+      } else {
+        setTestMailStatus({ loading: false, error: data.message || data.error });
+      }
+    } catch (err: any) {
+      setTestMailStatus({ loading: false, error: err.message });
+    }
+  };
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -448,6 +496,18 @@ export default function AdminHubPage() {
             >
               Live Catalog Sample
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('email')}
+              className={`px-4 py-2 text-xs font-bold border-b-2 transition cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'email'
+                  ? 'border-[#B5532E] text-[#B5532E]'
+                  : 'border-transparent text-[#8C8279] hover:text-[#1A1512]'
+              }`}
+            >
+              <i className="fas fa-envelope"></i>
+              <span>Mailing System</span>
+            </button>
           </div>
 
           {/* Tab 1: System Diagnostics */}
@@ -601,6 +661,148 @@ export default function AdminHubPage() {
                   <span>No products currently in database (Clean purged state). New products will appear here when merchants list them.</span>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Tab 4: Mailing System */}
+          {activeTab === 'email' && (
+            <div className="space-y-6">
+              {/* Mailer Status Box */}
+              <div className="bg-white rounded-2xl border border-[#E7D5BC] shadow-xs p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <div>
+                    <h3 className="text-sm font-bold text-[#1A1512] flex items-center gap-2">
+                      <i className="fas fa-paper-plane text-[#B5532E]"></i>
+                      <span>Manga Mailing System Status</span>
+                    </h3>
+                    <p className="text-xs text-[#8C8279] mt-0.5">
+                      Handles buyer registration OTPs, password reset links, order receipts, and merchant onboarding.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                        mailInfo?.connection?.connected
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : mailInfo?.configured
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-blue-50 text-blue-700 border-blue-200'
+                      }`}
+                    >
+                      {mailInfo?.connection?.connected
+                        ? '● Live SMTP Connected'
+                        : mailInfo?.configured
+                        ? '▲ SMTP Configured (Unverified)'
+                        : 'ℹ Simulated Mode Active'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={fetchMailInfo}
+                      className="px-3 py-1 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC] text-xs font-semibold text-[#2A2320] hover:bg-white transition cursor-pointer"
+                    >
+                      <i className="fas fa-arrows-rotate mr-1"></i> Refresh
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs mb-6">
+                  <div className="p-4 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC]">
+                    <div className="text-[11px] text-[#8C8279] font-bold uppercase mb-1">Transport Mode</div>
+                    <div className="font-bold text-[#1A1512]">{mailInfo?.details?.mode || 'Loading...'}</div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC]">
+                    <div className="text-[11px] text-[#8C8279] font-bold uppercase mb-1">SMTP Host &amp; Port</div>
+                    <div className="font-bold text-[#1A1512] font-mono">
+                      {mailInfo?.details?.host || 'Not set'}:{mailInfo?.details?.port || '465'}
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC]">
+                    <div className="text-[11px] text-[#8C8279] font-bold uppercase mb-1">Sender Address</div>
+                    <div className="font-bold text-[#1A1512] truncate">
+                      {mailInfo?.details?.fromAddress || 'support@manga.jlm.com.ng'}
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC]">
+                    <div className="text-[11px] text-[#8C8279] font-bold uppercase mb-1">Auth Identity</div>
+                    <div className="font-bold text-[#1A1512] truncate">
+                      {mailInfo?.details?.user || 'None'}
+                    </div>
+                  </div>
+                </div>
+
+                {mailInfo?.connection?.error && (
+                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs mb-6">
+                    <p className="font-bold flex items-center gap-1.5 mb-1">
+                      <i className="fas fa-triangle-exclamation"></i>
+                      <span>SMTP Notice:</span>
+                    </p>
+                    <p className="font-mono text-[11px]">{mailInfo.connection.error}</p>
+                    <p className="mt-1 text-[11px]">
+                      The platform automatically uses the resilient simulated mailer so verification OTPs and order receipts never fail while SMTP credentials are being configured.
+                    </p>
+                  </div>
+                )}
+
+                {/* Test Email Dispatch Form */}
+                <form onSubmit={handleSendTestEmail} className="pt-4 border-t border-[#E7D5BC]/60">
+                  <h4 className="text-xs font-bold text-[#1A1512] uppercase tracking-wider mb-2">
+                    Send Live Diagnostic Test Email
+                  </h4>
+                  <div className="flex flex-col sm:flex-row items-stretch gap-2 max-w-xl">
+                    <input
+                      type="email"
+                      required
+                      value={testRecipient}
+                      onChange={(e) => setTestRecipient(e.target.value)}
+                      placeholder="e.g. lukajohn70@gmail.com"
+                      className="flex-1 px-4 py-2.5 rounded-xl border border-[#E7D5BC] bg-[#FAF7F2] text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E]"
+                    />
+                    <button
+                      type="submit"
+                      disabled={testMailStatus.loading}
+                      className="px-6 py-2.5 bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold rounded-xl border-0 cursor-pointer shadow-xs transition flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-50"
+                    >
+                      <i className={`fas ${testMailStatus.loading ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i>
+                      <span>{testMailStatus.loading ? 'Dispatching...' : 'Send Test Email'}</span>
+                    </button>
+                  </div>
+
+                  {testMailStatus.result && (
+                    <div className="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                      <i className="fas fa-circle-check text-emerald-600"></i>
+                      <span>{testMailStatus.result}</span>
+                    </div>
+                  )}
+
+                  {testMailStatus.error && (
+                    <div className="mt-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                      <i className="fas fa-circle-exclamation text-red-600"></i>
+                      <span>{testMailStatus.error}</span>
+                    </div>
+                  )}
+                </form>
+              </div>
+
+              {/* Configuration Guide */}
+              <div className="bg-white rounded-2xl border border-[#E7D5BC] shadow-xs p-6">
+                <h4 className="text-xs font-bold text-[#1A1512] uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <i className="fas fa-key text-[#D9A441]"></i>
+                  <span>Production SMTP Environment Variables (.env)</span>
+                </h4>
+                <p className="text-xs text-[#8C8279] mb-3">
+                  To connect your real cPanel webmail account or transactional SMTP relay, add these variables to your server environment or <code className="bg-[#FAF7F2] px-1 py-0.5 rounded text-[#2A2320]">.env</code>:
+                </p>
+                <pre className="p-4 rounded-xl bg-[#2A2320] text-[#F6EDE0] font-mono text-xs overflow-x-auto leading-relaxed">
+{`# Manga Marketsquare SMTP Configuration
+SMTP_HOST=mail.manga.jlm.com.ng
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=support@manga.jlm.com.ng
+SMTP_PASS=YourSecureEmailPasswordHere
+MAIL_FROM_NAME="MANGA MARKETSQUARE"
+MAIL_FROM_ADDRESS=support@manga.jlm.com.ng`}
+                </pre>
+              </div>
             </div>
           )}
         </div>

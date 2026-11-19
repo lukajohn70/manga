@@ -151,7 +151,7 @@ VALUES
   ('55555555-5555-5555-5555-555555555554', 'home', 'Home & Appliances', 'fa-couch'),
   ('55555555-5555-5555-5555-555555555555', 'digital', 'Software & Digital Assets', 'fa-code')
 ON CONFLICT (slug) DO NOTHING;
-`,h="lukajohn70@gmail.com",i=(0,e.Er)(process.env.ADMIN_INITIAL_PASSWORD||"MangaAdmin2026!SecurePlatform#"),j=!1;async function k(){try{return await (0,d.P)(f),await (0,d.P)(g),await (0,d.P)("TRUNCATE TABLE shipping.shipments CASCADE;"),await (0,d.P)("TRUNCATE TABLE orders.order_lines CASCADE;"),await (0,d.P)("TRUNCATE TABLE orders.orders CASCADE;"),await (0,d.P)("TRUNCATE TABLE offers.offers CASCADE;"),await (0,d.P)("TRUNCATE TABLE catalog.variants CASCADE;"),await (0,d.P)("TRUNCATE TABLE catalog.master_products CASCADE;"),await (0,d.P)("TRUNCATE TABLE vendor.vendors CASCADE;"),await (0,d.P)("DELETE FROM identity.users WHERE email != $1;",[h]),await (0,d.P)(`
+`,h="lukajohn70@gmail.com",i=(0,e.Er)(process.env.ADMIN_INITIAL_PASSWORD||"12"),j=!1;async function k(){try{return await (0,d.P)(f),await (0,d.P)(g),await (0,d.P)("TRUNCATE TABLE shipping.shipments CASCADE;"),await (0,d.P)("TRUNCATE TABLE orders.order_lines CASCADE;"),await (0,d.P)("TRUNCATE TABLE orders.orders CASCADE;"),await (0,d.P)("TRUNCATE TABLE offers.offers CASCADE;"),await (0,d.P)("TRUNCATE TABLE catalog.variants CASCADE;"),await (0,d.P)("TRUNCATE TABLE catalog.master_products CASCADE;"),await (0,d.P)("TRUNCATE TABLE vendor.vendors CASCADE;"),await (0,d.P)("DELETE FROM identity.users WHERE email != $1;",[h]),await (0,d.P)(`
       INSERT INTO identity.users (email, phone, name, role, password_hash, status)
       VALUES ($1, '+234 800 000 0000', 'Luka John', 'admin', $2, 'active')
       ON CONFLICT (email) DO UPDATE SET

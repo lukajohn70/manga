@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createDbOrder } from '../../../lib/db-orders';
 import { getDbProductById } from '../../../lib/db-catalog';
 import { findProductById } from '../../../lib/catalog';
+import { sendOrderConfirmationEmail } from '../../../lib/email/email-service';
 import {
   getSessionFromRequest,
   verifyCsrf,
@@ -234,6 +235,23 @@ export async function POST(request: Request) {
         totalNgn: verifiedTotalNgn,
         totalUsd: verifiedTotalUsd,
       },
+    });
+
+    // 7. Dispatch digital order receipt email asynchronously
+    sendOrderConfirmationEmail({
+      orderNumber: result.orderNumber,
+      customerName: cleanName,
+      customerEmail: cleanEmail,
+      items: verifiedItems.map((i) => ({
+        title: i.name,
+        quantity: i.quantity,
+        price: i.priceNgn,
+      })),
+      totalAmount: verifiedTotalNgn,
+      deliveryAddress: `${cleanAddress}, ${cleanLga}, ${cleanState}`,
+      isKadunaSameDay: cleanState.toLowerCase().includes('kaduna'),
+    }).catch((emailErr) => {
+      console.warn('[Checkout] Order confirmation email dispatch notice:', emailErr.message);
     });
 
     return NextResponse.json({

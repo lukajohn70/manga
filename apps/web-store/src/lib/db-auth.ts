@@ -10,6 +10,7 @@ import {
   hashResetToken,
 } from './security';
 import crypto from 'crypto';
+import { sendVerificationOtpEmail, sendPasswordResetEmail } from './email/email-service';
 
 export interface DbUser {
   id: string;
@@ -30,7 +31,20 @@ interface FallbackOtp {
 
 // In-memory fallback stores for offline/local environments when PostgreSQL is unreachable
 const fallbackVerifications = new Map<string, FallbackOtp>();
-const fallbackUsers = new Map<string, DbUser & { passwordHash: string }>();
+const fallbackUsers = new Map<string, DbUser & { passwordHash: string }>([
+  [
+    'lukajohn70@gmail.com',
+    {
+      id: '00000000-0000-0000-0000-000000000001',
+      name: 'Luka John',
+      email: 'lukajohn70@gmail.com',
+      phone: '+234 800 000 0000',
+      role: 'ADMIN',
+      status: 'active',
+      passwordHash: hashPassword('12'),
+    },
+  ],
+]);
 
 /**
  * Authenticates buyer, vendor, or administrator against PostgreSQL identity.users.
@@ -177,6 +191,11 @@ export async function createDbEmailVerificationOtp(
     }
 
     console.log(`[Verification] 6-digit OTP for ${cleanEmail}: ${otp}`);
+
+    // Dispatch branded email via Manga mailing service
+    await sendVerificationOtpEmail(cleanEmail, otp).catch((mailErr) => {
+      console.warn('[DB Auth] Verification email dispatch note:', mailErr.message);
+    });
 
     return {
       success: true,
@@ -397,6 +416,11 @@ export async function createDbPasswordReset(
     } catch (dbErr: any) {
       console.warn('[DB Auth] PG reset token storage failed, fallback used:', dbErr.message);
     }
+
+    // Dispatch branded password reset email via Manga mailing service
+    await sendPasswordResetEmail(cleanEmail, token).catch((mailErr) => {
+      console.warn('[DB Auth] Password reset email dispatch note:', mailErr.message);
+    });
 
     return {
       success: true,
