@@ -19,7 +19,7 @@ function LoginContent() {
 
   // Sign In Flow State
   const [authStep, setAuthStep] = useState<'credentials' | '2fa'>('credentials');
-  const [loginEmail, setLoginEmail] = useState('buyer@manga.ng');
+  const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [twoFaMethod, setTwoFaMethod] = useState<'google_authenticator' | 'email'>('google_authenticator');
   const [twoFaCode, setTwoFaCode] = useState('');
@@ -48,22 +48,21 @@ function LoginContent() {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginEmail.trim()) {
-      setError('Please provide a valid email address.');
+    if (!loginEmail.trim() || !loginPassword.trim()) {
+      setError('Please provide your email address and password.');
       return;
     }
     setError(null);
     setLoading(true);
 
     try {
-      const pass = loginPassword || 'BuyerPass123!';
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'login',
-          email: loginEmail,
-          password: pass,
+          email: loginEmail.trim(),
+          password: loginPassword,
         }),
       });
 
@@ -114,11 +113,15 @@ function LoginContent() {
       loginCustomer(
         data.user.email,
         data.user.name,
-        data.user.phone || '+234 803 123 4567',
+        data.user.phone || '+234 800 000 0000',
         data.user.role || 'BUYER',
         data.token
       );
-      router.push('/account');
+      if (data.user.role === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/account');
+      }
     } catch (err: any) {
       setError(err.message || 'Invalid 2FA verification code. Please check your authenticator or email.');
     } finally {

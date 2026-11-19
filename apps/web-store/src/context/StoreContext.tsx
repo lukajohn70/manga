@@ -87,91 +87,9 @@ export interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-const INITIAL_CART: CartItem[] = [
-  {
-    id: '66666666-6666-6666-6666-666666666661',
-    name: 'Sony WH-1000XM5 Wireless Noise Cancelling Headphones',
-    seller: 'Sony Audio Official Store',
-    priceNgn: 450000,
-    priceUsd: 320,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85',
-    type: 'physical',
-    quantity: 1,
-    offerId: '88888888-8888-8888-8888-888888888881',
-  },
-  {
-    id: '66666666-6666-6666-6666-666666666666',
-    name: 'SaaS UI Design System & Figma Pro Kit',
-    seller: 'DesignCraft Labs',
-    priceNgn: 45000,
-    priceUsd: 32,
-    type: 'digital',
-    quantity: 1,
-    offerId: '88888888-8888-8888-8888-888888888886',
-  },
-];
-
-const INITIAL_WISHLIST = [
-  '66666666-6666-6666-6666-666666666661',
-  '66666666-6666-6666-6666-666666666662',
-];
-
-const SEED_ORDERS: PlacedOrder[] = [
-  {
-    orderRef: 'MNG-2611-48K2F',
-    createdAt: '2026-11-16T14:30:00Z',
-    totalNgn: 450000,
-    totalUsd: 320,
-    paymentMethod: 'Paystack Card (Mastercard •••• 4242)',
-    status: 'in_transit',
-    items: [
-      {
-        id: '66666666-6666-6666-6666-666666666661',
-        name: 'Sony WH-1000XM5 Wireless Noise Cancelling Headphones',
-        seller: 'Sony Audio Official Store',
-        priceNgn: 450000,
-        priceUsd: 320,
-        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85',
-        type: 'physical',
-        quantity: 1,
-      },
-    ],
-    shippingAddress: {
-      recipientName: 'Chidi Okonkwo',
-      phone: '+234 803 123 4567',
-      street: '24 Admiralty Way, Lekki Phase 1',
-      city: 'Lagos',
-      state: 'Lagos State',
-    },
-  },
-  {
-    orderRef: 'MNG-2611-19B8C',
-    createdAt: '2026-11-12T10:15:00Z',
-    totalNgn: 270000,
-    totalUsd: 192,
-    paymentMethod: 'Paystack Card (Visa •••• 8821)',
-    status: 'delivered',
-    items: [
-      {
-        id: '66666666-6666-6666-6666-666666666665',
-        name: 'Logitech MX Master 3S Ergonomic Wireless Mouse',
-        seller: 'Logitech Official Partner',
-        priceNgn: 135000,
-        priceUsd: 96,
-        image: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=900&q=85',
-        type: 'physical',
-        quantity: 2,
-      },
-    ],
-    shippingAddress: {
-      recipientName: 'Chidi Okonkwo',
-      phone: '+234 803 123 4567',
-      street: '24 Admiralty Way, Lekki Phase 1',
-      city: 'Lagos',
-      state: 'Lagos State',
-    },
-  },
-];
+const INITIAL_CART: CartItem[] = [];
+const INITIAL_WISHLIST: string[] = [];
+const SEED_ORDERS: PlacedOrder[] = [];
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currency, setCurrency] = useState<'NGN' | 'USD'>('NGN');

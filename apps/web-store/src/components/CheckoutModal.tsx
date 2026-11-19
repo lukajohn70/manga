@@ -42,12 +42,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   currency,
   onOrderSuccess,
 }) => {
-  const [name, setName] = useState('Chidi Okafor');
-  const [email, setEmail] = useState('chidi.okafor@example.com');
-  const [phone, setPhone] = useState('0803 456 7890');
-  const [state, setState] = useState('Lagos');
-  const [lga, setLga] = useState('Ikeja');
-  const [address, setAddress] = useState('Plot 14, Commercial Avenue, Ikeja');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [state, setState] = useState('Kaduna');
+  const [lga, setLga] = useState('Kaduna North');
+  const [address, setAddress] = useState('');
   const [deliveryType, setDeliveryType] = useState<'doorstep' | 'pickup'>('doorstep');
   const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'card' | 'bank_transfer'>('paystack');
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 
 export interface HeroBannerProps {
   onExploreClick: () => void;
@@ -79,44 +80,58 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
           </div>
 
-          {/* Right Hero Visual Spotlight */}
+          {/* Right Hero Visual Spotlight: Marketplace Guarantee Card */}
           <div className="lg:col-span-5 relative">
             <div className="relative mx-auto max-w-md">
               <div
-                onClick={onSelectFeatured}
-                className="block rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 p-6 shadow-2xl hover:border-white/40 transition-all duration-300 group cursor-pointer"
+                className="block rounded-3xl bg-[#1A1512]/90 backdrop-blur-xl border border-[#D9A441]/40 p-6 sm:p-7 shadow-2xl relative"
               >
-                <div className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-4 bg-[#1E1815]">
-                  <img
-                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85"
-                    alt="Sony WH-1000XM5 Noise Cancelling Headphones"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <span className="absolute top-3 left-3 bg-[#B5532E] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                    Featured Spotlight
-                  </span>
-                  <span className="absolute top-3 right-3 bg-[#2A2320] text-[#D9A441] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-[#D9A441]/30">
-                    Manga Express
+                <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#B5532E] text-white flex items-center justify-center font-black text-lg">
+                      M
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-white">MANGA MARKETSQUARE</h4>
+                      <p className="text-[11px] text-[#D9A441]">Multi-Vendor Commerce Hub</p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">
+                    Live Verified
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-white">
-                  <div className="pr-3">
-                    <h4 className="font-bold text-sm text-white line-clamp-1 group-hover:text-[#D9A441] transition-colors">
-                      Sony WH-1000XM5 Wireless ANC Headphones
-                    </h4>
-                    <p className="text-xs text-[#E7D5BC] line-clamp-1">Flagship Audio • Official Sony Store</p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <span className="text-base font-black text-[#D9A441]">
-                      {currency === 'NGN' ? '₦450,000' : '$320'}
+
+                <div className="space-y-3 text-xs mb-6">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 text-[#E7D5BC]">
+                    <span className="flex items-center gap-2">
+                      <i className="fas fa-shield-halved text-[#D9A441]"></i> Buyer Escrow Protection
                     </span>
-                    <span className="block text-[11px] text-[#E7D5BC]/70 line-through">
-                      {currency === 'NGN' ? '₦580,000' : '$399'}
-                    </span>
+                    <span className="text-white font-bold">100% Guaranteed</span>
                   </div>
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 text-[#E7D5BC]">
+                    <span className="flex items-center gap-2">
+                      <i className="fas fa-truck-fast text-[#D9A441]"></i> Manga Express Delivery
+                    </span>
+                    <span className="text-white font-bold">Same-Day Kaduna</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 text-[#E7D5BC]">
+                    <span className="flex items-center gap-2">
+                      <i className="fas fa-store text-[#D9A441]"></i> Verified Merchant Stores
+                    </span>
+                    <span className="text-white font-bold">Nationwide</span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    href="/sell"
+                    className="w-full py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <i className="fas fa-shop"></i>
+                    <span>Become a Merchant Partner</span>
+                  </Link>
                 </div>
               </div>
-
             </div>
           </div>
 

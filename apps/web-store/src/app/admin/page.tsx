@@ -43,8 +43,29 @@ export default function AdminHubPage() {
       });
   }, []);
 
+  const [purging, setPurging] = useState(false);
+  const [purgeResult, setPurgeResult] = useState<string | null>(null);
+
+  const handlePurgeDatabase = async () => {
+    if (!confirm('Are you sure you want to purge all products, orders, and dummy details from the database? This cannot be undone.')) {
+      return;
+    }
+    setPurging(true);
+    setPurgeResult(null);
+    try {
+      const res = await fetch('/api/setup?action=purge');
+      const data = await res.json();
+      setDiagnostics(data);
+      setPurgeResult(data.purgeMessage || 'Database purged successfully! Luka John (lukajohn70@gmail.com) active.');
+    } catch (err: any) {
+      setPurgeResult('Purge error: ' + err.message);
+    } finally {
+      setPurging(false);
+    }
+  };
+
   const handleAdminQuickLogin = () => {
-    loginCustomer('admin@manga.ng', 'System Operations Lead', '+234 800 000 0001', 'ADMIN');
+    loginCustomer('lukajohn70@gmail.com', 'Luka John', '+234 800 000 0000', 'ADMIN');
   };
 
   const isLocalDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -86,11 +107,20 @@ export default function AdminHubPage() {
 
               <div className="flex items-center gap-3">
                 {isAdmin ? (
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                      Admin Active: {user.name}
+                      Admin: {user.name} ({user.email})
                     </span>
+                    <button
+                      type="button"
+                      disabled={purging}
+                      onClick={handlePurgeDatabase}
+                      className="px-3.5 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-xs font-bold text-white border border-rose-400/30 cursor-pointer transition flex items-center gap-1.5"
+                    >
+                      <i className={`fas ${purging ? 'fa-spinner fa-spin' : 'fa-trash-can'}`}></i>
+                      <span>{purging ? 'Purging DB...' : 'Purge All Products'}</span>
+                    </button>
                     <button
                       type="button"
                       onClick={logoutCustomer}
@@ -100,18 +130,45 @@ export default function AdminHubPage() {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={handleAdminQuickLogin}
-                    className="px-5 py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs shadow-md transition flex items-center gap-2 cursor-pointer"
-                  >
-                    <i className="fas fa-key"></i>
-                    <span>Sign In as Admin</span>
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleAdminQuickLogin}
+                      className="px-4 py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs shadow-md transition flex items-center gap-2 cursor-pointer"
+                    >
+                      <i className="fas fa-key"></i>
+                      <span>Sign In as Luka John (Admin)</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={purging}
+                      onClick={handlePurgeDatabase}
+                      className="px-4 py-2.5 rounded-xl bg-rose-600/90 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <i className={`fas ${purging ? 'fa-spinner fa-spin' : 'fa-trash-can'}`}></i>
+                      <span>{purging ? 'Purging...' : 'Purge Database'}</span>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
           </div>
+
+          {purgeResult && (
+            <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <i className="fas fa-check-circle text-emerald-600"></i>
+                <span className="font-semibold">{purgeResult}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPurgeResult(null)}
+                className="text-emerald-700 hover:text-emerald-900 text-xs font-bold"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
           {/* Database Health Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

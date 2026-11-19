@@ -145,59 +145,20 @@ export async function getDbProducts(options: GetProductsOptions = {}): Promise<{
     params.push(limit, offset);
 
     const res = await query(sql, params);
+    const items = (res.rows || []).map(mapRowToProduct);
 
-    if (res.rows && res.rows.length > 0) {
-      const items = res.rows.map(mapRowToProduct);
-      return {
-        items,
-        total: items.length,
-        source: 'database_postgres',
-      };
-    }
+    return {
+      items,
+      total: items.length,
+      source: 'database_postgres',
+    };
   } catch (err: any) {
-    console.warn('[DB Catalog] Database query error, using resilient fallback:', err.message);
+    console.warn('[DB Catalog] Database query error:', err.message);
   }
-
-  // Resilient fallback filtering
-  let filtered = [...PRODUCTS_FALLBACK_LIST];
-
-  if (options.category && options.category !== 'all' && options.category !== 'flash') {
-    filtered = filtered.filter((p) => p.category === options.category);
-  }
-
-  if (options.q && options.q.trim()) {
-    const q = options.q.toLowerCase().trim();
-    filtered = filtered.filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q) ||
-        p.storeName.toLowerCase().includes(q)
-    );
-  }
-
-  const items: DbProductListItem[] = filtered.map((p) => ({
-    id: p.id,
-    title: p.title,
-    brand: p.brand,
-    category: p.category,
-    categoryName: p.categoryName,
-    priceNgn: p.priceNgn,
-    oldPriceNgn: p.oldPriceNgn,
-    priceUsd: p.priceUsd,
-    oldPriceUsd: p.oldPriceUsd,
-    image: p.image,
-    rating: p.rating,
-    reviewsCount: p.reviewsCount,
-    storeName: p.storeName,
-    type: p.type,
-    deliveryEstimate: p.type === 'digital' ? 'Instant Access' : 'Manga Express • Tomorrow',
-    offerId: p.id,
-    stockLeft: p.stockLeft,
-  }));
 
   return {
-    items,
-    total: items.length,
+    items: [],
+    total: 0,
     source: 'fallback_resilient',
   };
 }
@@ -252,29 +213,49 @@ export async function getDbProductById(id: string): Promise<{
 
     if (res.rows && res.rows.length > 0) {
       const row = res.rows[0];
-      const matchedFallback: ProductDetailItem =
-        PRODUCTS_FALLBACK_LIST.find((p: ProductDetailItem) => p.id === row.id) ||
-        PRODUCTS_FALLBACK_LIST[0];
-
-      const priceNgn = row.price_minor ? Math.round(Number(row.price_minor) / 100) : matchedFallback.priceNgn;
-      const compareAtNgn = row.compare_at_minor ? Math.round(Number(row.compare_at_minor) / 100) : matchedFallback.oldPriceNgn;
+      const priceNgn = row.price_minor ? Math.round(Number(row.price_minor) / 100) : 0;
+      const compareAtNgn = row.compare_at_minor ? Math.round(Number(row.compare_at_minor) / 100) : undefined;
 
       const product: ProductDetailItem = {
-        ...matchedFallback,
         id: row.id,
+        sku: 'SKU-' + row.id.slice(0, 8),
         title: row.title,
-        brand: row.brand_name || matchedFallback.brand,
-        description: row.description || matchedFallback.description,
-        category: row.category_slug || matchedFallback.category,
-        categoryName: row.category_name || matchedFallback.categoryName,
+        brand: row.brand_name || 'Generic',
+        description: row.description || '',
+        category: row.category_slug || 'computing',
+        categoryName: row.category_name || 'General Products',
         priceNgn,
         oldPriceNgn: compareAtNgn,
         priceUsd: Math.round(priceNgn / 1400),
         oldPriceUsd: compareAtNgn ? Math.round(compareAtNgn / 1400) : undefined,
-        image: row.image_url || matchedFallback.image,
-        storeName: row.vendor_name || matchedFallback.storeName,
-        rating: parseFloat(row.rating) || matchedFallback.rating,
-        reviewsCount: parseInt(row.reviews_count, 10) || matchedFallback.reviewsCount,
+        image: row.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85',
+        gallery: [row.image_url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85'],
+        storeName: row.vendor_name || 'Verified Merchant',
+        vendorTier: row.vendor_tier || 'tier_1',
+        vendorRating: 4.9,
+        vendorLocation: 'Kaduna Hub',
+        rating: parseFloat(row.rating) || 5.0,
+        reviewsCount: parseInt(row.reviews_count, 10) || 0,
+        type: row.category_slug === 'digital' ? 'digital' : 'physical',
+        stockLeft: 25,
+        deliveryEstimate: 'Manga Express • Tomorrow',
+        warranty: '1 Year Warranty',
+        hook: row.title,
+        scannableBenefits: [],
+        narrativeStory: row.description || '',
+        specs: [],
+        boxContents: [],
+        trustShipping: {
+          warrantyDuration: '1 Year Official Warranty',
+          returnPolicy: '7-Day Return Guarantee',
+          kadunaSameDay: true,
+          nationwideDelivery: '24-48h Delivery',
+          sellerAccredited: true,
+          escrowProtected: true,
+        },
+        faq: [],
+        highlights: [],
+        variants: [],
       };
 
       return {
@@ -282,14 +263,17 @@ export async function getDbProductById(id: string): Promise<{
         source: 'database_postgres',
       };
     }
+
+    return {
+      product: null,
+      source: 'database_postgres',
+    };
   } catch (err: any) {
-    console.warn('[DB Catalog] getProductById error, using fallback:', err.message);
+    console.warn('[DB Catalog] getProductById error:', err.message);
   }
 
-  const fallback =
-    PRODUCTS_FALLBACK_LIST.find((p: ProductDetailItem) => p.id === id) || findProductById(id) || null;
   return {
-    product: fallback,
+    product: null,
     source: 'fallback_resilient',
   };
 }

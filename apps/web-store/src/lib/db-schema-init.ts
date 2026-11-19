@@ -1,4 +1,5 @@
 import { query } from './db';
+import crypto from 'crypto';
 
 const INIT_DDL = `
 CREATE SCHEMA IF NOT EXISTS identity;
@@ -121,8 +122,7 @@ CREATE TABLE IF NOT EXISTS shipping.shipments (
 );
 `;
 
-const SEED_DATA_SQL = `
--- Categories
+const STANDARD_CATEGORIES_SQL = `
 INSERT INTO catalog.categories (id, slug, name, icon_url)
 VALUES
   ('55555555-5555-5555-5555-555555555551', 'computing', 'Phones & Computing', 'fa-laptop'),
@@ -131,208 +131,66 @@ VALUES
   ('55555555-5555-5555-5555-555555555554', 'home', 'Home & Appliances', 'fa-couch'),
   ('55555555-5555-5555-5555-555555555555', 'digital', 'Software & Digital Assets', 'fa-code')
 ON CONFLICT (slug) DO NOTHING;
-
--- Vendors
-INSERT INTO vendor.vendors (id, business_name, legal_entity_type, tier, status, rating)
-VALUES
-  ('33333333-3333-3333-3333-333333333331', 'Sony Audio Official Store', 'LLC', 'tier_1', 'active', 4.95),
-  ('33333333-3333-3333-3333-333333333332', 'Samsung Nigeria Official', 'LLC', 'tier_1', 'active', 4.90),
-  ('33333333-3333-3333-3333-333333333333', 'Apple Authorized Nigeria', 'LLC', 'tier_1', 'active', 4.98),
-  ('33333333-3333-3333-3333-333333333334', 'De''Longhi Official Store', 'LLC', 'tier_1', 'active', 4.88),
-  ('33333333-3333-3333-3333-333333333335', 'Manga Signature Workshop', 'LLC', 'tier_2', 'active', 4.92),
-  ('33333333-3333-3333-3333-333333333336', 'DesignCraft Labs', 'LLC', 'tier_1', 'active', 4.96)
-ON CONFLICT DO NOTHING;
-
--- Default Buyer User
-INSERT INTO identity.users (id, email, phone, name, role, password_hash, status)
-VALUES
-  ('11111111-1111-1111-1111-111111111111', 'buyer@manga.ng', '+2348031234567', 'Chidi Okonkwo', 'buyer', 'pbkdf2_demo_hash', 'active')
-ON CONFLICT (email) DO NOTHING;
-
--- 1. Sony WH-1000XM5
-INSERT INTO catalog.master_products (id, brand_name, title, description, category_id, status, image_url, rating, reviews_count, attributes)
-VALUES (
-  '66666666-6666-6666-6666-666666666661',
-  'Sony',
-  'Sony WH-1000XM5 Wireless Noise Cancelling Headphones',
-  'Industry-leading noise cancellation with Auto NC Optimizer. Exceptional sound engineered to perfection with 30-hour battery life.',
-  '55555555-5555-5555-5555-555555555552',
-  'published',
-  'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85',
-  4.9,
-  384,
-  '{"color": "Black", "connectivity": "Bluetooth 5.2", "warranty": "1 Year Official Sony Nigeria"}'
-) ON CONFLICT DO NOTHING;
-
-INSERT INTO catalog.variants (id, master_product_id, sku_canonical, option_values)
-VALUES ('77777777-7777-7777-7777-777777777771', '66666666-6666-6666-6666-666666666661', 'SONY-WH1000XM5-BLK', '{"Color": "Black"}')
-ON CONFLICT (sku_canonical) DO NOTHING;
-
-INSERT INTO offers.offers (id, vendor_id, variant_id, condition, price_minor, compare_at_minor, currency, status)
-VALUES ('88888888-8888-8888-8888-888888888881', '33333333-3333-3333-3333-333333333331', '77777777-7777-7777-7777-777777777771', 'new', 45000000, 58000000, 'NGN', 'active')
-ON CONFLICT DO NOTHING;
-
--- 2. Samsung Galaxy S24 Ultra
-INSERT INTO catalog.master_products (id, brand_name, title, description, category_id, status, image_url, rating, reviews_count, attributes)
-VALUES (
-  '66666666-6666-6666-6666-666666666662',
-  'Samsung',
-  'Samsung Galaxy S24 Ultra 512GB Titanium Black with S-Pen & AI',
-  'Supercharged with Snapdragon 8 Gen 3 for Galaxy, titanium frame, 200MP camera system, and built-in Galaxy AI.',
-  '55555555-5555-5555-5555-555555555551',
-  'published',
-  'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=900&q=85',
-  4.8,
-  96,
-  '{"storage": "512GB", "ram": "12GB", "color": "Titanium Black"}'
-) ON CONFLICT DO NOTHING;
-
-INSERT INTO catalog.variants (id, master_product_id, sku_canonical, option_values)
-VALUES ('77777777-7777-7777-7777-777777777772', '66666666-6666-6666-6666-666666666662', 'SAM-S24U-512-BLK', '{"Color": "Titanium Black"}')
-ON CONFLICT (sku_canonical) DO NOTHING;
-
-INSERT INTO offers.offers (id, vendor_id, variant_id, condition, price_minor, compare_at_minor, currency, status)
-VALUES ('88888888-8888-8888-8888-888888888882', '33333333-3333-3333-3333-333333333332', '77777777-7777-7777-7777-777777777772', 'new', 185000000, 210000000, 'NGN', 'active')
-ON CONFLICT DO NOTHING;
-
--- 3. Apple MacBook Air 15 M3
-INSERT INTO catalog.master_products (id, brand_name, title, description, category_id, status, image_url, rating, reviews_count, attributes)
-VALUES (
-  '66666666-6666-6666-6666-666666666663',
-  'Apple',
-  'Apple MacBook Air 15" M3 Chip (16GB Unified Memory, 512GB SSD Midnight)',
-  'Supercharged by Apple M3 8-core CPU and 10-core GPU. Liquid Retina display with 500 nits brightness and MagSafe 3 charging.',
-  '55555555-5555-5555-5555-555555555551',
-  'published',
-  'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=85',
-  5.0,
-  118,
-  '{"memory": "16GB", "ssd": "512GB", "chip": "Apple M3"}'
-) ON CONFLICT DO NOTHING;
-
-INSERT INTO catalog.variants (id, master_product_id, sku_canonical, option_values)
-VALUES ('77777777-7777-7777-7777-777777777773', '66666666-6666-6666-6666-666666666663', 'APL-MBA15-M3-16-512', '{"Color": "Midnight"}')
-ON CONFLICT (sku_canonical) DO NOTHING;
-
-INSERT INTO offers.offers (id, vendor_id, variant_id, condition, price_minor, compare_at_minor, currency, status)
-VALUES ('88888888-8888-8888-8888-888888888883', '33333333-3333-3333-3333-333333333333', '77777777-7777-7777-7777-777777777773', 'new', 210000000, 235000000, 'NGN', 'active')
-ON CONFLICT DO NOTHING;
-
--- 4. De'Longhi Dedica
-INSERT INTO catalog.master_products (id, brand_name, title, description, category_id, status, image_url, rating, reviews_count, attributes)
-VALUES (
-  '66666666-6666-6666-6666-666666666664',
-  'De''Longhi',
-  'De''Longhi Dedica Deluxe Slim Espresso & Cappuccino Pump Machine',
-  'Premium 15-bar professional pressure with manual Cappuccino System for thick barista milk foam. Compact 6-inch slim stainless steel body.',
-  '55555555-5555-5555-5555-555555555554',
-  'published',
-  'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?auto=format&fit=crop&w=900&q=85',
-  4.9,
-  64,
-  '{"pressure": "15 Bar", "finish": "Stainless Steel"}'
-) ON CONFLICT DO NOTHING;
-
-INSERT INTO catalog.variants (id, master_product_id, sku_canonical, option_values)
-VALUES ('77777777-7777-7777-7777-777777777774', '66666666-6666-6666-6666-666666666664', 'DEL-DEDICA-SLIM', '{"Finish": "Steel"}')
-ON CONFLICT (sku_canonical) DO NOTHING;
-
-INSERT INTO offers.offers (id, vendor_id, variant_id, condition, price_minor, compare_at_minor, currency, status)
-VALUES ('88888888-8888-8888-8888-888888888884', '33333333-3333-3333-3333-333333333334', '77777777-7777-7777-7777-777777777774', 'new', 32000000, 39000000, 'NGN', 'active')
-ON CONFLICT DO NOTHING;
-
--- 5. Kano Handcrafted Leather Rucksack
-INSERT INTO catalog.master_products (id, brand_name, title, description, category_id, status, image_url, rating, reviews_count, attributes)
-VALUES (
-  '66666666-6666-6666-6666-666666666665',
-  'Manga Signature',
-  'Handcrafted Kano Vegetable-Tanned Leather Travel Rucksack',
-  'Handcrafted from genuine Northern Nigerian full-grain leather, tanned with traditional acacia bark extract in centuries-old Kano vats.',
-  '55555555-5555-5555-5555-555555555553',
-  'published',
-  'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=85',
-  4.9,
-  73,
-  '{"material": "Full-grain Kano Leather", "origin": "Kano, Nigeria"}'
-) ON CONFLICT DO NOTHING;
-
-INSERT INTO catalog.variants (id, master_product_id, sku_canonical, option_values)
-VALUES ('77777777-7777-7777-7777-777777777775', '66666666-6666-6666-6666-666666666665', 'MNG-KANO-LTR-BRN', '{"Color": "Laterite Brown"}')
-ON CONFLICT (sku_canonical) DO NOTHING;
-
-INSERT INTO offers.offers (id, vendor_id, variant_id, condition, price_minor, compare_at_minor, currency, status)
-VALUES ('88888888-8888-8888-8888-888888888885', '33333333-3333-3333-3333-333333333335', '77777777-7777-7777-7777-777777777775', 'new', 16500000, 21000000, 'NGN', 'active')
-ON CONFLICT DO NOTHING;
-
--- 6. SaaS UI Design System & Figma Pro Kit
-INSERT INTO catalog.master_products (id, brand_name, title, description, category_id, status, image_url, rating, reviews_count, attributes)
-VALUES (
-  '66666666-6666-6666-6666-666666666666',
-  'DesignCraft',
-  'SaaS UI Design System & Figma Pro Kit',
-  'Comprehensive Figma UI component library with 2,400+ auto-layout components, light/dark modes, and WCAG AA accessible design tokens.',
-  '55555555-5555-5555-5555-555555555555',
-  'published',
-  'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=900&q=85',
-  4.9,
-  128,
-  '{"format": "Figma .FIG + React Tailwind Token Sync", "license": "Commercial SaaS"}'
-) ON CONFLICT DO NOTHING;
-
-INSERT INTO catalog.variants (id, master_product_id, sku_canonical, option_values)
-VALUES ('77777777-7777-7777-7777-777777777776', '66666666-6666-6666-6666-666666666666', 'DSG-FIGMA-SGL', '{"License": "Single Developer"}')
-ON CONFLICT (sku_canonical) DO NOTHING;
-
-INSERT INTO offers.offers (id, vendor_id, variant_id, condition, price_minor, compare_at_minor, currency, status)
-VALUES ('88888888-8888-8888-8888-888888888886', '33333333-3333-3333-3333-333333333336', '77777777-7777-7777-7777-777777777776', 'new', 4500000, 7500000, 'NGN', 'active')
-ON CONFLICT DO NOTHING;
-
--- Seed Sample Order
-INSERT INTO orders.orders (id, order_number, buyer_id, buyer_email, status, currency, totals, address_snapshot, payment_method, payment_ref)
-VALUES (
-  '99999999-9999-9999-9999-999999999991',
-  'MNG-2611-48K2F',
-  '11111111-1111-1111-1111-111111111111',
-  'buyer@manga.ng',
-  'in_transit',
-  'NGN',
-  '{"subtotal": 450000, "deliveryFee": 0, "grandTotal": 450000}',
-  '{"recipientName": "Chidi Okonkwo", "phone": "+234 803 123 4567", "street": "24 Admiralty Way, Lekki Phase 1", "city": "Lagos", "state": "Lagos State"}',
-  'Paystack Card (Mastercard •••• 4242)',
-  'PSK-LIVE-8891'
-) ON CONFLICT (order_number) DO NOTHING;
-
-INSERT INTO orders.order_lines (order_id, product_id, product_title, seller_name, unit_price_minor, currency, qty, image_url)
-VALUES (
-  '99999999-9999-9999-9999-999999999991',
-  '66666666-6666-6666-6666-666666666661',
-  'Sony WH-1000XM5 Wireless Noise Cancelling Headphones',
-  'Sony Audio Official Store',
-  45000000,
-  'NGN',
-  1,
-  'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85'
-) ON CONFLICT DO NOTHING;
-
-INSERT INTO shipping.shipments (order_id, tracking_number, carrier, status, estimated_delivery, events)
-VALUES (
-  '99999999-9999-9999-9999-999999999991',
-  'MNG-2611-48K2F',
-  'Manga Express Fleet',
-  'in_transit',
-  NOW() + INTERVAL '1 day',
-  '[
-    {"status": "label_created", "location": "Ikeja Depot", "time": "2026-11-16T14:30:00Z", "description": "Shipping label created by vendor"},
-    {"status": "picked_up", "location": "Lagos Hub", "time": "2026-11-16T17:00:00Z", "description": "Package picked up by Manga Logistics"},
-    {"status": "in_transit", "location": "Kaduna Sort Facility", "time": "2026-11-17T08:15:00Z", "description": "Package in transit to delivery station"}
-  ]'
-) ON CONFLICT (tracking_number) DO NOTHING;
 `;
+
+export const ADMIN_EMAIL = 'lukajohn70@gmail.com';
+export const ADMIN_PASSWORD_HASH = crypto.createHash('sha256').update('12').digest('hex');
 
 let isInitialized = false;
 
 /**
- * Automatically initializes database schemas and seeds standard catalog if missing.
+ * Purges all dummy products, offers, variants, orders, shipments, and dummy users from PostgreSQL.
+ * Inserts the official platform administrator user (lukajohn70@gmail.com / password: 12).
+ */
+export async function purgeDatabaseAndSeedAdmin(): Promise<{ success: boolean; message: string }> {
+  try {
+    // 1. Ensure DDL tables exist
+    await query(INIT_DDL);
+    await query(STANDARD_CATEGORIES_SQL);
+
+    // 2. Clear all dummy shipments and order data
+    await query('TRUNCATE TABLE shipping.shipments CASCADE;');
+    await query('TRUNCATE TABLE orders.order_lines CASCADE;');
+    await query('TRUNCATE TABLE orders.orders CASCADE;');
+
+    // 3. Clear all offers, variants, products, and vendors
+    await query('TRUNCATE TABLE offers.offers CASCADE;');
+    await query('TRUNCATE TABLE catalog.variants CASCADE;');
+    await query('TRUNCATE TABLE catalog.master_products CASCADE;');
+    await query('TRUNCATE TABLE vendor.vendors CASCADE;');
+
+    // 4. Clear all dummy users
+    await query('DELETE FROM identity.users WHERE email != $1;', [ADMIN_EMAIL]);
+
+    // 5. Ensure the admin user lukajohn70@gmail.com exists with password '12'
+    await query(
+      `
+      INSERT INTO identity.users (email, phone, name, role, password_hash, status)
+      VALUES ($1, '+234 800 000 0000', 'Luka John', 'admin', $2, 'active')
+      ON CONFLICT (email) DO UPDATE SET
+        name = 'Luka John',
+        role = 'admin',
+        password_hash = $2,
+        status = 'active';
+      `,
+      [ADMIN_EMAIL, ADMIN_PASSWORD_HASH]
+    );
+
+    console.log('[DB-Purge] Database purged. All products removed. Admin user created: lukajohn70@gmail.com');
+    isInitialized = true;
+    return {
+      success: true,
+      message: 'Database purged successfully. All products and dummy details removed. Admin user lukajohn70@gmail.com active.',
+    };
+  } catch (err: any) {
+    console.error('[DB-Purge] Error purging database:', err.message);
+    return { success: false, message: err.message };
+  }
+}
+
+/**
+ * Ensures schemas exist, standard categories are loaded, and the admin user is active.
+ * Never re-seeds dummy products!
  */
 export async function ensureDatabaseReady(
   force = false
@@ -356,24 +214,21 @@ export async function ensureDatabaseReady(
     if (!tableExists) {
       console.log('[DB-Init] Tables missing. Auto-creating database schemas...');
       await query(INIT_DDL);
-      console.log('[DB-Init] Schemas created. Auto-seeding catalog and vendor data...');
-      await query(SEED_DATA_SQL);
-      console.log('[DB-Init] Database schemas and seed data applied successfully.');
-      isInitialized = true;
-      return { initialized: true, message: 'Database schemas and seed data created from scratch.' };
+      await query(STANDARD_CATEGORIES_SQL);
     }
 
-    // Check if products count is 0, seed if empty
-    const countRes = await query('SELECT COUNT(*) as count FROM catalog.master_products');
-    if (parseInt(countRes.rows[0]?.count || '0', 10) === 0) {
-      console.log('[DB-Init] Tables exist but catalog empty. Seeding catalog...');
-      await query(SEED_DATA_SQL);
+    // Auto-purge dummy data if admin lukajohn70@gmail.com is not yet seeded
+    const adminCheck = await query('SELECT id FROM identity.users WHERE email ILIKE $1', [ADMIN_EMAIL]);
+    if (!adminCheck.rows || adminCheck.rows.length === 0) {
+      console.log('[DB-Init] Admin user lukajohn70@gmail.com not found. Triggering full database purge & admin provisioning...');
+      const res = await purgeDatabaseAndSeedAdmin();
+      return { initialized: res.success, message: res.message };
     }
 
     isInitialized = true;
-    return { initialized: true, message: 'Database tables verified and ready.' };
+    return { initialized: true, message: 'Database tables verified and admin user active.' };
   } catch (err: any) {
-    console.warn('[DB-Init] Database auto-initialization note:', err.message);
+    console.warn('[DB-Init] Database check note:', err.message);
     return { initialized: false, message: err.message };
   }
 }

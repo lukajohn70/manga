@@ -34,6 +34,7 @@ const NIGERIAN_STATES = [
 export default function CheckoutPage() {
   const router = useRouter();
   const {
+    user,
     currency,
     formatPrice,
     cartItems,
@@ -46,12 +47,12 @@ export default function CheckoutPage() {
     recordPlacedOrder,
   } = useStore();
 
-  const [name, setName] = useState('Chidi Okafor');
-  const [email, setEmail] = useState('chidi.okafor@example.com');
-  const [phone, setPhone] = useState('0803 456 7890');
-  const [state, setState] = useState('Lagos');
-  const [lga, setLga] = useState('Ikeja');
-  const [address, setAddress] = useState('Plot 14, Commercial Avenue, Ikeja');
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [state, setState] = useState('Kaduna');
+  const [lga, setLga] = useState('Kaduna North');
+  const [address, setAddress] = useState('');
   const [deliveryType, setDeliveryType] = useState<'doorstep' | 'pickup'>('doorstep');
   const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'card' | 'bank_transfer'>('paystack');
   const [isSubmitting, setIsSubmitting] = useState(false);

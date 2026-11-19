@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { query, checkDatabaseConnection, sanitizeConnectionString } from '../../../lib/db';
-import { ensureDatabaseReady } from '../../../lib/db-schema-init';
+import { ensureDatabaseReady, purgeDatabaseAndSeedAdmin, ADMIN_EMAIL } from '../../../lib/db-schema-init';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const force = searchParams.get('force') === 'true';
+    const action = searchParams.get('action');
     const conn = await checkDatabaseConnection();
 
     if (!conn.connected) {
@@ -22,8 +23,14 @@ export async function GET(request: Request) {
       });
     }
 
-    // Database is connected! Ensure schemas & tables exist
-    const initResult = await ensureDatabaseReady(force);
+    // 1. If explicit purge action requested
+    let purgeMessage: string | null = null;
+    if (action === 'purge' || searchParams.get('purge') === 'true') {
+      const purgeRes = await purgeDatabaseAndSeedAdmin();
+      purgeMessage = purgeRes.message;
+    } else {
+      await ensureDatabaseReady(force);
+    }
 
     // Inspect table row counts
     let counts: Record<string, number> = {};
@@ -47,7 +54,14 @@ export async function GET(request: Request) {
       }
     }
 
-    // Get sample products
+    // Check if the requested admin exists
+    let adminUserExists = false;
+    try {
+      const adminRes = await query('SELECT email, role FROM identity.users WHERE email ILIKE $1', [ADMIN_EMAIL]);
+      adminUserExists = adminRes.rows && adminRes.rows.length > 0;
+    } catch {}
+
+    // Get sample products (should now be empty)
     let sampleProducts: any[] = [];
     try {
       const prodRes = await query(`
@@ -74,7 +88,9 @@ export async function GET(request: Request) {
       driverInstalled: true,
       version: conn.version,
       host: maskedHost,
-      initMessage: initResult.message,
+      purgeMessage,
+      adminEmail: ADMIN_EMAIL,
+      adminConfigured: adminUserExists,
       tableCounts: counts,
       sampleProducts,
       ready: true,
@@ -86,22 +102,25 @@ export async function GET(request: Request) {
         error: err.message || 'Unknown error occurred in /api/setup',
         stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined,
       },
-      { status: 200 } // Return 200 with error details in JSON so browser never gets raw 500 HTML
+      { status: 200 }
     );
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    const body = await request.json().catch(() => ({}));
+    if (body.action === 'purge') {
+      const result = await purgeDatabaseAndSeedAdmin();
+      return NextResponse.json(result);
+    }
+
     const result = await ensureDatabaseReady();
     return NextResponse.json({
       success: true,
       message: result.message,
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { success: false, message: err.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, message: err.message }, { status: 500 });
   }
 }
