@@ -30,14 +30,14 @@ for (const envPath of envFiles) {
   }
 }
 
-// Auto-correct invalid SMTP hostnames (mail.manga.jlm.com.ng does not exist in DNS)
+// Auto-correct invalid SMTP hostnames (cPanel outgoing mail is manga.jlm.com.ng)
 if (
   process.env.SMTP_HOST === 'mail.manga.jlm.com.ng' ||
   process.env.SMTP_HOST === 'smtp.manga.jlm.com.ng' ||
-  process.env.SMTP_HOST === 'manga.jlm.com.ng'
+  process.env.SMTP_HOST === 'mail.jlm.com.ng'
 ) {
-  console.log('[Server] Auto-correcting SMTP_HOST to mail.jlm.com.ng');
-  process.env.SMTP_HOST = 'mail.jlm.com.ng';
+  console.log('[Server] Auto-correcting SMTP_HOST to manga.jlm.com.ng');
+  process.env.SMTP_HOST = 'manga.jlm.com.ng';
 }
 
 // Always run in production mode on cPanel to serve pre-built optimized bundle

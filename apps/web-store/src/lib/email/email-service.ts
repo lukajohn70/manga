@@ -45,14 +45,14 @@ function stripQuotes(val: string): string {
  * e.g. "mail.manga.jlm.com.ng" does not exist in DNS; cPanel uses "mail.jlm.com.ng".
  */
 function normalizeMailHost(host?: string): string {
-  if (!host) return 'mail.jlm.com.ng';
+  if (!host) return 'manga.jlm.com.ng';
   const clean = host.trim().toLowerCase();
   if (
     clean === 'mail.manga.jlm.com.ng' ||
     clean === 'smtp.manga.jlm.com.ng' ||
-    clean === 'manga.jlm.com.ng'
+    clean === 'mail.jlm.com.ng'
   ) {
-    return 'mail.jlm.com.ng';
+    return 'manga.jlm.com.ng';
   }
   return host.trim();
 }
