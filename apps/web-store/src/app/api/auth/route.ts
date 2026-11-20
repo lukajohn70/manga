@@ -154,7 +154,6 @@ export async function POST(request: Request) {
         success: true,
         message: res.message,
         token: res.token,
-        devOtp: res.otp, // Available for development/testing convenience
       });
     }
 

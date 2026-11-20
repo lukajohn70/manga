@@ -123,7 +123,7 @@
     border-bottom: 1px solid #F0E6D8;
     font-size: 13px;
   }
-`;function j(a,b){return`
+`;function j(a,b){let c="https://manga.jlm.com.ng";return`
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -136,9 +136,23 @@
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1 class="logo-title">MANGA</h1>
-      <div class="logo-subtitle">MARKETSQUARE • VERIFIED COMMERCE</div>
+    <div class="header" style="background: #2A2320; padding: 30px 24px; text-align: center; border-bottom: 3px solid #B5532E;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation" style="border-collapse: collapse;">
+        <tr>
+          <td align="center">
+            <a href="${c}" target="_blank" style="text-decoration: none; display: inline-block;">
+              <img src="${c}/images/logo-white.png" 
+                   alt="MANGA MARKETSQUARE" 
+                   width="180" 
+                   height="47" 
+                   style="display: block; width: 180px; max-width: 180px; height: auto; border: 0; outline: none; text-decoration: none; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 900; color: #FAF6F0; letter-spacing: 1.5px;" />
+            </a>
+            <div class="logo-subtitle" style="color: #D9A441; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 8px;">
+              VERIFIED COMMERCE &bull; KADUNA &amp; NATIONWIDE
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
     <div class="content">
       ${b}
@@ -148,12 +162,12 @@
         &copy; ${new Date().getFullYear()} MANGA MARKETSQUARE. All rights reserved.
       </p>
       <p style="margin: 0 0 12px 0;">
-        Same-Day Delivery in Kaduna • Reliable Nationwide Courier Dispatch
+        Same-Day Delivery in Kaduna &bull; Reliable Nationwide Courier Dispatch
       </p>
       <p style="margin: 0;">
-        <a href="https://manga.jlm.com.ng/privacy-policy">Privacy Policy</a> &bull;
-        <a href="https://manga.jlm.com.ng/terms-of-service">Terms of Service</a> &bull;
-        <a href="https://manga.jlm.com.ng/escrow-agreement">Buyer Protection</a>
+        <a href="${c}/privacy-policy">Privacy Policy</a> &bull;
+        <a href="${c}/terms-of-service">Terms of Service</a> &bull;
+        <a href="${c}/escrow-agreement">Buyer Protection</a>
       </p>
     </div>
   </div>

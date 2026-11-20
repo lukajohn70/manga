@@ -138,7 +138,6 @@ function LoginContent() {
   const [regEmail, setRegEmail] = useState('');
   const [regOtp, setRegOtp] = useState('');
   const [regVerificationToken, setRegVerificationToken] = useState('');
-  const [devOtpHint, setDevOtpHint] = useState<string | null>(null);
 
   const [regName, setRegName] = useState('');
   const [regPhone, setRegPhone] = useState('');
@@ -256,9 +255,6 @@ function LoginContent() {
       }
 
       setSuccessMessage(data.message || `A verification code has been dispatched to ${regEmail}.`);
-      if (data.devOtp) {
-        setDevOtpHint(data.devOtp);
-      }
       setRegStep('otp');
     } catch (err: any) {
       setError(err.message || 'Failed to send verification code.');
@@ -719,19 +715,6 @@ function LoginContent() {
                         Enter the 6-digit code sent to <strong className="text-[#2A2320]">{regEmail}</strong>. Code expires in 15 minutes.
                       </p>
                     </div>
-
-                    {devOtpHint && (
-                      <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] flex items-center justify-between">
-                        <span>Demo Verification Code: <strong>{devOtpHint}</strong></span>
-                        <button
-                          type="button"
-                          onClick={() => setRegOtp(devOtpHint)}
-                          className="px-2 py-0.5 bg-amber-200 hover:bg-amber-300 rounded font-bold text-[#2A2320] cursor-pointer border-0"
-                        >
-                          Auto-fill
-                        </button>
-                      </div>
-                    )}
 
                     <div>
                       <label className="block text-xs font-bold text-[#2A2320] mb-1.5">
