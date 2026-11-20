@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=$HOME/manga.jlm.com.ng/
+    - export DEPLOYPATH=/home/gwylvxeo/manga.jlm.com.ng/
     - /bin/rm -f $DEPLOYPATH/index.html
     - /bin/rm -f $DEPLOYPATH/index.htm
     - /bin/rm -rf $DEPLOYPATH/apps/web-store/.next/server/route-cache
