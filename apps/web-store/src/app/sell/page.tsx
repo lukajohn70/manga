@@ -10,7 +10,8 @@ import { useStore } from '../../context/StoreContext';
 import { DEV_VENDOR_URL } from '../../lib/portal-urls';
 
 export default function SellOnMangaPage() {
-  const { cartCount, wishlistCount } = useStore();
+  const { user, logoutCustomer, cartCount, wishlistCount } = useStore();
+  const isMerchantLoggedIn = Boolean(user && (user.role === 'VENDOR' || user.role === 'ADMIN'));
 
   // Registration form state
   const [businessName, setBusinessName] = useState('');
@@ -151,23 +152,48 @@ export default function SellOnMangaPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 pt-4">
-                  <motion.a
-                    href="#register"
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
-                    className="px-8 py-3.5 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-sm shadow-xs transition-colors inline-flex items-center gap-2 no-underline apple-pressable"
-                  >
-                    <span>Register Your Store</span>
-                    <i className="fas fa-arrow-down text-xs opacity-75"></i>
-                  </motion.a>
+                  {isMerchantLoggedIn ? (
+                    <>
+                      <motion.a
+                        href="#merchant-console"
+                        whileTap={{ scale: 0.97 }}
+                        transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
+                        className="px-8 py-3.5 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-sm shadow-xs transition-colors inline-flex items-center gap-2 no-underline apple-pressable"
+                      >
+                        <i className="fas fa-store text-xs text-[#D9A441]"></i>
+                        <span>Open Merchant Console</span>
+                      </motion.a>
 
-                  <Link
-                    href="/account/login"
-                    className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm transition-colors inline-flex items-center gap-2 no-underline apple-pressable"
-                  >
-                    <span>Merchant Sign In</span>
-                    <i className="fas fa-arrow-right text-xs opacity-75"></i>
-                  </Link>
+                      <button
+                        type="button"
+                        onClick={() => logoutCustomer()}
+                        className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm transition-colors inline-flex items-center gap-2 cursor-pointer border-0 apple-pressable"
+                      >
+                        <span>Sign Out</span>
+                        <i className="fas fa-arrow-right-from-bracket text-xs opacity-75"></i>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <motion.a
+                        href="#register"
+                        whileTap={{ scale: 0.97 }}
+                        transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
+                        className="px-8 py-3.5 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-sm shadow-xs transition-colors inline-flex items-center gap-2 no-underline apple-pressable"
+                      >
+                        <span>Register Your Store</span>
+                        <i className="fas fa-arrow-down text-xs opacity-75"></i>
+                      </motion.a>
+
+                      <Link
+                        href="/account/login?portal=merchant"
+                        className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm transition-colors inline-flex items-center gap-2 no-underline apple-pressable"
+                      >
+                        <span>Merchant Sign In</span>
+                        <i className="fas fa-arrow-right text-xs opacity-75"></i>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -218,6 +244,153 @@ export default function SellOnMangaPage() {
             </div>
           </div>
         </section>
+
+        {/* Merchant Partner Console (Active Authenticated Partner View) */}
+        {isMerchantLoggedIn && (
+          <section id="merchant-console" className="py-12 bg-white border-b border-[#E7D5BC]/60">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {/* Partner Profile Header Card */}
+              <div className="p-6 sm:p-8 rounded-3xl bg-[#FAF7F2] border border-[#E7D5BC] shadow-xs mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-[#B5532E] text-white flex items-center justify-center text-2xl font-black shadow-md flex-shrink-0">
+                    <i className="fas fa-store"></i>
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <h2 className="text-xl sm:text-2xl font-black text-[#1D1917] tracking-tight">
+                        {user?.name} Storefront
+                      </h2>
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-300 flex items-center gap-1">
+                        <i className="fas fa-certificate text-emerald-600"></i> Verified Partner (Level 1)
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#78716C] flex flex-wrap items-center gap-3">
+                      <span><i className="far fa-envelope mr-1 text-[#B5532E]"></i>{user?.email}</span>
+                      <span>•</span>
+                      <span><i className="fas fa-location-dot mr-1 text-[#4F6B3A]"></i>Northern Nigeria Logistics Network</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                  <Link
+                    href="/account"
+                    className="px-4 py-2.5 rounded-xl bg-white border border-[#EAE3D9] text-[#1D1917] hover:text-[#B5532E] text-xs font-semibold transition flex items-center gap-1.5 no-underline apple-pressable"
+                  >
+                    <i className="fas fa-bag-shopping text-[#78716C]"></i> Shopper Account
+                  </Link>
+                  {user?.role === 'ADMIN' && (
+                    <Link
+                      href="/admin"
+                      className="px-4 py-2.5 rounded-xl bg-[#161311] text-[#D9A441] border border-[#D9A441]/40 text-xs font-semibold transition flex items-center gap-1.5 no-underline apple-pressable"
+                    >
+                      <i className="fas fa-shield-halved text-[#D9A441]"></i> Admin Hub
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => logoutCustomer()}
+                    className="px-4 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-[#B3261E] text-xs font-semibold transition cursor-pointer hover:bg-rose-100 apple-pressable border-0"
+                  >
+                    <i className="fas fa-arrow-right-from-bracket mr-1"></i> Sign Out
+                  </button>
+                </div>
+              </div>
+
+              {/* Operational KPI Metrics */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#E7D5BC] shadow-xs">
+                  <div className="flex items-center justify-between text-xs text-[#78716C] font-semibold mb-2">
+                    <span>Store Status</span>
+                    <i className="fas fa-circle-check text-emerald-600 text-sm"></i>
+                  </div>
+                  <div className="text-2xl font-black text-[#1D1917]">Live & Indexed</div>
+                  <div className="text-[11px] text-[#78716C] mt-1">Catalog synchronized with Manga search</div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#E7D5BC] shadow-xs">
+                  <div className="flex items-center justify-between text-xs text-[#78716C] font-semibold mb-2">
+                    <span>Fulfillment SLA</span>
+                    <i className="fas fa-truck-fast text-[#4F6B3A] text-sm"></i>
+                  </div>
+                  <div className="text-2xl font-black text-[#1D1917]">99.4% On-Time</div>
+                  <div className="text-[11px] text-[#78716C] mt-1">Same-day courier dispatch pickup</div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#E7D5BC] shadow-xs">
+                  <div className="flex items-center justify-between text-xs text-[#78716C] font-semibold mb-2">
+                    <span>Escrow Settlement</span>
+                    <i className="fas fa-shield-halved text-[#D9A441] text-sm"></i>
+                  </div>
+                  <div className="text-2xl font-black text-[#1D1917]">Paystack Auto</div>
+                  <div className="text-[11px] text-[#78716C] mt-1">Disbursements paid within 24h</div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#E7D5BC] shadow-xs">
+                  <div className="flex items-center justify-between text-xs text-[#78716C] font-semibold mb-2">
+                    <span>Merchant Rating</span>
+                    <i className="fas fa-star text-amber-500 text-sm"></i>
+                  </div>
+                  <div className="text-2xl font-black text-[#1D1917]">4.98 / 5.0</div>
+                  <div className="text-[11px] text-[#78716C] mt-1">Top-tier customer satisfaction badge</div>
+                </div>
+              </div>
+
+              {/* Operational Tools & Direct Desk */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 rounded-2xl bg-[#FAF7F2] border border-[#E7D5BC] space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#B5532E]/10 text-[#B5532E] flex items-center justify-center text-lg font-bold">
+                    <i className="fas fa-boxes-stacked"></i>
+                  </div>
+                  <h3 className="font-bold text-sm text-[#1D1917]">Catalog & Inventory</h3>
+                  <p className="text-xs text-[#78716C] leading-relaxed">
+                    List genuine items, set prices in Naira (₦), update available stock units, and configure product variants.
+                  </p>
+                  <Link
+                    href="/shop"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#B5532E] hover:underline"
+                  >
+                    <span>Browse Marketplace Index</span> <i className="fas fa-arrow-right text-[10px]"></i>
+                  </Link>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-[#FAF7F2] border border-[#E7D5BC] space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#4F6B3A]/10 text-[#4F6B3A] flex items-center justify-center text-lg font-bold">
+                    <i className="fas fa-truck-ramp-box"></i>
+                  </div>
+                  <h3 className="font-bold text-sm text-[#1D1917]">Manga Logistics Fleet</h3>
+                  <p className="text-xs text-[#78716C] leading-relaxed">
+                    Doorstep package collection in Kaduna, Kano, Abuja, and Lagos with automated barcode dispatch slips.
+                  </p>
+                  <Link
+                    href="/track-order"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#4F6B3A] hover:underline"
+                  >
+                    <span>Track Fleet Deliveries</span> <i className="fas fa-arrow-right text-[10px]"></i>
+                  </Link>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-[#FAF7F2] border border-[#E7D5BC] space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#D9A441]/15 text-[#B5532E] flex items-center justify-center text-lg font-bold">
+                    <i className="fas fa-headset"></i>
+                  </div>
+                  <h3 className="font-bold text-sm text-[#1D1917]">Dedicated Partner Desk</h3>
+                  <p className="text-xs text-[#78716C] leading-relaxed">
+                    Direct merchant support line for catalog bulk imports, dispatch scheduling, and payout queries.
+                  </p>
+                  <div className="pt-1 flex flex-col gap-1 text-xs font-bold text-[#1D1917]">
+                    <a href="tel:0700928672" className="text-[#B5532E] hover:underline flex items-center gap-1.5">
+                      <i className="fas fa-phone text-[10px]"></i> 0700 928 672
+                    </a>
+                    <a href="mailto:vendors@manga.jlm.com.ng" className="text-[#78716C] hover:underline flex items-center gap-1.5 font-normal">
+                      <i className="far fa-envelope text-[10px]"></i> vendors@manga.jlm.com.ng
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* 2. Key Merchant Benefits */}
         <section id="benefits" className="py-16 bg-white border-b border-[#E7D5BC]/60">
@@ -350,7 +523,7 @@ export default function SellOnMangaPage() {
                 </p>
                 <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
                   <Link
-                    href="/account/login"
+                    href="/account/login?portal=merchant"
                     className="px-6 py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs shadow-md transition"
                   >
                     Proceed to Merchant Sign In

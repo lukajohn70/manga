@@ -417,6 +417,19 @@ export const Header: React.FC<HeaderProps> = ({
                             </button>
                           )}
 
+                          {(storeContext.user.role === 'VENDOR' || storeContext.user.role === 'ADMIN') && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowAccountMenu(false);
+                                router.push('/sell');
+                              }}
+                              className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#B5532E] hover:bg-[#FAF7F2] font-semibold border-0 bg-transparent cursor-pointer transition-colors apple-pressable"
+                            >
+                              <i className="fas fa-store text-[#B5532E]"></i> Merchant Partner Console
+                            </button>
+                          )}
+
                           <button
                             type="button"
                             onClick={() => {
@@ -542,11 +555,11 @@ export const Header: React.FC<HeaderProps> = ({
                           <div className="border-t border-[#EAE3D9] my-1"></div>
 
                           <Link
-                            href="/sell"
+                            href="/account/login?portal=merchant"
                             onClick={() => setShowAccountMenu(false)}
                             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#B5532E] hover:bg-[#FAF7F2] font-semibold transition-colors apple-pressable"
                           >
-                            <i className="fas fa-store text-[#B5532E]"></i> Merchant Seller Console
+                            <i className="fas fa-store text-[#B5532E]"></i> Merchant Partner Sign In
                           </Link>
                         </>
                       )}
