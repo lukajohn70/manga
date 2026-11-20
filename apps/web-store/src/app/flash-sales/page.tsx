@@ -159,22 +159,31 @@ export default function FlashSalesPage() {
               { id: 'home', label: 'Home Appliances' },
               { id: 'fashion', label: 'Streetwear & Lifestyle' },
               { id: 'digital', label: 'Digital Licenses' },
-            ].map((chip) => (
-              <motion.button
-                key={chip.id}
-                type="button"
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
-                onClick={() => setActiveCategory(chip.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer border apple-pressable ${
-                  activeCategory === chip.id
-                    ? 'bg-[#B5532E] text-white border-[#B5532E] shadow-xs'
-                    : 'bg-white text-[#1D1917] border-[#EAE3D9] hover:border-[#B5532E]/40'
-                }`}
-              >
-                {chip.label}
-              </motion.button>
-            ))}
+            ].map((chip) => {
+              const isSelected = activeCategory === chip.id;
+              return (
+                <button
+                  key={chip.id}
+                  type="button"
+                  onClick={() => setActiveCategory(chip.id)}
+                  className={`relative px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors duration-150 cursor-pointer border-0 apple-pressable z-10 ${
+                    isSelected ? 'text-white' : 'text-[#1D1917] hover:text-[#B5532E]'
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.div
+                      layoutId="flashSalesCategoryPill"
+                      transition={{ type: 'spring', bounce: 0.15, duration: 0.28 }}
+                      className="absolute inset-0 bg-[#B5532E] rounded-xl shadow-xs -z-10"
+                    />
+                  )}
+                  {!isSelected && (
+                    <div className="absolute inset-0 bg-white border border-[#EAE3D9] rounded-xl shadow-xs -z-10" />
+                  )}
+                  {chip.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Deals Grid */}
@@ -200,8 +209,8 @@ export default function FlashSalesPage() {
               {filteredDeals.map((item) => (
                 <motion.div
                   key={item.id}
-                  whileHover={{ y: -4 }}
-                  transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                  whileHover={{ y: -3 }}
+                  transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
                   className="bg-white rounded-2xl border border-[#EAE3D9] hover:border-[#B5532E]/40 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] flex flex-col justify-between group"
                 >
                   <div
@@ -212,8 +221,8 @@ export default function FlashSalesPage() {
                       <motion.img
                         src={item.image}
                         alt={item.title}
-                        whileHover={{ scale: 1.04 }}
-                        transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+                        whileHover={{ scale: 1.03 }}
+                        transition={{ type: 'spring', bounce: 0, duration: 0.22 }}
                         className="w-full h-full object-cover"
                       />
                     </Link>
@@ -278,8 +287,6 @@ export default function FlashSalesPage() {
                     </div>
                   </div>
                 </motion.div>
-              ))}
-            </div>
               ))}
             </div>
           )}

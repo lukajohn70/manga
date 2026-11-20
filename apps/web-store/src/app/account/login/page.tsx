@@ -125,7 +125,7 @@ function LoginContent() {
   const urlEmail = searchParams.get('email');
 
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'forgot' | 'reset'>(
-    urlToken && urlEmail ? 'reset' : initialTab
+    urlToken ? 'reset' : initialTab
   );
 
   // Sign In State
@@ -460,6 +460,9 @@ function LoginContent() {
 
       setSuccessMessage('Password reset successfully! Please sign in with your new password.');
       setActiveTab('login');
+      if (data.email || resetEmail) {
+        setLoginEmail(data.email || resetEmail.trim());
+      }
       setLoginPassword('');
     } catch (err: any) {
       setError(err.message || 'Failed to reset password. Link may have expired.');
@@ -1054,6 +1057,17 @@ function LoginContent() {
               <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
                 <div className="p-3.5 bg-[#FAF6F0] rounded-xl border border-[#E7D5BC] text-xs text-[#6B5E57] leading-relaxed">
                   Enter your verification reset token and set a new password. Single-use, valid for 15 minutes.
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#2A2320] mb-1.5">Account Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. lukajohn70@gmail.com (optional if using link)"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    className="w-full px-4 py-3 bg-[#FAF6F0] border border-[#E7D5BC] rounded-xl text-xs text-[#2A2320] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E]"
+                  />
                 </div>
 
                 <div>

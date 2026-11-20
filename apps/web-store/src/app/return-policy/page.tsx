@@ -7,33 +7,33 @@ import { Footer } from '../../components/Footer';
 
 export default function ReturnPolicyPage() {
   return (
-    <div className="min-h-screen bg-[#FAF6F0] flex flex-col font-sans text-[#2A2320]">
+    <div className="min-h-screen bg-[#FAF7F2] flex flex-col font-sans text-[#1D1917]">
       <Header />
 
       <main className="flex-1 container mx-auto px-4 lg:px-8 py-8 sm:py-12 max-w-4xl">
-        <nav className="flex items-center gap-2 text-xs text-[#8C8279] mb-6">
-          <Link href="/" className="hover:text-[#B5532E] transition-colors">Home</Link>
-          <span>/</span>
-          <span className="text-[#2A2320] font-semibold">Return & Refund Policy</span>
+        <nav className="flex items-center gap-2 text-xs text-[#78716C] mb-6">
+          <Link href="/" className="hover:text-[#1D1917] transition-colors">Home</Link>
+          <span className="text-[#C5BDB5]">/</span>
+          <span className="text-[#1D1917] font-semibold">Return & Refund Policy</span>
         </nav>
 
-        <div className="bg-white rounded-2xl border border-[#E7D5BC] p-6 sm:p-10 mb-8 shadow-xs">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FEF7ED] border border-[#F3E2CB] text-[#B5532E] text-xs font-bold uppercase tracking-wider mb-4">
-            <span className="w-2 h-2 rounded-full bg-[#B5532E]" />
+        <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 mb-8 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF7F2] border border-[#EAE3D9] text-[#B5532E] text-xs font-semibold uppercase tracking-wider mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B5532E]" />
             7-Day Hassle-Free Returns
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black font-display text-[#2A2320] tracking-tight mb-3">
+          <h1 className="text-2xl sm:text-4xl font-bold apple-heading text-[#1D1917] tracking-tight mb-3">
             MANGA MARKETSQUARE Return Policy
           </h1>
-          <p className="text-sm text-[#8C8279]">
+          <p className="text-sm text-[#78716C]">
             Transparent returns backed by 100% verified seller guarantees
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-[#E7D5BC] p-6 sm:p-10 space-y-8 text-sm sm:text-base leading-relaxed text-[#4A3E39] shadow-xs">
+        <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 space-y-8 text-sm sm:text-base leading-relaxed text-[#1D1917]/85 shadow-xs">
           
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-[#2A2320] mb-3 flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[#1D1917] mb-3 flex items-center gap-2">
               <span className="text-[#B5532E]">1.</span> 7-Day Return Guarantee
             </h2>
             <p>
@@ -42,7 +42,7 @@ export default function ReturnPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-[#2A2320] mb-3 flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[#1D1917] mb-3 flex items-center gap-2">
               <span className="text-[#B5532E]">2.</span> Eligible Return Reasons
             </h2>
             <ul className="list-disc pl-5 space-y-2">
@@ -53,7 +53,7 @@ export default function ReturnPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-[#2A2320] mb-3 flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[#1D1917] mb-3 flex items-center gap-2">
               <span className="text-[#B5532E]">3.</span> Return Process & Pickup
             </h2>
             <p>

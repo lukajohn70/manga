@@ -17,7 +17,7 @@ export const Button: React.FC<ButtonProps> = ({
   isLoading = false,
   disabled,
   style,
-  squishScale = 0.95,
+  squishScale = 0.97,
   enableSquish = true,
   onPointerDown,
   onPointerUp,
@@ -51,17 +51,12 @@ export const Button: React.FC<ButtonProps> = ({
     onPointerCancel?.(e);
   };
 
+  // Keyboard navigation (Enter / Space) suppresses deformation to avoid input lag
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if ((e.key === ' ' || e.key === 'Enter') && !disabled && !isLoading && enableSquish) {
-      setIsPressed(true);
-    }
     onKeyDown?.(e);
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if ((e.key === ' ' || e.key === 'Enter') && enableSquish) {
-      setIsPressed(false);
-    }
     onKeyUp?.(e);
   };
 
@@ -104,10 +99,10 @@ export const Button: React.FC<ButtonProps> = ({
     }
   };
 
-  // Kinetic spring transition on release, instant compression on press
+  // Kinetic spring transition on release, snappy compression on press
   const transformTransition = isPressed
-    ? 'transform 0.08s ease-out'
-    : 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    ? 'transform 0.09s ease-out'
+    : 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)';
 
   return (
     <button

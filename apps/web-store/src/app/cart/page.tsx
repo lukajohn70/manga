@@ -161,7 +161,7 @@ export default function CartPage() {
                   </div>
                   <div className="w-full h-2 bg-[#FAF6F0] rounded-full overflow-hidden border border-[#E7D5BC]/60">
                     <div
-                      className="h-full bg-gradient-to-r from-[#D9A441] to-[#4F6B3A] transition-all duration-500 rounded-full"
+                      className="h-full bg-gradient-to-r from-[#D9A441] to-[#4F6B3A] transition-[width] duration-300 ease-out rounded-full"
                       style={{ width: `${deliveryProgress}%` }}
                     ></div>
                   </div>

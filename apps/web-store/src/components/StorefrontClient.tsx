@@ -14,6 +14,26 @@ import { ProductCard, ProductItem, VendorOffer } from './ProductCard';
 import { Footer } from './Footer';
 import { BuyBoxModal } from './BuyBoxModal';
 
+const gridContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.025,
+      delayChildren: 0.02,
+    },
+  },
+};
+
+const cardItemVariants = {
+  hidden: { opacity: 0, y: 6 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] as const },
+  },
+};
+
 // Clean marketplace catalog initialized from PostgreSQL database
 const CATALOG_PRODUCTS: ProductItem[] = [];
 
@@ -202,45 +222,61 @@ export function StorefrontClient() {
                 </p>
               </div>
 
-              {/* Department pill filter with fluid spring feedback */}
-              <div className="flex flex-wrap items-center gap-2">
-                {['all', 'computing', 'electronics', 'fashion', 'home', 'digital'].map((c) => (
-                  <motion.button
-                    key={c}
-                    type="button"
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
-                    onClick={() => {
-                      if (c === 'all') setSelectedCategory('all');
-                      else router.push(`/shop?category=${c}`);
-                    }}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold capitalize border-0 cursor-pointer apple-pressable transition-colors ${
-                      selectedCategory === c
-                        ? 'bg-[#B5532E] text-white shadow-xs'
-                        : 'bg-white hover:bg-white/90 text-[#1D1917] border border-[#EAE3D9] shadow-[0_1px_2px_rgba(0,0,0,0.03)]'
-                    }`}
-                  >
-                    {c === 'all' ? 'All Products' : c}
-                  </motion.button>
-                ))}
+              {/* Department pill filter with fluid spring sliding indicator */}
+              <div className="flex flex-wrap items-center gap-2 relative">
+                {['all', 'computing', 'electronics', 'fashion', 'home', 'digital'].map((c) => {
+                  const isSelected = selectedCategory === c;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => {
+                        if (c === 'all') setSelectedCategory('all');
+                        else router.push(`/shop?category=${c}`);
+                      }}
+                      className={`relative px-3.5 py-1.5 rounded-xl text-xs font-semibold capitalize border-0 cursor-pointer apple-pressable transition-colors duration-150 z-10 ${
+                        isSelected ? 'text-white' : 'text-[#1D1917] hover:text-[#B5532E]'
+                      }`}
+                    >
+                      {isSelected && (
+                        <motion.div
+                          layoutId="storefrontCategoryPill"
+                          transition={{ type: 'spring', bounce: 0.15, duration: 0.28 }}
+                          className="absolute inset-0 bg-[#B5532E] rounded-xl shadow-xs -z-10"
+                        />
+                      )}
+                      {!isSelected && (
+                        <div className="absolute inset-0 bg-white border border-[#EAE3D9] rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] -z-10" />
+                      )}
+                      {c === 'all' ? 'All Products' : c}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Products Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {/* Products Grid with Stagger Fade */}
+            <motion.div
+              key={selectedCategory}
+              variants={gridContainerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            >
               {filteredProducts.map((item) => (
-                <ProductCard
-                  key={item.id}
-                  item={item}
-                  currency={currency}
-                  inWishlist={isInWishlist(item.id)}
-                  onToggleWishlist={(id, el) => toggleWishlist(id, el, item)}
-                  onAddToCart={(prod, el) => addToCart(prod, 1, el)}
-                  onViewProduct={(prod) => router.push(`/product/${prod.id}`)}
-                  onOpenBuyBox={(prod) => setBuyBoxProduct(prod)}
-                />
+                <motion.div key={item.id} variants={cardItemVariants}>
+                  <ProductCard
+                    item={item}
+                    currency={currency}
+                    inWishlist={isInWishlist(item.id)}
+                    onToggleWishlist={(id, el) => toggleWishlist(id, el, item)}
+                    onAddToCart={(prod, el) => addToCart(prod, 1, el)}
+                    onViewProduct={(prod) => router.push(`/product/${prod.id}`)}
+                    onOpenBuyBox={(prod) => setBuyBoxProduct(prod)}
+                  />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
             {filteredProducts.length === 0 && (
               <div className="text-center py-16 bg-white rounded-3xl border border-[#EAE3D9] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.03)] max-w-xl mx-auto">

@@ -2,10 +2,5 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/gwylvxeo/manga.jlm.com.ng/
-    - /bin/rm -f $DEPLOYPATH/index.html
-    - /bin/rm -f $DEPLOYPATH/index.htm
-    - /bin/rm -rf $DEPLOYPATH/apps/web-store/.next/server/route-cache
-    - /bin/rm -rf $DEPLOYPATH/apps/web-store/.next/cache
     - /bin/mkdir -p $DEPLOYPATH
-    - /bin/bash ./infra/deploy-cpanel.sh
-    - /usr/bin/pkill -f "server.js" || true
+    - /bin/bash infra/deploy-cpanel.sh

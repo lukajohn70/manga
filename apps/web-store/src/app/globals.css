@@ -14,6 +14,18 @@
   --manga-savanna: #4F6B3A;
   --manga-slate: #3E5C76;
   --manga-ember: #B3261E;
+
+  /* Emil Kowalski Motion Easing Tokens */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Duration Budget Tokens */
+  --duration-press: 90ms;
+  --duration-fast: 160ms;
+  --duration-ui: 200ms;
+  --duration-modal: 280ms;
 }
 
 *, *::before, *::after {
@@ -101,7 +113,7 @@ body {
 
 .apple-pressable:active {
   transform: scale(0.975);
-  transition: transform 90ms ease-out;
+  transition: transform var(--duration-press) var(--ease-out);
 }
 
 .overflow-x-auto {
@@ -203,7 +215,7 @@ img, video, canvas, svg {
   pointer-events: none;
   border-radius: 1rem;
   overflow: hidden;
-  will-change: transform, left, top, width, height, opacity;
+  will-change: transform, opacity;
   box-shadow: 0 25px 50px -12px rgba(181, 83, 46, 0.45);
   border: 2px solid rgba(255, 255, 255, 0.95);
   background: #ffffff;
@@ -253,10 +265,28 @@ img, video, canvas, svg {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* Allow gentle color and opacity changes without spatial disorienting movement */
+  * {
+    transition-property: opacity, background-color, border-color, color, fill, stroke !important;
+    transition-duration: 150ms !important;
+    transform: none !important;
+  }
+
   .apple-pressable:active {
+    transform: none !important;
+    opacity: 0.75;
+  }
+}
+
+/* Guard hover states on touch screens */
+@media (hover: none) and (pointer: coarse) {
+  .group:hover .group-hover\:scale-105,
+  .group:hover .group-hover\:-translate-y-1,
+  .hover\:scale-105:hover,
+  .hover\:-translate-y-1:hover {
     transform: none !important;
   }
 }

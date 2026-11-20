@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { triggerFlyToCart, triggerFlyToWishlist } from '../lib/flyAnimations';
 
 export interface CartItem {
@@ -270,9 +271,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage((curr) => (curr === msg ? null : curr));
-    }, 2200);
+    toast(msg);
   };
 
   const loginCustomer = (

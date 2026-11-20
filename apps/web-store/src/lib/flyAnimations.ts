@@ -328,7 +328,7 @@ function runFlightAnimation({
     controlY = startCenterY + 110;
   }
 
-  const duration = mode === 'cart' ? 780 : 650; // ms
+  const duration = mode === 'cart' ? 360 : 300; // ms (sub-400ms UI budget)
   const startTime = performance.now();
   let lastParticleTime = 0;
 
@@ -358,14 +358,10 @@ function runFlightAnimation({
         ? ease * 360 * (startCenterX < endCenterX ? 1 : -1)
         : ease * -180 * (startCenterX < endCenterX ? 1 : -1);
 
-    const currentWidth = startWidth * scale;
-    const currentHeight = startHeight * scale;
-
-    clone.style.width = `${currentWidth}px`;
-    clone.style.height = `${currentHeight}px`;
-    clone.style.left = `${currentX - currentWidth / 2}px`;
-    clone.style.top = `${currentY - currentHeight / 2}px`;
-    clone.style.transform = `rotate(${rotation}deg)`;
+    // Pure GPU transform: translate3d + scale + rotate (zero layout reflow)
+    const deltaX = currentX - startCenterX;
+    const deltaY = currentY - startCenterY;
+    clone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scale}) rotate(${rotation}deg)`;
     clone.style.opacity = progress > 0.88 ? `${1 - (progress - 0.88) / 0.12}` : '1';
 
     // Spawn trail particles along flight path

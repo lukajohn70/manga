@@ -9,6 +9,26 @@ import { useStore } from '../../context/StoreContext';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 
+const gridContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.025,
+      delayChildren: 0.02,
+    },
+  },
+};
+
+const cardItemVariants = {
+  hidden: { opacity: 0, y: 6 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] as const },
+  },
+};
+
 export interface ShopProduct {
   id: string;
   title: string;
@@ -398,7 +418,13 @@ function ShopContent() {
                 </motion.button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+              <motion.div
+                key={`${selectedCategory}-${sortBy}`}
+                variants={gridContainerVariants}
+                initial="hidden"
+                animate="visible"
+                className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
+              >
                 {filteredProducts.map((item) => {
                   const discountPct =
                     item.oldPriceNgn && item.oldPriceNgn > item.priceNgn
@@ -407,13 +433,13 @@ function ShopContent() {
                   const inWish = isInWishlist(item.id);
 
                   return (
-                    <motion.div
-                      key={item.id}
-                      id={`product-card-${item.id}`}
-                      whileHover={{ y: -4 }}
-                      transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
-                      className="group bg-white rounded-2xl border border-[#EAE3D9] hover:border-[#B5532E]/40 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] flex flex-col justify-between"
-                    >
+                    <motion.div key={item.id} variants={cardItemVariants}>
+                      <motion.div
+                        id={`product-card-${item.id}`}
+                        whileHover={{ y: -3 }}
+                        transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
+                        className="group bg-white rounded-2xl border border-[#EAE3D9] hover:border-[#B5532E]/40 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] flex flex-col justify-between h-full"
+                      >
                       {/* Product Media Area */}
                       <div
                         id={`product-visual-${item.id}`}
@@ -423,8 +449,8 @@ function ShopContent() {
                           <motion.img
                             src={item.image}
                             alt={item.title}
-                            whileHover={{ scale: 1.04 }}
-                            transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+                            whileHover={{ scale: 1.03 }}
+                            transition={{ type: 'spring', bounce: 0, duration: 0.22 }}
                             className="w-full h-full object-cover"
                           />
                         </Link>
@@ -527,12 +553,10 @@ function ShopContent() {
                         </div>
                       </div>
                     </motion.div>
+                  </motion.div>
                   );
                 })}
-              </div>
-                  );
-                })}
-              </div>
+              </motion.div>
             )}
           </div>
 

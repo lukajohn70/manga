@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ProductItem, VendorOffer } from './ProductCard';
 
 export interface BuyBoxModalProps {
@@ -19,46 +19,48 @@ export const BuyBoxModal: React.FC<BuyBoxModalProps> = ({
   onSelectOffer,
   currency,
 }) => {
-  if (!isOpen || !product) return null;
-
   const formatPrice = (ngn: number, usd: number) => {
     return currency === 'NGN' ? `₦${ngn.toLocaleString()}` : `$${usd.toLocaleString()}`;
   };
 
-  const allOffers: VendorOffer[] = [
-    {
-      vendorId: 'primary',
-      vendorName: product.storeName,
-      vendorRating: product.rating,
-      priceNgn: product.priceNgn,
-      priceUsd: product.priceUsd,
-      condition: 'Brand New (Official Partner)',
-      deliveryTime: product.deliveryEstimate || 'Manga Express • Tomorrow',
-      dispatchCity: 'Lagos Hub',
-    },
-    ...(product.otherOffers || []),
-  ];
+  const allOffers: VendorOffer[] = product
+    ? [
+        {
+          vendorId: 'primary',
+          vendorName: product.storeName,
+          vendorRating: product.rating,
+          priceNgn: product.priceNgn,
+          priceUsd: product.priceUsd,
+          condition: 'Brand New (Official Partner)',
+          deliveryTime: product.deliveryEstimate || 'Manga Express • Tomorrow',
+          dispatchCity: 'Lagos Hub',
+        },
+        ...(product.otherOffers || []),
+      ]
+    : [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop with Soft Blur */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <AnimatePresence mode="wait">
+      {isOpen && product && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop with Soft Blur */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={onClose}
+          />
 
-      {/* Modal Dialog with Apple Spring Scale */}
-      <motion.div
-        initial={{ scale: 0.96, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.96, opacity: 0 }}
-        transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-        className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl z-10 overflow-hidden border border-[#EAE3D9] text-[#1D1917]"
-      >
+          {/* Modal Dialog with Apple Spring Scale */}
+          <motion.div
+            initial={{ scale: 0.96, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.96, opacity: 0 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.28 }}
+            className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl z-10 overflow-hidden border border-[#EAE3D9] text-[#1D1917]"
+          >
         
         {/* Header */}
         <div className="p-5 border-b border-[#EAE3D9] flex items-center justify-between bg-[#FAF7F2]">
@@ -177,6 +179,8 @@ export const BuyBoxModal: React.FC<BuyBoxModalProps> = ({
         </div>
 
       </motion.div>
-    </div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };

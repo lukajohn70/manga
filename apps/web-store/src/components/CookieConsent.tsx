@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'motion/react';
 
 export function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false);
@@ -11,7 +12,6 @@ export function CookieConsent() {
     try {
       const consent = localStorage.getItem('manga_cookie_consent');
       if (!consent) {
-        // Small delay so page renders smoothly first
         const timer = setTimeout(() => setIsVisible(true), 800);
         return () => clearTimeout(timer);
       }
@@ -34,55 +34,62 @@ export function CookieConsent() {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
-
   return (
-    <div
-      role="dialog"
-      aria-live="polite"
-      aria-label="Cookie Preferences"
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4"
-    >
-      <div className="bg-[#2A2320] text-[#F6EDE0] p-5 sm:p-6 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-md">
-        <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#B5532E]/30 text-[#D9A441] flex items-center justify-center flex-shrink-0 text-base">
-            <i className="fas fa-cookie-bite"></i>
-          </div>
-          <div className="flex-1">
-            <h4 className="font-bold text-sm text-white mb-1">
-              Cookie &amp; Privacy Preferences
-            </h4>
-            <p className="text-xs text-[#E7D5BC]/80 leading-relaxed mb-4">
-              We use essential cookies to maintain your shopping cart, ensure CSRF security, and process verified orders. Read our{' '}
-              <Link href="/cookie-policy" className="text-[#D9A441] underline hover:text-white">
-                Cookie Policy
-              </Link>{' '}
-              and{' '}
-              <Link href="/privacy-policy" className="text-[#D9A441] underline hover:text-white">
-                Privacy Policy
-              </Link>{' '}
-              to learn more.
-            </p>
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                type="button"
-                onClick={handleEssentialOnly}
-                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#E7D5BC] text-xs font-semibold border border-white/10 transition cursor-pointer"
-              >
-                Essential Only
-              </button>
-              <button
-                type="button"
-                onClick={handleAcceptAll}
-                className="px-4 py-2 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition shadow-md border-0 cursor-pointer flex items-center gap-1.5"
-              >
-                <span>Accept All</span>
-                <i className="fas fa-check text-[10px]"></i>
-              </button>
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          role="dialog"
+          aria-live="polite"
+          aria-label="Cookie Preferences"
+          initial={{ opacity: 0, y: 20, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 15, scale: 0.96 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50"
+        >
+          <div className="apple-glass-dark text-white p-5 sm:p-6 rounded-2xl shadow-2xl border border-white/10">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-white/10 text-[#D9A441] flex items-center justify-center flex-shrink-0 text-base border border-white/10">
+                <i className="fas fa-cookie-bite"></i>
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-sm text-white mb-1 tracking-tight">
+                  Cookie &amp; Privacy Preferences
+                </h4>
+                <p className="text-xs text-white/70 leading-relaxed mb-4">
+                  We use essential cookies to maintain your bag, verify CSRF security, and process secure orders. Read our{' '}
+                  <Link href="/cookie-policy" className="text-[#D9A441] underline hover:text-white transition-colors">
+                    Cookie Policy
+                  </Link>{' '}
+                  and{' '}
+                  <Link href="/privacy-policy" className="text-[#D9A441] underline hover:text-white transition-colors">
+                    Privacy Policy
+                  </Link>.
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <motion.button
+                    whileTap={{ scale: 0.94 }}
+                    type="button"
+                    onClick={handleEssentialOnly}
+                    className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/80 text-xs font-semibold border border-white/10 transition-colors cursor-pointer apple-pressable"
+                  >
+                    Essential Only
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.94 }}
+                    type="button"
+                    onClick={handleAcceptAll}
+                    className="px-4 py-2 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-colors shadow-xs border-0 cursor-pointer flex items-center gap-1.5 apple-pressable"
+                  >
+                    <span>Accept All</span>
+                    <i className="fas fa-check text-[10px]"></i>
+                  </motion.button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

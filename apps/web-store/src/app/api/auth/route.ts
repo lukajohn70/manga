@@ -125,7 +125,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: res.message }, { status: 400 });
       }
 
-      return NextResponse.json({ success: true, message: res.message });
+      return NextResponse.json({ success: true, message: res.message, email: res.email });
     }
 
     // 4b. Action: SEND EMAIL VERIFICATION OTP (Pre-registration verification)

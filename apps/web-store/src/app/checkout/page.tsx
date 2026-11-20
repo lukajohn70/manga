@@ -307,7 +307,7 @@ export default function CheckoutPage() {
                 </label>
                 <div className="grid sm:grid-cols-2 gap-3 text-xs">
                   <label
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-4 rounded-2xl border transition-[border-color,background-color,box-shadow] duration-150 ease-out cursor-pointer flex flex-col justify-between ${
                       deliveryType === 'doorstep'
                         ? 'bg-[#F6EDE0] border-[#B5532E] shadow-xs'
                         : 'bg-white border-[#E7D5BC] hover:border-[#B5532E]/40'
@@ -329,7 +329,7 @@ export default function CheckoutPage() {
                   </label>
 
                   <label
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-4 rounded-2xl border transition-[border-color,background-color,box-shadow] duration-150 ease-out cursor-pointer flex flex-col justify-between ${
                       deliveryType === 'pickup'
                         ? 'bg-[#F6EDE0] border-[#B5532E] shadow-xs'
                         : 'bg-white border-[#E7D5BC] hover:border-[#B5532E]/40'
@@ -386,7 +386,7 @@ export default function CheckoutPage() {
                 ].map((pm) => (
                   <label
                     key={pm.id}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                    className={`p-4 rounded-2xl border transition-[border-color,background-color,box-shadow] duration-150 ease-out cursor-pointer flex items-center justify-between ${
                       paymentMethod === pm.id
                         ? 'bg-[#F6EDE0] border-[#B5532E] shadow-xs'
                         : 'bg-white border-[#E7D5BC] hover:border-[#B5532E]/40'

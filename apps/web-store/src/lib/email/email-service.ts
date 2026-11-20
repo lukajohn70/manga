@@ -106,7 +106,11 @@ export function getEmailConfig(forceRefresh: boolean = false): EmailConfig {
   const user = stripQuotes(process.env.SMTP_USER || process.env.MAIL_USER || process.env.MAIL_USERNAME || '');
   const pass = stripQuotes(process.env.SMTP_PASS || process.env.MAIL_PASS || process.env.MAIL_PASSWORD || '');
   const fromName = stripQuotes(process.env.MAIL_FROM_NAME || 'MANGA MARKETSQUARE');
-  const fromAddress = stripQuotes(process.env.MAIL_FROM_ADDRESS || user || 'support@manga.jlm.com.ng');
+  const rawFrom = stripQuotes(process.env.MAIL_FROM_ADDRESS || '');
+  // To satisfy SPF/DKIM authentication and prevent Gmail 550 bounces, send via the verified domain jlm.com.ng
+  const fromAddress = (!rawFrom || rawFrom.endsWith('@manga.jlm.com.ng'))
+    ? 'support@jlm.com.ng'
+    : rawFrom;
 
   const isConfigured = Boolean(
     host &&
@@ -216,6 +220,8 @@ export async function sendEmail(options: {
     try {
       const info = await tx.sendMail({
         from,
+        sender: config.fromAddress,
+        replyTo: config.fromAddress,
         to: options.to,
         subject: options.subject,
         html: options.html,
@@ -237,6 +243,8 @@ export async function sendEmail(options: {
         try {
           const fbInfo = await fallbackTx.sendMail({
             from,
+            sender: config.fromAddress,
+            replyTo: config.fromAddress,
             to: options.to,
             subject: options.subject,
             html: options.html,

@@ -61,8 +61,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <motion.div
       id={`product-card-${item.id}`}
       data-product-id={item.id}
-      whileHover={{ y: -4 }}
-      transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+      whileHover={{ y: -3 }}
+      transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
       className="group bg-white rounded-2xl border border-[#EAE3D9] hover:border-[#B5532E]/40 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] flex flex-col justify-between overflow-hidden"
     >
       <div>
@@ -75,8 +75,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <motion.img
             src={item.image}
             alt={item.title}
-            whileHover={{ scale: 1.04 }}
-            transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+            whileHover={{ scale: 1.03 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.22 }}
             className="w-full h-full object-cover"
           />
           <span className="absolute top-3 left-3 bg-[#1D1917]/90 backdrop-blur-sm text-[#F5F2EC] text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">

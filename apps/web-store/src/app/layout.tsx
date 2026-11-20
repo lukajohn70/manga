@@ -1,5 +1,6 @@
 import * as React from 'react';
 import './globals.css';
+import { Toaster } from 'sonner';
 import { StoreProvider } from '../context/StoreContext';
 import { CookieConsent } from '../components/CookieConsent';
 
@@ -35,6 +36,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StoreProvider>
           {children}
           <CookieConsent />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                borderRadius: '16px',
+                border: '1px solid #EAE3D9',
+                background: '#FAF7F2',
+                color: '#1D1917',
+                fontSize: '13px',
+                boxShadow: '0 12px 32px rgba(42, 35, 32, 0.08)',
+              },
+            }}
+          />
         </StoreProvider>
       </body>
     </html>

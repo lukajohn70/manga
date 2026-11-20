@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion } from 'motion/react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { useStore } from '../../context/StoreContext';
@@ -191,22 +192,22 @@ export default function AdminHubPage() {
   // 1. GATE: Unauthenticated Visitors
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#1A1512] text-white">
+      <div className="min-h-screen flex flex-col bg-[#161311] text-white font-sans">
         <Header cartCount={cartCount} wishlistCount={wishlistCount} />
 
         <main className="flex-1 flex items-center justify-center px-4 py-16">
-          <div className="max-w-md w-full bg-[#241D19] border border-[#D9A441]/30 rounded-3xl p-8 shadow-2xl">
+          <div className="max-w-md w-full apple-glass-dark border border-white/10 rounded-3xl p-8 shadow-2xl">
             <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-[#B5532E]/20 text-[#D9A441] flex items-center justify-center text-2xl mx-auto mb-4 border border-[#D9A441]/40">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 text-[#D9A441] flex items-center justify-center text-2xl mx-auto mb-4 border border-white/10">
                 <i className="fas fa-shield-halved"></i>
               </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#B5532E]/30 text-[#D9A441] text-[11px] font-bold uppercase tracking-wider mb-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#D9A441] text-[11px] font-semibold uppercase tracking-wider mb-2 border border-white/10">
                 Restricted Operations Area
               </div>
-              <h1 className="text-2xl font-black font-display text-white">
+              <h1 className="text-2xl font-bold apple-heading text-white">
                 Platform Operations Gate
               </h1>
-              <p className="text-xs text-[#C5BCB3] mt-2 leading-relaxed">
+              <p className="text-xs text-white/70 mt-2 leading-relaxed">
                 Enter authorized administrator credentials to manage database state, microservices, and system telemetry.
               </p>
             </div>
@@ -220,7 +221,7 @@ export default function AdminHubPage() {
 
             <form onSubmit={handleAdminLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#E7D5BC] mb-1.5">
+                <label className="block text-xs font-semibold text-white/80 mb-1.5">
                   Administrator Email
                 </label>
                 <input
@@ -229,12 +230,12 @@ export default function AdminHubPage() {
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="e.g. lukajohn70@gmail.com"
-                  className="w-full px-4 py-3 bg-[#1A1512] border border-[#4A3E38] rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#D9A441] transition"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#D9A441] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#E7D5BC] mb-1.5">
+                <label className="block text-xs font-semibold text-white/80 mb-1.5">
                   Admin Password
                 </label>
                 <input
@@ -243,24 +244,25 @@ export default function AdminHubPage() {
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="Enter administrator password"
-                  className="w-full px-4 py-3 bg-[#1A1512] border border-[#4A3E38] rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#D9A441] transition"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/15 rounded-xl text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#D9A441] transition-colors"
                 />
               </div>
 
-              <button
+              <motion.button
+                whileTap={{ scale: 0.96 }}
                 type="submit"
                 disabled={authLoading}
-                className="w-full py-3.5 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer border-0 mt-2"
+                className="w-full py-3.5 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer border-0 mt-2 apple-pressable"
               >
                 <i className={`fas ${authLoading ? 'fa-spinner fa-spin' : 'fa-key'} text-[#D9A441]`}></i>
                 <span>{authLoading ? 'Verifying Credentials...' : 'Authenticate as Administrator'}</span>
-              </button>
+              </motion.button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-[#4A3E38] text-center">
+            <div className="mt-6 pt-5 border-t border-white/10 text-center">
               <Link
                 href="/"
-                className="text-xs text-[#8C8279] hover:text-[#E7D5BC] font-medium transition inline-flex items-center gap-1.5"
+                className="text-xs text-white/60 hover:text-white font-medium transition-colors inline-flex items-center gap-1.5"
               >
                 <i className="fas fa-arrow-left text-[10px]"></i>
                 <span>Return to Storefront</span>
@@ -277,39 +279,40 @@ export default function AdminHubPage() {
   // 2. GATE: Authenticated but Non-Admin (403 Forbidden)
   if (user && user.role !== 'ADMIN') {
     return (
-      <div className="min-h-screen flex flex-col bg-[#1A1512] text-white">
+      <div className="min-h-screen flex flex-col bg-[#161311] text-white font-sans">
         <Header cartCount={cartCount} wishlistCount={wishlistCount} />
 
         <main className="flex-1 flex items-center justify-center px-4 py-16">
-          <div className="max-w-md w-full bg-[#241D19] border border-rose-500/30 rounded-3xl p-8 shadow-2xl text-center">
+          <div className="max-w-md w-full apple-glass-dark border border-rose-500/30 rounded-3xl p-8 shadow-2xl text-center">
             <div className="w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-2xl mx-auto mb-4 border border-rose-500/40">
               <i className="fas fa-lock"></i>
             </div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-[11px] font-bold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-[11px] font-semibold uppercase tracking-wider mb-2">
               403 Forbidden
             </div>
-            <h1 className="text-2xl font-black font-display text-white mb-2">
+            <h1 className="text-2xl font-bold apple-heading text-white mb-2">
               Administrator Privileges Required
             </h1>
-            <p className="text-xs text-[#C5BCB3] leading-relaxed mb-6">
+            <p className="text-xs text-white/70 leading-relaxed mb-6">
               You are currently authenticated as <strong className="text-white">{user.email}</strong> with role{' '}
               <span className="px-2 py-0.5 rounded bg-white/10 text-[#D9A441] font-mono font-bold">[{user.role}]</span>.
               Access to platform operations and database management is strictly restricted to authorized administrators.
             </p>
 
             <div className="space-y-3">
-              <button
+              <motion.button
+                whileTap={{ scale: 0.96 }}
                 type="button"
                 onClick={logoutCustomer}
-                className="w-full py-3 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer border-0"
+                className="w-full py-3 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer border-0 apple-pressable"
               >
                 <i className="fas fa-right-from-bracket"></i>
                 <span>Sign Out & Switch Account</span>
-              </button>
+              </motion.button>
 
               <Link
                 href="/"
-                className="block w-full py-3 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl transition text-center"
+                className="block w-full py-3 bg-white/10 hover:bg-white/15 text-white font-semibold text-xs rounded-xl transition-colors text-center border border-white/10"
               >
                 Return to Storefront
               </Link>
@@ -345,41 +348,43 @@ export default function AdminHubPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           {/* Header Banner */}
-          <div className="bg-[#1A1512] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-[#D9A441]/30 mb-8">
+          <div className="apple-glass-dark rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-white/10 mb-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#B5532E]/30 text-[#D9A441] text-xs font-bold uppercase tracking-wider">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#D9A441] text-xs font-semibold uppercase tracking-wider border border-white/10">
                   <i className="fas fa-shield-halved"></i>
                   <span>Platform Operations Control Hub</span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-black">MANGA Platform Administration</h1>
-                <p className="text-xs text-[#E7D5BC]">
+                <h1 className="text-2xl sm:text-3xl font-bold apple-heading text-white">MANGA Platform Administration</h1>
+                <p className="text-xs text-white/70">
                   PostgreSQL database status, microservice health, and platform governance.
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/20 text-xs font-semibold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                     Admin: {user.name} ({user.email})
                   </span>
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.94 }}
                     type="button"
                     disabled={purging}
                     onClick={handlePurgeDatabase}
-                    className="px-3.5 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-xs font-bold text-white border border-rose-400/30 cursor-pointer transition flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-xs font-semibold text-white border border-rose-400/30 cursor-pointer transition-colors flex items-center gap-1.5 apple-pressable"
                   >
                     <i className={`fas ${purging ? 'fa-spinner fa-spin' : 'fa-trash-can'}`}></i>
                     <span>{purging ? 'Purging DB...' : 'Purge All Products'}</span>
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.94 }}
                     type="button"
                     onClick={logoutCustomer}
-                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs text-white border border-white/20 cursor-pointer transition"
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-white border border-white/10 cursor-pointer transition-colors apple-pressable"
                   >
                     Sign Out
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </div>
@@ -403,17 +408,17 @@ export default function AdminHubPage() {
 
           {/* Database Health Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white p-5 rounded-2xl border border-[#E7D5BC] shadow-xs">
+            <div className="bg-white p-5 rounded-2xl border border-[#EAE3D9] shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#8C8279]">Database Engine</span>
+                <span className="text-xs font-semibold text-[#78716C]">Database Engine</span>
                 <i className="fas fa-database text-[#B5532E]"></i>
               </div>
-              <div className="text-lg font-black text-[#1A1512] mt-2">
+              <div className="text-lg font-bold text-[#1D1917] mt-2 tracking-tight">
                 {diagnostics?.database || 'PostgreSQL'}
               </div>
-              <div className="text-[11px] text-[#8C8279] mt-1 flex items-center gap-1">
+              <div className="text-[11px] text-[#78716C] mt-1 flex items-center gap-1">
                 <span
-                  className={`w-2 h-2 rounded-full ${
+                  className={`w-1.5 h-1.5 rounded-full ${
                     diagnostics?.connected ? 'bg-emerald-500' : 'bg-rose-500'
                   }`}
                 ></span>
@@ -421,55 +426,55 @@ export default function AdminHubPage() {
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-[#E7D5BC] shadow-xs">
+            <div className="bg-white p-5 rounded-2xl border border-[#EAE3D9] shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#8C8279]">Active Master Products</span>
+                <span className="text-xs font-semibold text-[#78716C]">Active Master Products</span>
                 <i className="fas fa-box text-[#D9A441]"></i>
               </div>
-              <div className="text-lg font-black text-[#1A1512] mt-2">
+              <div className="text-lg font-bold text-[#1D1917] mt-2 tracking-tight">
                 {diagnostics?.tableCounts?.['catalog.master_products'] ?? '-'}
               </div>
-              <div className="text-[11px] text-[#8C8279] mt-1">
+              <div className="text-[11px] text-[#78716C] mt-1">
                 In-stock catalog items
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-[#E7D5BC] shadow-xs">
+            <div className="bg-white p-5 rounded-2xl border border-[#EAE3D9] shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#8C8279]">Verified Vendors</span>
+                <span className="text-xs font-semibold text-[#78716C]">Verified Vendors</span>
                 <i className="fas fa-store text-emerald-600"></i>
               </div>
-              <div className="text-lg font-black text-[#1A1512] mt-2">
+              <div className="text-lg font-bold text-[#1D1917] mt-2 tracking-tight">
                 {diagnostics?.tableCounts?.['vendor.vendors'] ?? '-'}
               </div>
-              <div className="text-[11px] text-[#8C8279] mt-1">
+              <div className="text-[11px] text-[#78716C] mt-1">
                 Registered merchant partners
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-[#E7D5BC] shadow-xs">
+            <div className="bg-white p-5 rounded-2xl border border-[#EAE3D9] shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#8C8279]">Platform Categories</span>
+                <span className="text-xs font-semibold text-[#78716C]">Platform Categories</span>
                 <i className="fas fa-tags text-indigo-600"></i>
               </div>
-              <div className="text-lg font-black text-[#1A1512] mt-2">
+              <div className="text-lg font-bold text-[#1D1917] mt-2 tracking-tight">
                 {diagnostics?.tableCounts?.['catalog.categories'] ?? '-'}
               </div>
-              <div className="text-[11px] text-[#8C8279] mt-1">
+              <div className="text-[11px] text-[#78716C] mt-1">
                 Active department nodes
               </div>
             </div>
           </div>
 
           {/* Diagnostics Navigation Tabs */}
-          <div className="flex items-center gap-2 border-b border-[#E7D5BC] mb-6">
+          <div className="flex items-center gap-2 border-b border-[#EAE3D9] mb-6">
             <button
               type="button"
               onClick={() => setActiveTab('overview')}
-              className={`px-4 py-2 text-xs font-bold border-b-2 transition cursor-pointer ${
+              className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'overview'
                   ? 'border-[#B5532E] text-[#B5532E]'
-                  : 'border-transparent text-[#8C8279] hover:text-[#1A1512]'
+                  : 'border-transparent text-[#78716C] hover:text-[#1D1917]'
               }`}
             >
               System Diagnostics
@@ -477,10 +482,10 @@ export default function AdminHubPage() {
             <button
               type="button"
               onClick={() => setActiveTab('tables')}
-              className={`px-4 py-2 text-xs font-bold border-b-2 transition cursor-pointer ${
+              className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'tables'
                   ? 'border-[#B5532E] text-[#B5532E]'
-                  : 'border-transparent text-[#8C8279] hover:text-[#1A1512]'
+                  : 'border-transparent text-[#78716C] hover:text-[#1D1917]'
               }`}
             >
               PostgreSQL Tables
@@ -488,10 +493,10 @@ export default function AdminHubPage() {
             <button
               type="button"
               onClick={() => setActiveTab('products')}
-              className={`px-4 py-2 text-xs font-bold border-b-2 transition cursor-pointer ${
+              className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'products'
                   ? 'border-[#B5532E] text-[#B5532E]'
-                  : 'border-transparent text-[#8C8279] hover:text-[#1A1512]'
+                  : 'border-transparent text-[#78716C] hover:text-[#1D1917]'
               }`}
             >
               Live Catalog Sample
@@ -499,10 +504,10 @@ export default function AdminHubPage() {
             <button
               type="button"
               onClick={() => setActiveTab('email')}
-              className={`px-4 py-2 text-xs font-bold border-b-2 transition cursor-pointer flex items-center gap-1.5 ${
+              className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'email'
                   ? 'border-[#B5532E] text-[#B5532E]'
-                  : 'border-transparent text-[#8C8279] hover:text-[#1A1512]'
+                  : 'border-transparent text-[#78716C] hover:text-[#1D1917]'
               }`}
             >
               <i className="fas fa-envelope"></i>
@@ -719,7 +724,7 @@ export default function AdminHubPage() {
                   <div className="p-4 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC]">
                     <div className="text-[11px] text-[#8C8279] font-bold uppercase mb-1">Sender Address</div>
                     <div className="font-bold text-[#1A1512] truncate">
-                      {mailInfo?.details?.fromAddress || 'support@manga.jlm.com.ng'}
+                      {mailInfo?.details?.fromAddress || 'support@jlm.com.ng'}
                     </div>
                   </div>
                   <div className="p-4 rounded-xl bg-[#FAF7F2] border border-[#E7D5BC]">
@@ -800,7 +805,7 @@ SMTP_SECURE=true
 SMTP_USER=support@manga.jlm.com.ng
 SMTP_PASS=YourSecureEmailPasswordHere
 MAIL_FROM_NAME="MANGA MARKETSQUARE"
-MAIL_FROM_ADDRESS=support@manga.jlm.com.ng`}
+MAIL_FROM_ADDRESS=support@jlm.com.ng`}
                 </pre>
               </div>
             </div>

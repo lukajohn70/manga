@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   Button,
   PullToRefresh,
@@ -9,6 +10,8 @@ import {
   ExpandableCard,
   SuccessCheckmark,
 } from '@manga/ui';
+import { Header } from '../../components/Header';
+import { Footer } from '../../components/Footer';
 
 interface MangaItem {
   id: string;
@@ -44,18 +47,19 @@ export default function MicroInteractionsPage() {
   const [checkmarkKey, setCheckmarkKey] = React.useState(0);
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] text-[#2A2320] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#1D1917] flex flex-col font-sans">
+      <Header />
+      <main className="flex-1 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-12 w-full">
         {/* Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#B5532E]/10 text-[#B5532E]">
             Haptic & Kinetic Mechanics
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif text-[#1E1815]">
-            Why Premium Apps Feel Smooth
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight apple-display text-[#1D1917]">
+            Fluid Interactions & Physics
           </h1>
-          <p className="max-w-2xl mx-auto text-sm sm:text-base text-[#8C8279]">
-            Tactile micro-interactions engineered with physical springs, resistance damping, and choreographed perceptual timing.
+          <p className="max-w-2xl mx-auto text-sm sm:text-base text-[#78716C]">
+            Tactile micro-interactions engineered with physical springs, resistance damping, and direct manipulation.
           </p>
         </div>
 
@@ -349,7 +353,8 @@ export default function MicroInteractionsPage() {
             )}
           </ExpandableCard>
         </section>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 }

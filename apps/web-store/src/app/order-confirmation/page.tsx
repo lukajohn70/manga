@@ -125,15 +125,15 @@ function OrderConfirmationContent() {
         </div>
 
           {/* Delivery Timeline Summary */}
-          <div className="mt-8 p-6 rounded-2xl bg-[#F6EDE0]/40 border border-[#E7D5BC] text-left">
-            <div className="flex items-center justify-between pb-4 border-b border-[#E7D5BC]/60 text-xs mb-4">
+          <div className="mt-8 p-6 rounded-2xl bg-white border border-[#EAE3D9] text-left shadow-xs">
+            <div className="flex items-center justify-between pb-4 border-b border-[#EAE3D9] text-xs mb-4">
               <div>
-                <span className="text-[10px] text-[#8C8279] uppercase font-bold tracking-wider block">Estimated Delivery</span>
-                <strong className="text-xs sm:text-sm font-extrabold text-[#4F6B3A]">Tomorrow, by 5:00 PM</strong>
+                <span className="text-[10px] text-[#78716C] uppercase font-bold tracking-wider block">Estimated Delivery</span>
+                <strong className="text-xs sm:text-sm font-bold text-[#4F6B3A]">Tomorrow, by 5:00 PM</strong>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-[#8C8279] uppercase font-bold tracking-wider block">Courier Logistics</span>
-                <strong className="text-xs text-[#2A2320] font-bold">Marketsquare Express Fleet</strong>
+                <span className="text-[10px] text-[#78716C] uppercase font-bold tracking-wider block">Courier Logistics</span>
+                <strong className="text-xs text-[#1D1917] font-semibold">Marketsquare Express Fleet</strong>
               </div>
             </div>
 
@@ -143,29 +143,29 @@ function OrderConfirmationContent() {
                 <div className="w-6 h-6 rounded-full bg-[#4F6B3A] text-white flex items-center justify-center mx-auto mb-1 text-[10px]">
                   <i className="fas fa-check"></i>
                 </div>
-                <span className="font-bold text-[#2A2320] block">Payment Confirmed</span>
-                <span className="text-[#8C8279]">Completed</span>
+                <span className="font-semibold text-[#1D1917] block">Payment Confirmed</span>
+                <span className="text-[#78716C]">Completed</span>
               </div>
               <div>
                 <div className="w-6 h-6 rounded-full bg-[#D9A441] text-white flex items-center justify-center mx-auto mb-1 text-[10px]">
                   <i className="fas fa-box"></i>
                 </div>
-                <span className="font-bold text-[#2A2320] block">Vendor Packing</span>
-                <span className="text-[#D9A441] font-bold">In Progress</span>
+                <span className="font-semibold text-[#1D1917] block">Vendor Packing</span>
+                <span className="text-[#D9A441] font-semibold">In Progress</span>
               </div>
               <div className="opacity-50">
-                <div className="w-6 h-6 rounded-full bg-[#E7D5BC] text-[#8C8279] flex items-center justify-center mx-auto mb-1 text-[10px]">
+                <div className="w-6 h-6 rounded-full bg-[#FAF7F2] border border-[#EAE3D9] text-[#78716C] flex items-center justify-center mx-auto mb-1 text-[10px]">
                   <i className="fas fa-truck-fast"></i>
                 </div>
-                <span className="font-bold text-[#2A2320] block">In Transit</span>
-                <span className="text-[#8C8279]">Pending</span>
+                <span className="font-semibold text-[#1D1917] block">In Transit</span>
+                <span className="text-[#78716C]">Pending</span>
               </div>
               <div className="opacity-50">
-                <div className="w-6 h-6 rounded-full bg-[#E7D5BC] text-[#8C8279] flex items-center justify-center mx-auto mb-1 text-[10px]">
+                <div className="w-6 h-6 rounded-full bg-[#FAF7F2] border border-[#EAE3D9] text-[#78716C] flex items-center justify-center mx-auto mb-1 text-[10px]">
                   <i className="fas fa-door-open"></i>
                 </div>
-                <span className="font-bold text-[#2A2320] block">Doorstep Delivery</span>
-                <span className="text-[#8C8279]">Pending</span>
+                <span className="font-semibold text-[#1D1917] block">Doorstep Delivery</span>
+                <span className="text-[#78716C]">Pending</span>
               </div>
             </div>
           </div>
@@ -174,7 +174,7 @@ function OrderConfirmationContent() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href={`/track-order?ref=${encodeURIComponent(ref)}`}
-              className="w-full sm:w-auto px-7 py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-extrabold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-7 py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-2 apple-pressable"
             >
               <i className="fas fa-location-crosshairs"></i>
               <span>Track Live Shipment Status</span>
@@ -183,21 +183,19 @@ function OrderConfirmationContent() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-[#FAF6F0] text-[#2A2320] border border-[#E7D5BC] font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#1D1917] border border-[#EAE3D9] font-semibold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer apple-pressable"
             >
-              <i className="fas fa-receipt text-[#8C8279]"></i>
+              <i className="fas fa-receipt text-[#78716C]"></i>
               <span>Print Tax Invoice</span>
             </button>
 
             <Link
               href="/shop"
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-[#FAF6F0] text-[#8C8279] hover:text-[#2A2320] border border-[#E7D5BC] font-bold text-xs transition-colors flex items-center justify-center"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#78716C] hover:text-[#1D1917] border border-[#EAE3D9] font-semibold text-xs transition-colors flex items-center justify-center apple-pressable"
             >
               <span>Back to Marketplace</span>
             </Link>
           </div>
-
-        </div>
 
       </main>
 

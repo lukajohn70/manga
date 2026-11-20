@@ -20,7 +20,8 @@
     "nodemailer": "^10.6.0",
     "pg": "^8.23.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "sonner": "^2.0.8"
   },
   "devDependencies": {
     "@manga/config": "workspace:*",

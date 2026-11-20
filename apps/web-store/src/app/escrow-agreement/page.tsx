@@ -7,33 +7,33 @@ import { Footer } from '../../components/Footer';
 
 export default function BuyerProtectionAgreementPage() {
   return (
-    <div className="min-h-screen bg-[#FAF6F0] flex flex-col font-sans text-[#2A2320]">
+    <div className="min-h-screen bg-[#FAF7F2] flex flex-col font-sans text-[#1D1917]">
       <Header />
 
       <main className="flex-1 container mx-auto px-4 lg:px-8 py-8 sm:py-12 max-w-4xl">
-        <nav className="flex items-center gap-2 text-xs text-[#8C8279] mb-6">
-          <Link href="/" className="hover:text-[#B5532E] transition-colors">Home</Link>
-          <span>/</span>
-          <span className="text-[#2A2320] font-semibold">Buyer Protection Agreement</span>
+        <nav className="flex items-center gap-2 text-xs text-[#78716C] mb-6">
+          <Link href="/" className="hover:text-[#1D1917] transition-colors">Home</Link>
+          <span className="text-[#C5BDB5]">/</span>
+          <span className="text-[#1D1917] font-semibold">Buyer Protection Agreement</span>
         </nav>
 
-        <div className="bg-white rounded-2xl border border-[#E7D5BC] p-6 sm:p-10 mb-8 shadow-xs">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F0F6EE] border border-[#D2E4CC] text-[#4F6B3A] text-xs font-bold uppercase tracking-wider mb-4">
-            <span className="w-2 h-2 rounded-full bg-[#4F6B3A]" />
+        <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 mb-8 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#4F6B3A]/10 border border-[#4F6B3A]/20 text-[#4F6B3A] text-xs font-semibold uppercase tracking-wider mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#4F6B3A]" />
             100% Verified Sellers • Genuine Commerce Guarantee
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black font-display text-[#2A2320] tracking-tight mb-3">
+          <h1 className="text-2xl sm:text-4xl font-bold apple-heading text-[#1D1917] tracking-tight mb-3">
             MANGA MARKETSQUARE Buyer Protection Agreement
           </h1>
-          <p className="text-sm text-[#8C8279]">
+          <p className="text-sm text-[#78716C]">
             Zero-Risk Commerce Guarantee for Discerning Buyers & Verified Sellers
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-[#E7D5BC] p-6 sm:p-10 space-y-8 text-sm sm:text-base leading-relaxed text-[#4A3E39] shadow-xs">
+        <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 space-y-8 text-sm sm:text-base leading-relaxed text-[#1D1917]/85 shadow-xs">
           
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-[#2A2320] mb-3 flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[#1D1917] mb-3 flex items-center gap-2">
               <span className="text-[#4F6B3A]">1.</span> 100% Verified Sellers Promise
             </h2>
             <p>
@@ -42,26 +42,26 @@ export default function BuyerProtectionAgreementPage() {
           </section>
 
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-[#2A2320] mb-3 flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[#1D1917] mb-3 flex items-center gap-2">
               <span className="text-[#4F6B3A]">2.</span> Same-Day Delivery in Kaduna
             </h2>
             <p>
               We guarantee that <strong>same-day delivery is possible for orders placed within Kaduna</strong>. For destinations outside Kaduna, we provide dependable courier dispatch nationwide with real-time tracking numbers.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4">
-              <div className="p-4 rounded-xl bg-[#FAF6F0] border border-[#E7D5BC]">
-                <div className="font-black text-sm text-[#B5532E] mb-1">Within Kaduna</div>
-                <p className="text-xs text-[#6B5E57]">Same-day courier delivery available for local Kaduna residential and business orders.</p>
+              <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9]">
+                <div className="font-bold text-sm text-[#B5532E] mb-1">Within Kaduna</div>
+                <p className="text-xs text-[#78716C]">Same-day courier delivery available for local Kaduna residential and business orders.</p>
               </div>
-              <div className="p-4 rounded-xl bg-[#FAF6F0] border border-[#E7D5BC]">
-                <div className="font-black text-sm text-[#4F6B3A] mb-1">Nationwide</div>
-                <p className="text-xs text-[#6B5E57]">Reliable nationwide delivery with certified courier partners across Nigeria.</p>
+              <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9]">
+                <div className="font-bold text-sm text-[#4F6B3A] mb-1">Nationwide</div>
+                <p className="text-xs text-[#78716C]">Reliable nationwide delivery with certified courier partners across Nigeria.</p>
               </div>
             </div>
           </section>
 
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-[#2A2320] mb-3 flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[#1D1917] mb-3 flex items-center gap-2">
               <span className="text-[#4F6B3A]">3.</span> 7-Day Return & Replacement Policy
             </h2>
             <p>
@@ -70,7 +70,7 @@ export default function BuyerProtectionAgreementPage() {
           </section>
 
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-[#2A2320] mb-3 flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[#1D1917] mb-3 flex items-center gap-2">
               <span className="text-[#4F6B3A]">4.</span> Secure Payments
             </h2>
             <p>
