@@ -61,9 +61,9 @@ fi
 # Remove static index.html or index.htm so Passenger handles root traffic
 rm -f "$TARGET/index.html" "$TARGET/index.htm"
 
-# Ensure critical runtime production dependencies (like pg) are installed in target
-if [ ! -d "$TARGET/node_modules/pg" ]; then
-  echo "Installing missing runtime dependencies (including pg) into $TARGET..."
+# Ensure critical runtime production dependencies (like pg and nodemailer) are installed in target
+if [ ! -d "$TARGET/node_modules/pg" ] || [ ! -d "$TARGET/node_modules/nodemailer" ]; then
+  echo "Installing missing runtime dependencies (including pg and nodemailer) into $TARGET..."
   (cd "$TARGET" && npm install --omit=dev --no-audit --no-fund) || true
 fi
 

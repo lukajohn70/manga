@@ -17,14 +17,27 @@ for (const envPath of envFiles) {
         if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
           const idx = trimmed.indexOf('=');
           const k = trimmed.slice(0, idx).trim();
-          const v = trimmed.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
-          if (!process.env[k] && v) {
+          let v = trimmed.slice(idx + 1).trim();
+          if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+            v = v.slice(1, -1);
+          }
+          if (v) {
             process.env[k] = v;
           }
         }
       });
     } catch {}
   }
+}
+
+// Auto-correct invalid SMTP hostnames (mail.manga.jlm.com.ng does not exist in DNS)
+if (
+  process.env.SMTP_HOST === 'mail.manga.jlm.com.ng' ||
+  process.env.SMTP_HOST === 'smtp.manga.jlm.com.ng' ||
+  process.env.SMTP_HOST === 'manga.jlm.com.ng'
+) {
+  console.log('[Server] Auto-correcting SMTP_HOST to mail.jlm.com.ng');
+  process.env.SMTP_HOST = 'mail.jlm.com.ng';
 }
 
 // Always run in production mode on cPanel to serve pre-built optimized bundle
