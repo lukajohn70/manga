@@ -1,118 +1,86 @@
 'use client';
 
 import * as React from 'react';
+import { motion } from 'motion/react';
 
 export interface OfficialStoresSectionProps {
   onSelectBrand: (brand: string) => void;
 }
 
+const BRANDS = [
+  { name: 'Apple', label: 'Apple', icon: 'fab fa-apple', isIcon: true },
+  { name: 'Samsung', label: 'Samsung', textLogo: 'SAMSUNG' },
+  { name: 'Sony', label: 'Sony Audio', textLogo: 'SONY', tracking: 'tracking-widest' },
+  { name: 'Logitech', label: 'Logitech', textLogo: 'logi' },
+  { name: 'DeLonghi', label: "De'Longhi", textLogo: "De'Longhi" },
+  { name: 'MARKETSQUARE', label: 'Signature Line', textLogo: 'MARKETSQUARE', isFlagship: true },
+];
+
 export const OfficialStoresSection: React.FC<OfficialStoresSectionProps> = ({
   onSelectBrand,
 }) => {
   return (
-    <section className="py-14 sm:py-16 bg-white border-b border-[#E7D5BC]">
+    <section className="py-14 sm:py-16 bg-[#FAF7F2] border-b border-[#EAE3D9]/80">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#B5532E] mb-1">
-              <i className="fas fa-circle-check"></i> Verified Official Stores
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B5532E] mb-1.5">
+              <i className="fas fa-certificate text-[11px]" />
+              <span>Manufacturer Authorized</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black font-display text-[#2A2320]">MARKETSQUARE Mall</h2>
-            <p className="text-sm text-[#8C8279]">100% Authentic products directly from manufacturer-authorized distributors.</p>
+            <h2 className="apple-heading text-2xl sm:text-3xl font-bold text-[#1D1917] tracking-tight">
+              Official Brand Stores
+            </h2>
+            <p className="apple-subhead text-sm text-[#78716C] mt-1 font-normal">
+              Direct distribution with authentic manufacturer warranty coverage.
+            </p>
           </div>
           <button
             type="button"
             onClick={() => onSelectBrand('')}
-            className="text-xs font-bold text-[#B5532E] hover:text-[#8F3B1F] hover:underline flex items-center gap-1 bg-transparent border-0 cursor-pointer"
+            className="text-xs font-semibold text-[#B5532E] hover:text-[#8F3B1F] flex items-center gap-1.5 bg-transparent border-0 cursor-pointer transition-colors"
           >
-            <span>Explore All Brands</span>
-            <i className="fas fa-arrow-right"></i>
+            <span>All Authorized Brands</span>
+            <i className="fas fa-arrow-right text-[10px] opacity-75" />
           </button>
         </div>
 
-        {/* Official Brands Strip */}
+        {/* Official Brands Strip with Spring Physics */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-          <button
-            type="button"
-            onClick={() => onSelectBrand('Apple')}
-            className="p-6 rounded-2xl bg-[#FAF6F0] hover:bg-white border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-lg transition-all text-center flex flex-col items-center justify-center group cursor-pointer"
-          >
-            <i className="fab fa-apple text-3xl text-[#2A2320] group-hover:text-[#B5532E] transition-colors mb-2"></i>
-            <span className="text-xs font-bold text-[#2A2320]">Apple</span>
-            <span className="text-[10px] text-[#4F6B3A] font-semibold mt-0.5">
-              <i className="fas fa-check-circle text-[9px]"></i> Official
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectBrand('Samsung')}
-            className="p-6 rounded-2xl bg-[#FAF6F0] hover:bg-white border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-lg transition-all text-center flex flex-col items-center justify-center group cursor-pointer"
-          >
-            <span className="font-display font-black text-xl text-[#2A2320] group-hover:text-[#B5532E] transition-colors mb-2">
-              SAMSUNG
-            </span>
-            <span className="text-xs font-bold text-[#2A2320]">Samsung</span>
-            <span className="text-[10px] text-[#4F6B3A] font-semibold mt-0.5">
-              <i className="fas fa-check-circle text-[9px]"></i> Official
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectBrand('Sony')}
-            className="p-6 rounded-2xl bg-[#FAF6F0] hover:bg-white border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-lg transition-all text-center flex flex-col items-center justify-center group cursor-pointer"
-          >
-            <span className="font-display font-black text-xl tracking-widest text-[#2A2320] group-hover:text-[#B5532E] transition-colors mb-2">
-              SONY
-            </span>
-            <span className="text-xs font-bold text-[#2A2320]">Sony Audio</span>
-            <span className="text-[10px] text-[#4F6B3A] font-semibold mt-0.5">
-              <i className="fas fa-check-circle text-[9px]"></i> Official
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectBrand('Logitech')}
-            className="p-6 rounded-2xl bg-[#FAF6F0] hover:bg-white border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-lg transition-all text-center flex flex-col items-center justify-center group cursor-pointer"
-          >
-            <span className="font-display font-black text-xl text-[#2A2320] group-hover:text-[#B5532E] transition-colors mb-2">
-              logi
-            </span>
-            <span className="text-xs font-bold text-[#2A2320]">Logitech</span>
-            <span className="text-[10px] text-[#4F6B3A] font-semibold mt-0.5">
-              <i className="fas fa-check-circle text-[9px]"></i> Official
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectBrand('DeLonghi')}
-            className="p-6 rounded-2xl bg-[#FAF6F0] hover:bg-white border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-lg transition-all text-center flex flex-col items-center justify-center group cursor-pointer"
-          >
-            <span className="font-display font-black text-lg text-[#2A2320] group-hover:text-[#B5532E] transition-colors mb-2">
-              De'Longhi
-            </span>
-            <span className="text-xs font-bold text-[#2A2320]">De'Longhi</span>
-            <span className="text-[10px] text-[#4F6B3A] font-semibold mt-0.5">
-              <i className="fas fa-check-circle text-[9px]"></i> Official
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectBrand('MARKETSQUARE')}
-            className="p-6 rounded-2xl bg-gradient-to-br from-[#B5532E]/10 to-[#D9A441]/10 hover:bg-white border border-[#B5532E]/30 shadow-2xs hover:shadow-lg transition-all text-center flex flex-col items-center justify-center group cursor-pointer"
-          >
-            <span className="font-display font-black text-sm text-[#B5532E] mb-2 tracking-tight">
-              MARKETSQUARE
-            </span>
-            <span className="text-xs font-bold text-[#2A2320]">Signature Line</span>
-            <span className="text-[10px] text-[#B5532E] font-semibold mt-0.5">
-              <i className="fas fa-star text-[9px] text-[#D9A441]"></i> Flagship
-            </span>
-          </button>
+          {BRANDS.map((b) => (
+            <motion.button
+              key={b.name}
+              type="button"
+              onClick={() => onSelectBrand(b.name)}
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+              className={`p-6 rounded-2xl border flex flex-col items-center justify-center text-center cursor-pointer apple-pressable transition-colors ${
+                b.isFlagship
+                  ? 'bg-white border-[#B5532E]/30 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-[#B5532E]/60'
+                  : 'bg-white border-[#EAE3D9] shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-[#B5532E]/30 hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)]'
+              }`}
+            >
+              <div className="h-10 flex items-center justify-center mb-2">
+                {b.isIcon ? (
+                  <i className={`${b.icon} text-3xl text-[#1D1917]`} />
+                ) : (
+                  <span
+                    className={`font-bold text-lg text-[#1D1917] ${
+                      b.tracking || 'tracking-tight'
+                    } ${b.isFlagship ? 'text-[#B5532E] text-sm' : ''}`}
+                  >
+                    {b.textLogo}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs font-medium text-[#1D1917] mt-1">{b.label}</span>
+              <span className="text-[10px] text-[#4F6B3A] font-medium mt-1 flex items-center gap-1">
+                <i className="fas fa-check-circle text-[9px]" />
+                <span>{b.isFlagship ? 'Flagship' : 'Verified'}</span>
+              </span>
+            </motion.button>
+          ))}
         </div>
       </div>
     </section>

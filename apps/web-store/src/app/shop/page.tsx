@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -166,7 +167,7 @@ function ShopContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
       <Header
         cartCount={cartCount}
         wishlistCount={wishlistCount}
@@ -187,14 +188,14 @@ function ShopContent() {
       <main className="flex-1 container mx-auto px-4 lg:px-8 py-8 sm:py-10">
         
         {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-2 text-xs text-[#8C8279] mb-4">
-          <Link href="/" className="hover:text-[#B5532E] transition-colors">Home</Link>
+        <div className="flex items-center gap-2 text-xs text-[#78716C] mb-4">
+          <Link href="/" className="hover:text-[#B5532E] transition-colors no-underline text-[#78716C]">Home</Link>
           <span>/</span>
-          <Link href="/shop" className="hover:text-[#B5532E] transition-colors font-bold text-[#2A2320]">Shop Marketplace</Link>
+          <Link href="/shop" className="hover:text-[#B5532E] transition-colors font-semibold text-[#1D1917] no-underline">Shop Marketplace</Link>
           {selectedCategory !== 'all' && (
             <>
               <span>/</span>
-              <span className="text-[#B5532E] font-bold capitalize">
+              <span className="text-[#B5532E] font-medium capitalize">
                 {DEPARTMENTS.find((d) => d.id === selectedCategory)?.name || selectedCategory}
               </span>
             </>
@@ -202,32 +203,32 @@ function ShopContent() {
         </div>
 
         {/* Header Title & Sorting Toolbar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#E7D5BC] mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#EAE3D9] mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black font-display text-[#2A2320]">
+            <h1 className="apple-heading text-2xl sm:text-3xl font-bold text-[#1D1917] tracking-tight">
               {searchQuery
                 ? `Search Results for "${searchQuery}"`
                 : selectedCategory !== 'all'
                 ? DEPARTMENTS.find((d) => d.id === selectedCategory)?.name || 'Marketplace Catalog'
                 : 'Marketplace Catalog'}
             </h1>
-            <p className="text-xs sm:text-sm text-[#8C8279] mt-1">
+            <p className="apple-subhead text-xs sm:text-sm text-[#78716C] mt-1 font-normal">
               Showing <strong>{filteredProducts.length}</strong> verified authentic products
               {selectedCategory !== 'all' && (
-                <span> in <span className="text-[#B5532E] font-semibold">{DEPARTMENTS.find((d) => d.id === selectedCategory)?.name}</span></span>
+                <span> in <span className="text-[#B5532E] font-medium">{DEPARTMENTS.find((d) => d.id === selectedCategory)?.name}</span></span>
               )}
             </p>
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <label htmlFor="sort" className="text-xs font-bold text-[#8C8279] whitespace-nowrap">
+            <label htmlFor="sort" className="text-xs font-medium text-[#78716C] whitespace-nowrap">
               Sort By:
             </label>
             <select
               id="sort"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 bg-white border border-[#E7D5BC] rounded-xl text-xs font-bold text-[#2A2320] focus:outline-none focus:ring-1 focus:ring-[#B5532E] cursor-pointer shadow-2xs"
+              className="px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-semibold text-[#1D1917] focus:outline-none focus:ring-2 focus:ring-[#B5532E]/30 cursor-pointer shadow-xs"
             >
               <option value="featured">Featured & Recommended</option>
               <option value="price_asc">Price: Low to High</option>
@@ -378,21 +379,23 @@ function ShopContent() {
                 <p className="text-sm font-medium text-[#8C8279]">Loading verified catalog products...</p>
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="p-12 text-center bg-white rounded-3xl border border-[#E7D5BC] shadow-2xs">
-                <div className="w-16 h-16 rounded-2xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-2xl mx-auto mb-4">
+              <div className="p-12 text-center bg-white rounded-3xl border border-[#EAE3D9] shadow-xs max-w-lg mx-auto">
+                <div className="w-14 h-14 rounded-2xl bg-[#FAF7F2] text-[#B5532E] flex items-center justify-center text-xl mx-auto mb-4 border border-[#EAE3D9]">
                   <i className="fas fa-box-open"></i>
                 </div>
-                <h3 className="font-display font-black text-lg text-[#2A2320]">No products matched your filters</h3>
-                <p className="text-xs text-[#8C8279] max-w-sm mx-auto mt-1 mb-6">
+                <h3 className="apple-heading font-bold text-lg text-[#1D1917]">No products matched your filters</h3>
+                <p className="text-xs text-[#78716C] max-w-sm mx-auto mt-1 mb-6 leading-relaxed">
                   Try adjusting your search terms, expanding the price range, or clearing department filters.
                 </p>
-                <button
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
                   onClick={handleResetFilters}
-                  className="px-6 py-2.5 bg-[#B5532E] text-white text-xs font-bold rounded-xl hover:bg-[#8F3B1F] transition-colors border-0 cursor-pointer shadow-xs"
+                  className="px-6 py-2.5 bg-[#B5532E] text-white text-xs font-semibold rounded-xl hover:bg-[#A04523] transition-colors border-0 cursor-pointer shadow-xs apple-pressable"
                 >
                   View All Marketplace Products
-                </button>
+                </motion.button>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
@@ -404,70 +407,75 @@ function ShopContent() {
                   const inWish = isInWishlist(item.id);
 
                   return (
-                    <div
+                    <motion.div
                       key={item.id}
                       id={`product-card-${item.id}`}
-                      className="group bg-white rounded-2xl border border-[#E7D5BC]/80 hover:border-[#B5532E]/40 overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                      whileHover={{ y: -4 }}
+                      transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                      className="group bg-white rounded-2xl border border-[#EAE3D9] hover:border-[#B5532E]/40 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] flex flex-col justify-between"
                     >
                       {/* Product Media Area */}
                       <div
                         id={`product-visual-${item.id}`}
-                        className="relative aspect-square overflow-hidden bg-[#FAF6F0]"
+                        className="relative aspect-square overflow-hidden bg-[#F5F2EC]"
                       >
                         <Link href={`/product/${item.id}`} className="block w-full h-full">
-                          <img
+                          <motion.img
                             src={item.image}
                             alt={item.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            whileHover={{ scale: 1.04 }}
+                            transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+                            className="w-full h-full object-cover"
                           />
                         </Link>
 
                         {/* Top Discount & Wishlist Badges */}
                         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
                           {discountPct ? (
-                            <span className="bg-[#B3261E] text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-xs">
+                            <span className="bg-[#1D1917]/90 text-white font-semibold text-[10px] px-2 py-0.5 rounded-full shadow-xs">
                               -{discountPct}%
                             </span>
                           ) : (
                             <span></span>
                           )}
 
-                          <button
+                          <motion.button
                             type="button"
+                            whileTap={{ scale: 0.9 }}
                             onClick={(e) => {
                               e.preventDefault();
                               const visualEl = document.getElementById(`product-visual-${item.id}`) || e.currentTarget;
                               toggleWishlist(item.id, visualEl, item);
                             }}
-                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 border-0 cursor-pointer pointer-events-auto shadow-sm ${
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors border border-white/60 cursor-pointer pointer-events-auto shadow-sm backdrop-blur-md apple-pressable ${
                               inWish
-                                ? 'bg-[#B3261E] text-white'
-                                : 'bg-white/90 text-[#8C8279] hover:text-[#B3261E] hover:bg-white'
+                                ? 'bg-[#B5532E] text-white'
+                                : 'bg-white/90 text-[#78716C] hover:text-[#B5532E] hover:bg-white'
                             }`}
                             title={inWish ? 'Remove from saved' : 'Save item'}
                           >
                             <i className="fas fa-heart text-xs"></i>
-                          </button>
+                          </motion.button>
                         </div>
 
                         {/* Format Tag */}
                         {item.type === 'digital' ? (
-                          <span className="absolute bottom-2.5 left-2.5 bg-[#3E5C76] text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-xs">
-                            Instant Digital
+                          <span className="absolute bottom-2.5 left-2.5 bg-[#3E5C76] text-white text-[9px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-xs">
+                            Digital License
                           </span>
                         ) : (
-                          <span className="absolute bottom-2.5 left-2.5 bg-[#4F6B3A] text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-xs">
-                            Manga Express
+                          <span className="absolute bottom-2.5 left-2.5 bg-[#4F6B3A] text-white text-[9px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-xs">
+                            Express Dispatch
                           </span>
                         )}
                       </div>
 
                       {/* Product Content Details */}
-                      <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
                         <div>
-                          <div className="flex items-center justify-between text-[11px] text-[#8C8279] mb-1">
-                            <span className="font-semibold truncate max-w-[140px]">{item.storeName}</span>
-                            <span className="flex items-center gap-1 text-[#D9A441] font-bold">
+                          <div className="flex items-center justify-between text-[11px] text-[#78716C] mb-1.5">
+                            <span className="font-medium truncate max-w-[140px]">{item.storeName}</span>
+                            <span className="flex items-center gap-1 text-[#D9A441] font-semibold">
                               <i className="fas fa-star text-[10px]"></i>
                               <span>{item.rating ? item.rating.toFixed(1) : '4.9'}</span>
                             </span>
@@ -475,51 +483,53 @@ function ShopContent() {
 
                           <Link
                             href={`/product/${item.id}`}
-                            className="font-bold text-xs sm:text-sm text-[#2A2320] hover:text-[#B5532E] transition-colors line-clamp-2 leading-snug mb-2 block"
+                            className="font-medium text-xs sm:text-sm text-[#1D1917] hover:text-[#B5532E] transition-colors line-clamp-2 leading-snug mb-2 block no-underline"
                           >
                             {item.title}
                           </Link>
                         </div>
 
                         {/* Pricing & Add to Cart Action */}
-                        <div className="pt-3 border-t border-[#E7D5BC]/50">
+                        <div className="pt-3 border-t border-[#EAE3D9]/60">
                           <div className="flex items-baseline gap-2 mb-3">
-                            <span className="text-base sm:text-lg font-black text-[#B5532E]">
+                            <span className="text-base sm:text-lg font-bold text-[#B5532E] tracking-tight">
                               {formatPrice(item.priceNgn, item.priceUsd)}
                             </span>
                             {item.oldPriceNgn && item.oldPriceNgn > item.priceNgn && (
-                              <span className="text-xs text-[#8C8279] line-through font-medium">
+                              <span className="text-xs text-[#78716C] line-through font-normal">
                                 {formatPrice(item.oldPriceNgn, item.oldPriceUsd || 0)}
                               </span>
                             )}
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <button
+                            <motion.button
                               type="button"
+                              whileTap={{ scale: 0.97 }}
                               onClick={(e) => {
                                 const btn = e.currentTarget;
-                                btn.classList.add('scale-95');
-                                setTimeout(() => btn.classList.remove('scale-95'), 150);
                                 const visualEl = document.getElementById(`product-visual-${item.id}`) || btn;
                                 addToCart(item, 1, visualEl);
                               }}
-                              className="flex-1 py-2 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-all border-0 cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
+                              className="flex-1 py-2 rounded-xl bg-[#FAF7F2] hover:bg-[#B5532E] text-[#1D1917] hover:text-white border border-[#EAE3D9] hover:border-transparent text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5 apple-pressable"
                             >
-                              <i className="fas fa-cart-plus text-xs"></i>
-                              <span>Add to Cart</span>
-                            </button>
+                              <i className="fas fa-bag-shopping text-xs opacity-75"></i>
+                              <span>Add to Bag</span>
+                            </motion.button>
                             <Link
                               href={`/product/${item.id}`}
-                              className="px-3 py-2 rounded-xl bg-[#F6EDE0] hover:bg-[#E7D5BC] text-[#2A2320] text-xs font-bold transition-colors text-center"
+                              className="px-3 py-2 rounded-xl bg-[#FAF7F2] hover:bg-[#EAE3D9] text-[#1D1917] text-xs font-semibold transition-colors text-center no-underline border border-[#EAE3D9]"
                               title="View Product Details"
                             >
-                              <i className="fas fa-arrow-right text-xs"></i>
+                              <i className="fas fa-arrow-right text-xs opacity-75"></i>
                             </Link>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
                   );
                 })}
               </div>

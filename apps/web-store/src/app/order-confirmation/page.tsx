@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -34,7 +35,7 @@ function OrderConfirmationContent() {
 
   if (!ref) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+      <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
         <Header
           cartCount={cartCount}
           wishlistCount={wishlistCount}
@@ -48,19 +49,19 @@ function OrderConfirmationContent() {
           onToggleCurrency={toggleCurrency}
         />
         <main className="flex-1 container mx-auto px-4 lg:px-8 py-16 max-w-xl text-center">
-          <div className="bg-white rounded-3xl border border-[#E7D5BC] p-8 sm:p-12 shadow-2xs">
-            <div className="w-16 h-16 rounded-full bg-[#E7D5BC]/40 flex items-center justify-center mx-auto mb-4 text-[#8C8279]">
-              <i className="fas fa-receipt text-2xl"></i>
+          <div className="bg-white rounded-3xl border border-[#EAE3D9] p-8 sm:p-12 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-center mx-auto mb-4 text-[#78716C]">
+              <i className="fas fa-receipt text-xl"></i>
             </div>
-            <h1 className="text-2xl font-black font-display text-[#2A2320] mb-2">No Active Order Found</h1>
-            <p className="text-sm text-[#8C8279] mb-6">
+            <h1 className="apple-heading text-2xl font-bold text-[#1D1917] mb-2 tracking-tight">No Active Order Found</h1>
+            <p className="apple-subhead text-sm text-[#78716C] mb-6 font-normal">
               You haven't completed an order in this session, or the order reference is missing.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/shop" className="px-6 py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-extrabold text-xs transition-colors">
-                Browse Marketplace
+              <Link href="/shop" className="px-6 py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-xs transition-colors no-underline shadow-xs apple-pressable">
+                Browse Catalog
               </Link>
-              <Link href="/track-order" className="px-6 py-2.5 rounded-xl bg-white hover:bg-[#FAF6F0] text-[#2A2320] border border-[#E7D5BC] font-bold text-xs transition-colors">
+              <Link href="/track-order" className="px-6 py-2.5 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#1D1917] border border-[#EAE3D9] font-semibold text-xs transition-colors no-underline apple-pressable">
                 Track Existing Order
               </Link>
             </div>
@@ -72,7 +73,7 @@ function OrderConfirmationContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
       <Header
         cartCount={cartCount}
         wishlistCount={wishlistCount}
@@ -89,37 +90,39 @@ function OrderConfirmationContent() {
       <main className="flex-1 container mx-auto px-4 lg:px-8 py-10 sm:py-16 max-w-3xl">
         
         {/* Success Hero Card */}
-        <div className="bg-white rounded-3xl border border-[#E7D5BC] p-8 sm:p-12 text-center shadow-2xs mb-8">
+        <div className="bg-white rounded-3xl border border-[#EAE3D9] p-8 sm:p-12 text-center shadow-xs mb-8">
           <div className="flex items-center justify-center mb-5">
             <SuccessCheckmark size={72} color="#4F6B3A" strokeWidth={3.8} />
           </div>
 
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-[#4F6B3A]/10 text-[#4F6B3A] border border-[#4F6B3A]/20 mb-3">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-[#4F6B3A]/10 text-[#4F6B3A] border border-[#4F6B3A]/20 mb-3">
             <i className="fas fa-shield-halved text-xs"></i> Payment Confirmed & Protected
           </span>
 
-          <h1 className="text-2xl sm:text-4xl font-black font-display text-[#2A2320] mb-2">
+          <h1 className="apple-heading text-2xl sm:text-4xl font-bold text-[#1D1917] mb-2 tracking-tight">
             Order Confirmed & Verified!
           </h1>
-          <p className="text-xs sm:text-sm text-[#8C8279] max-w-md mx-auto leading-relaxed">
-            Thank you for shopping on MANGA MARKETSQUARE. Your payment has been received and verified. Verified sellers have been notified to initiate packing.
+          <p className="apple-subhead text-xs sm:text-sm text-[#78716C] max-w-md mx-auto leading-relaxed font-normal">
+            Thank you for shopping on MANGA MARKETSQUARE. Your payment has been received and verified. Verified sellers have been notified to initiate packaging.
           </p>
 
           {/* Reference Number Pill */}
-          <div className="mt-6 inline-flex items-center gap-3 p-3 bg-[#FAF6F0] rounded-2xl border border-[#E7D5BC]">
-            <span className="text-xs text-[#8C8279] font-bold">Order Reference:</span>
-            <strong className="text-sm sm:text-base font-black text-[#B5532E] font-mono tracking-wider">
+          <div className="mt-6 inline-flex items-center gap-3 p-3 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9]">
+            <span className="text-xs text-[#78716C] font-medium">Order Reference:</span>
+            <strong className="text-sm sm:text-base font-bold text-[#B5532E] font-mono tracking-wider">
               {ref}
             </strong>
-            <button
+            <motion.button
               type="button"
+              whileTap={{ scale: 0.92 }}
               onClick={handleCopyRef}
-              className="p-1.5 rounded-lg bg-white hover:bg-[#F6EDE0] text-[#8C8279] hover:text-[#B5532E] transition-colors border border-[#E7D5BC] cursor-pointer text-xs"
+              className="p-1.5 rounded-lg bg-white hover:bg-[#FAF7F2] text-[#78716C] hover:text-[#B5532E] transition-colors border border-[#EAE3D9] cursor-pointer text-xs apple-pressable"
               title="Copy Order Reference"
             >
               <i className={`fas ${copied ? 'fa-check text-[#4F6B3A]' : 'fa-copy'}`}></i>
-            </button>
+            </motion.button>
           </div>
+        </div>
 
           {/* Delivery Timeline Summary */}
           <div className="mt-8 p-6 rounded-2xl bg-[#F6EDE0]/40 border border-[#E7D5BC] text-left">

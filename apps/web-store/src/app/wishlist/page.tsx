@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -60,7 +61,7 @@ export default function WishlistPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+      <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
         <Header
           cartCount={cartCount}
           wishlistCount={0}
@@ -74,28 +75,30 @@ export default function WishlistPage() {
           onToggleCurrency={toggleCurrency}
         />
         <main className="flex-1 container mx-auto px-4 lg:px-8 py-16 flex items-center justify-center">
-          <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-[#E7D5BC] shadow-xl text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-2xl mx-auto mb-4">
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-[#EAE3D9] shadow-xs text-center">
+            <div className="w-14 h-14 rounded-2xl bg-[#FAF7F2] text-[#B5532E] flex items-center justify-center text-xl mx-auto mb-4 border border-[#EAE3D9]">
               <i className="fas fa-heart"></i>
             </div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#B5532E]/10 text-[#B5532E] border border-[#B5532E]/20 mb-3">
-              <i className="fas fa-lock text-[10px]"></i> Member Saved List
+            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-[#B5532E]/10 text-[#B5532E] border border-[#B5532E]/20 mb-3">
+              <i className="fas fa-lock text-[9px]"></i> Saved Items
             </span>
-            <h2 className="text-xl font-black font-display text-[#2A2320] mb-2">
-              Sign In to View Your Wishlist
+            <h2 className="apple-heading text-xl font-bold text-[#1D1917] mb-2 tracking-tight">
+              Sign In to View Your Saved Items
             </h2>
-            <p className="text-xs text-[#8C8279] mb-6 leading-relaxed">
-              Saved items are tied to your Manga buyer account. Sign in to view and manage your saved wishlist across devices.
+            <p className="text-xs text-[#78716C] mb-6 leading-relaxed font-normal">
+              Saved items are tied to your Manga account. Sign in to sync and access your wishlist across all devices.
             </p>
-            <Link
-              href="/account/login?redirect=/wishlist"
-              className="block w-full py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs shadow-md transition-all text-center mb-3"
-            >
-              Sign In to Buyer Account
-            </Link>
+            <motion.div whileTap={{ scale: 0.97 }}>
+              <Link
+                href="/account/login?redirect=/wishlist"
+                className="block w-full py-3 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-xs shadow-xs transition-colors text-center mb-3 no-underline apple-pressable"
+              >
+                Sign In to Account
+              </Link>
+            </motion.div>
             <Link
               href="/shop"
-              className="text-xs font-bold text-[#8C8279] hover:text-[#2A2320]"
+              className="text-xs font-semibold text-[#78716C] hover:text-[#1D1917] no-underline"
             >
               ← Continue Shopping
             </Link>
@@ -114,7 +117,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
       <Header
         cartCount={cartCount}
         wishlistCount={wishlistCount}
@@ -131,26 +134,26 @@ export default function WishlistPage() {
       <main className="flex-1 container mx-auto px-4 lg:px-8 py-8 sm:py-10">
         
         {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-2 text-xs text-[#8C8279] mb-4">
-          <Link href="/" className="hover:text-[#B5532E] transition-colors">Home</Link>
+        <div className="flex items-center gap-2 text-xs text-[#78716C] mb-4">
+          <Link href="/" className="hover:text-[#B5532E] transition-colors no-underline text-[#78716C]">Home</Link>
           <span>/</span>
-          <span className="font-bold text-[#2A2320]">Saved Wishlist</span>
+          <span className="font-semibold text-[#1D1917]">Saved Items</span>
         </div>
 
-        <div className="pb-4 border-b border-[#E7D5BC] mb-8 flex items-center justify-between">
+        <div className="pb-4 border-b border-[#EAE3D9] mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black font-display text-[#2A2320]">
-              My Saved Wishlist ({savedProducts.length} {savedProducts.length === 1 ? 'item' : 'items'})
+            <h1 className="apple-heading text-2xl sm:text-3xl font-bold text-[#1D1917] tracking-tight">
+              Saved Items ({savedProducts.length} {savedProducts.length === 1 ? 'item' : 'items'})
             </h1>
-            <p className="text-xs sm:text-sm text-[#8C8279] mt-0.5">
-              Keep track of items you love. Move them to your cart whenever you are ready to order.
+            <p className="apple-subhead text-xs sm:text-sm text-[#78716C] mt-0.5 font-normal">
+              Keep track of items you love. Move them to your bag whenever you are ready to order.
             </p>
           </div>
           <Link
             href="/shop"
-            className="text-xs font-bold text-[#B5532E] hover:underline hidden sm:inline"
+            className="text-xs font-semibold text-[#B5532E] hover:text-[#8F3B1F] hidden sm:inline no-underline"
           >
-            Explore More Products →
+            Explore Catalog →
           </Link>
         </div>
 
@@ -179,70 +182,73 @@ export default function WishlistPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {savedProducts.map((item) => (
-              <div
+              <motion.div
                 key={item.id}
-                className="bg-white rounded-2xl border border-[#E7D5BC] hover:border-[#B5532E]/40 overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                whileHover={{ y: -4 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                className="bg-white rounded-2xl border border-[#EAE3D9] hover:border-[#B5532E]/40 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] flex flex-col justify-between"
               >
                 <div
                   id={`wishlist-item-${item.id}`}
-                  className="relative aspect-square overflow-hidden bg-[#FAF6F0]"
+                  className="relative aspect-square overflow-hidden bg-[#F5F2EC]"
                 >
                   <Link href={`/product/${item.id}`} className="block w-full h-full">
-                    <img
+                    <motion.img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      whileHover={{ scale: 1.04 }}
+                      transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+                      className="w-full h-full object-cover"
                     />
                   </Link>
 
-                  <button
+                  <motion.button
                     type="button"
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => toggleWishlist(item.id)}
-                    className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-[#B3261E] text-white flex items-center justify-center shadow-md border-0 cursor-pointer"
-                    title="Remove from wishlist"
+                    className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-[#1D1917]/85 text-white flex items-center justify-center shadow-sm border-0 cursor-pointer apple-pressable backdrop-blur-md"
+                    title="Remove from saved"
                   >
                     <i className="fas fa-times text-xs"></i>
-                  </button>
+                  </motion.button>
 
-                  <span className="absolute bottom-2.5 left-2.5 bg-[#2A2320] text-[#D9A441] text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
+                  <span className="absolute bottom-2.5 left-2.5 bg-[#1D1917]/90 text-[#FAF7F2] text-[9px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider backdrop-blur-sm">
                     {item.storeName}
                   </span>
                 </div>
 
-                <div className="p-4 flex-1 flex flex-col justify-between">
+                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] text-[#4F6B3A] font-bold block mb-1">
-                      <i className="fas fa-circle-check text-[9px]"></i> In Stock
+                    <span className="text-[10px] text-[#4F6B3A] font-semibold block mb-1">
+                      <i className="fas fa-circle-check text-[9px]"></i> Available
                     </span>
                     <Link
                       href={`/product/${item.id}`}
-                      className="font-bold text-xs sm:text-sm text-[#2A2320] hover:text-[#B5532E] transition-colors line-clamp-2 leading-snug mb-2 block"
+                      className="font-medium text-xs sm:text-sm text-[#1D1917] hover:text-[#B5532E] transition-colors line-clamp-2 leading-snug mb-2 block no-underline"
                     >
                       {item.title}
                     </Link>
                   </div>
 
-                  <div className="pt-3 border-t border-[#E7D5BC]/60">
-                    <span className="text-base font-black text-[#B5532E] block mb-3">
+                  <div className="pt-3 border-t border-[#EAE3D9]/60">
+                    <span className="text-base font-bold text-[#B5532E] block mb-3 tracking-tight">
                       {formatPrice(item.priceNgn, item.priceUsd)}
                     </span>
 
-                    <button
+                    <motion.button
                       type="button"
+                      whileTap={{ scale: 0.97 }}
                       onClick={(e) => {
-                        const btn = e.currentTarget;
-                        btn.classList.add('scale-95');
-                        setTimeout(() => btn.classList.remove('scale-95'), 150);
                         handleMoveToCart(item, e);
                       }}
-                      className="w-full py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold transition-all border-0 cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
+                      className="w-full py-2.5 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white text-xs font-semibold transition-colors border-0 cursor-pointer flex items-center justify-center gap-1.5 shadow-xs apple-pressable"
                     >
-                      <i className="fas fa-cart-plus text-xs"></i>
-                      <span>Move to Cart</span>
-                    </button>
+                      <i className="fas fa-bag-shopping text-xs opacity-75"></i>
+                      <span>Move to Bag</span>
+                    </motion.button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}

@@ -151,19 +151,19 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* 2. Main High-Conversion Navigation Bar */}
+      {/* 2. Main High-Conversion Navigation Bar (Apple Translucent Floating Chrome) */}
       <header
-        className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b transition-all duration-200 ${
+        className={`sticky top-0 z-50 apple-glass-nav transition-all duration-200 ${
           isScrolled
-            ? 'border-[#E7D5BC] shadow-md bg-white/98'
-            : 'border-[#E7D5BC]/60 shadow-2xs bg-white/95'
+            ? 'shadow-[0_4px_20px_rgba(0,0,0,0.06)]'
+            : 'shadow-[0_1px_3px_rgba(0,0,0,0.02)]'
         }`}
       >
-        <div className="container mx-auto px-4 lg:px-8 py-3 sm:py-3.5 flex items-center justify-between gap-3 sm:gap-6">
+        <div className="container mx-auto px-4 lg:px-8 py-3 flex items-center justify-between gap-3 sm:gap-6">
           
           {/* Brand Logo */}
-          <Link href="/" className="flex-shrink-0 flex items-center hover:opacity-95 transition-opacity">
-            <img src="/images/logo.svg" alt="MANGA MARKETSQUARE" className="h-7 sm:h-9 w-auto block" />
+          <Link href="/" className="flex-shrink-0 flex items-center hover:opacity-90 transition-opacity apple-pressable">
+            <img src="/images/logo.svg" alt="MANGA MARKETSQUARE" className="h-7 sm:h-8 w-auto block" />
           </Link>
 
           {/* Large Center Search Bar with Instant Suggestions */}
@@ -172,7 +172,7 @@ export const Header: React.FC<HeaderProps> = ({
               <input
                 type="text"
                 autoComplete="off"
-                placeholder="Search genuine electronics, computing, fashion, living, software..."
+                placeholder="Search authentic electronics, computing, fashion, living, software..."
                 value={queryValue}
                 onChange={(e) => {
                   if (onSearchChange) onSearchChange(e.target.value);
@@ -180,12 +180,12 @@ export const Header: React.FC<HeaderProps> = ({
                   setShowSearchSuggestions(true);
                 }}
                 onFocus={() => setShowSearchSuggestions(true)}
-                className="w-full pl-11 pr-28 py-2.5 bg-[#FAF6F0] border border-[#E7D5BC] rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E] focus:border-transparent transition-all shadow-inner text-[#2A2320]"
+                className="w-full pl-10 pr-24 py-2 bg-white/70 border border-[#EAE3D9] rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E]/30 focus:border-[#B5532E] transition-all text-[#1D1917] placeholder:text-[#78716C]/70"
               />
-              <i className="fas fa-search absolute left-4 text-[#8C8279] text-sm"></i>
+              <i className="fas fa-search absolute left-3.5 text-[#78716C] text-xs"></i>
               <button
                 type="submit"
-                className="absolute right-1.5 px-5 py-1.5 bg-[#B5532E] hover:bg-[#8F3B1F] text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 border-0 cursor-pointer shadow-xs"
+                className="absolute right-1.5 px-4 py-1.5 bg-[#B5532E] hover:bg-[#A04523] text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 border-0 cursor-pointer apple-pressable shadow-xs"
               >
                 <span>Search</span>
               </button>
@@ -194,10 +194,10 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Dynamic Search Autocomplete Suggestions Dropdown */}
             {showSearchSuggestions && suggestions.length > 0 && (
               <div
-                className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#E7D5BC] rounded-xl shadow-2xl z-50 overflow-hidden text-xs"
+                className="absolute left-0 right-0 top-full mt-2 apple-glass-card rounded-2xl shadow-xl z-50 overflow-hidden text-xs"
                 onMouseLeave={() => setShowSearchSuggestions(false)}
               >
-                <div className="p-2 bg-[#FAF6F0] border-b border-[#E7D5BC] text-[10px] uppercase font-bold text-[#8C8279] tracking-wider">
+                <div className="p-2.5 bg-black/[0.02] border-b border-[#EAE3D9]/60 text-[10px] uppercase font-semibold text-[#78716C] tracking-wider">
                   Quick Matching Suggestions
                 </div>
                 {suggestions.map((item) => (
@@ -210,13 +210,13 @@ export const Header: React.FC<HeaderProps> = ({
                       setShowSearchSuggestions(false);
                       router.push(`/shop?q=${encodeURIComponent(item)}`);
                     }}
-                    className="w-full text-left px-4 py-2.5 hover:bg-[#F6EDE0]/70 text-[#2A2320] hover:text-[#B5532E] flex items-center justify-between border-0 bg-transparent cursor-pointer transition-colors"
+                    className="w-full text-left px-4 py-2.5 hover:bg-[#FAF7F2] text-[#1D1917] hover:text-[#B5532E] flex items-center justify-between border-0 bg-transparent cursor-pointer transition-colors apple-pressable"
                   >
                     <span className="flex items-center gap-2">
-                      <i className="fas fa-arrow-trend-up text-[#8C8279] text-[10px]"></i>
+                      <i className="fas fa-arrow-trend-up text-[#78716C] text-[10px]"></i>
                       <span>{item}</span>
                     </span>
-                    <span className="text-[10px] text-[#8C8279]">Search</span>
+                    <span className="text-[10px] text-[#78716C]">Search</span>
                   </button>
                 ))}
               </div>
@@ -224,7 +224,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Header Action Utilities */}
-          <div className="flex items-center gap-1.5 sm:gap-4 flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
 
             {/* Customer Account Dropdown */}
             <div className="relative" onMouseLeave={() => setShowAccountMenu(false)}>
@@ -449,19 +449,19 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </button>
 
-            {/* Shopping Cart Button (Terracotta to Laterite gradient with Ochre Count Pill & Catch Ripple Target) */}
+            {/* Shopping Cart Button (Apple Restrained Style with Ochre Pill & Catch Target) */}
             <button
               id="header-cart-button"
               type="button"
               onClick={handleCartClick}
-              className="relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#B5532E] to-[#8F3B1F] text-white font-bold text-xs shadow-md hover:shadow-lg transition-all border-0 cursor-pointer"
+              className="relative flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-xs shadow-xs transition-colors border-0 cursor-pointer apple-pressable"
             >
               <div id="header-cart-ripple-container" className="absolute inset-0 pointer-events-none"></div>
-              <i className="fas fa-bag-shopping text-sm text-[#F6EDE0]"></i>
-              <span className="hidden sm:inline">Cart</span>
+              <i className="fas fa-bag-shopping text-sm text-[#FAF7F2]"></i>
+              <span className="hidden sm:inline">Bag</span>
               <span
                 id="header-cart-badge"
-                className={`bg-[#D9A441] text-[#2A2320] text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center ${
+                className={`bg-[#D9A441] text-[#1D1917] text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center ${
                   activeCartCount > 0 ? 'inline-block' : 'hidden'
                 }`}
               >

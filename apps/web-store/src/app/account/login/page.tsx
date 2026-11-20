@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useStore } from '../../../context/StoreContext';
 import { Header } from '../../../components/Header';
 import { Footer } from '../../../components/Footer';
@@ -468,25 +469,25 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
       <Header cartCount={cartCount} wishlistCount={wishlistCount} />
 
       <main className="flex-1 py-10 sm:py-16 flex items-center justify-center">
         <div className="container mx-auto px-4 max-w-md w-full">
-          <div className="bg-white rounded-3xl border border-[#E7D5BC] shadow-xl p-6 sm:p-8">
+          <div className="bg-white rounded-3xl border border-[#EAE3D9] shadow-xs p-6 sm:p-8">
             
             {/* Header / Brand Welcome */}
             <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-xl mx-auto mb-3 shadow-2xs">
+              <div className="w-14 h-14 rounded-2xl bg-[#FAF7F2] text-[#B5532E] flex items-center justify-center text-xl mx-auto mb-3 border border-[#EAE3D9]">
                 <i className="fas fa-user-circle"></i>
               </div>
-              <h1 className="text-xl sm:text-2xl font-black font-display text-[#2A2320]">
+              <h1 className="apple-heading text-xl sm:text-2xl font-bold text-[#1D1917] tracking-tight">
                 {activeTab === 'login' && 'Sign In to Your Account'}
                 {activeTab === 'register' && 'Create Your Buyer Account'}
                 {activeTab === 'forgot' && 'Reset Your Password'}
                 {activeTab === 'reset' && 'Set a New Password'}
               </h1>
-              <p className="text-xs text-[#8C8279] mt-1.5 leading-relaxed">
+              <p className="apple-subhead text-xs text-[#78716C] mt-1.5 leading-relaxed font-normal">
                 {activeTab === 'login' && 'Access your orders, track shipments, and manage your wishlist.'}
                 {activeTab === 'register' && 'Join Manga for genuine products, escrow buyer protection, and fast delivery.'}
                 {activeTab === 'forgot' && 'Enter your email address and we will dispatch a secure password reset link.'}
@@ -512,29 +513,31 @@ function LoginContent() {
 
             {/* Two Clean Tabs: Sign In | Create Account */}
             {(activeTab === 'login' || activeTab === 'register') && (
-              <div className="grid grid-cols-2 gap-1.5 p-1.5 bg-[#FAF6F0] rounded-2xl border border-[#E7D5BC] mb-6 text-xs font-bold text-center">
-                <button
+              <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] mb-6 text-xs font-semibold text-center">
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.96 }}
                   onClick={() => { setActiveTab('login'); setError(null); setSuccessMessage(null); }}
-                  className={`py-2.5 rounded-xl transition-all cursor-pointer border-0 ${
+                  className={`py-2 rounded-xl transition-all cursor-pointer border-0 apple-pressable ${
                     activeTab === 'login'
                       ? 'bg-[#B5532E] text-white shadow-xs'
-                      : 'bg-transparent text-[#8C8279] hover:text-[#2A2320]'
+                      : 'bg-transparent text-[#78716C] hover:text-[#1D1917]'
                   }`}
                 >
                   Sign In
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.96 }}
                   onClick={() => { setActiveTab('register'); setError(null); setSuccessMessage(null); }}
-                  className={`py-2.5 rounded-xl transition-all cursor-pointer border-0 ${
+                  className={`py-2 rounded-xl transition-all cursor-pointer border-0 apple-pressable ${
                     activeTab === 'register'
                       ? 'bg-[#B5532E] text-white shadow-xs'
-                      : 'bg-transparent text-[#8C8279] hover:text-[#2A2320]'
+                      : 'bg-transparent text-[#78716C] hover:text-[#1D1917]'
                   }`}
                 >
                   Create Account
-                </button>
+                </motion.button>
               </div>
             )}
 

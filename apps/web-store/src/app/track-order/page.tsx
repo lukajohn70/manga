@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -80,7 +81,7 @@ function TrackOrderContent() {
   const orderStatus = trackingData?.status || 'confirmed';
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
       <Header
         cartCount={cartCount}
         wishlistCount={wishlistCount}
@@ -96,36 +97,38 @@ function TrackOrderContent() {
 
       <main className="flex-1">
         
-        {/* Hero Search Banner */}
-        <div className="bg-[#2A2320] text-white py-12 sm:py-16 border-b border-[#E7D5BC]/30">
+        {/* Hero Search Banner: Apple Titanium Finish */}
+        <div className="bg-[#1A1513] text-white py-14 sm:py-18 border-b border-black/30">
           <div className="container mx-auto px-4 lg:px-8 text-center max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-white/10 text-[#D9A441] border border-white/20 mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-white/10 text-[#E7D5BC] border border-white/15 mb-3.5">
               <i className="fas fa-location-crosshairs text-xs"></i> Real-Time Nationwide Tracking
             </span>
-            <h1 className="text-3xl sm:text-4xl font-black font-display text-white mb-2">
-              Track Your Shipment & Order Status
+            <h1 className="apple-heading text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2.5">
+              Track Shipment & Order Status
             </h1>
-            <p className="text-xs sm:text-sm text-[#F6EDE0]/80 mb-8 leading-relaxed">
-              Check delivery milestones and courier dispatch progress.
+            <p className="apple-subhead text-xs sm:text-sm text-white/70 mb-8 leading-relaxed font-normal">
+              Check delivery milestones and courier dispatch progress across Nigeria.
             </p>
 
             {/* Input Bar */}
-            <form onSubmit={handleSearchSubmit} className="flex gap-2 max-w-lg mx-auto">
+            <form onSubmit={handleSearchSubmit} className="flex gap-2.5 max-w-lg mx-auto">
               <input
                 type="text"
                 required
                 placeholder="Enter order reference (e.g. MNG-769149-F92D)"
                 value={orderRefInput}
                 onChange={(e) => setOrderRefInput(e.target.value)}
-                className="flex-1 px-4 py-3 text-xs bg-white text-[#2A2320] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B5532E] font-mono uppercase font-bold shadow-md"
+                className="flex-1 px-4 py-2.5 text-xs bg-white text-[#1D1917] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B5532E]/40 font-mono uppercase font-semibold shadow-xs"
               />
-              <button
+              <motion.button
                 type="submit"
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
                 disabled={loading}
-                className="px-6 py-3 bg-[#B5532E] hover:bg-[#8F3B1F] text-white text-xs font-bold rounded-xl transition-colors border-0 cursor-pointer shadow-md disabled:opacity-50"
+                className="px-6 py-2.5 bg-[#B5532E] hover:bg-[#A04523] text-white text-xs font-semibold rounded-xl transition-colors border-0 cursor-pointer shadow-xs disabled:opacity-50 apple-pressable"
               >
                 {loading ? <i className="fas fa-spinner fa-spin"></i> : 'Track Order'}
-              </button>
+              </motion.button>
             </form>
           </div>
         </div>
@@ -133,8 +136,8 @@ function TrackOrderContent() {
         {/* Tracking Details Container */}
         <div className="container mx-auto px-4 lg:px-8 py-10 sm:py-14 max-w-3xl">
           {!searchedRef ? (
-            <div className="bg-white rounded-3xl border border-[#E7D5BC] p-10 text-center shadow-2xs">
-              <div className="w-16 h-16 rounded-2xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-2xl mx-auto mb-4">
+            <div className="bg-white rounded-3xl border border-[#EAE3D9] p-10 text-center shadow-xs">
+              <div className="w-14 h-14 rounded-2xl bg-[#FAF7F2] text-[#B5532E] flex items-center justify-center text-xl mx-auto mb-4 border border-[#EAE3D9]">
                 <i className="fas fa-barcode"></i>
               </div>
               <h3 className="font-display font-black text-lg text-[#2A2320] mb-2">Track Your Delivery Waybill</h3>

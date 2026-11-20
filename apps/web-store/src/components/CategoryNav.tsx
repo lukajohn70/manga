@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion } from 'motion/react';
 
 export interface CategoryItem {
   id: string;
@@ -17,8 +18,8 @@ const DEFAULT_DEPARTMENTS: CategoryItem[] = [
   { id: 'computing', slug: 'computing', name: 'Phones & Computing', type: 'Hardware', icon: 'fa-laptop' },
   { id: 'electronics', slug: 'electronics', name: 'Electronics & Audio', type: 'Consumer Tech', icon: 'fa-headphones' },
   { id: 'fashion', slug: 'fashion', name: 'Fashion & Streetwear', type: 'Lifestyle', icon: 'fa-shirt' },
-  { id: 'home', slug: 'home', name: 'Home & Appliances', type: 'Living', icon: 'fa-couch' },
-  { id: 'digital', slug: 'digital', name: 'Software & Digital Assets', type: 'Code & Design', icon: 'fa-code' },
+  { id: 'home', slug: 'home', name: 'Home & Living', type: 'Appliances', icon: 'fa-couch' },
+  { id: 'digital', slug: 'digital', name: 'Digital Licenses', type: 'Software & UI', icon: 'fa-code' },
 ];
 
 export interface CategoryNavProps {
@@ -42,8 +43,8 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
             computing: 'Hardware',
             electronics: 'Consumer Tech',
             fashion: 'Lifestyle',
-            home: 'Living',
-            digital: 'Code & Design',
+            home: 'Appliances',
+            digital: 'Software & UI',
           };
           const mapped: CategoryItem[] = data.categories.map((c: any) => ({
             id: c.slug || c.id,
@@ -64,22 +65,26 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
   }, []);
 
   return (
-    <section className="py-12 sm:py-14 bg-white border-b border-[#E7D5BC]">
+    <section className="py-14 sm:py-16 bg-[#FAF7F2] border-b border-[#EAE3D9]/80">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black font-display text-[#2A2320]">Shop by Department</h2>
-            <p className="text-sm text-[#8C8279] mt-1">Explore authentic physical goods and instant digital downloads.</p>
+            <h2 className="apple-heading text-2xl sm:text-3xl font-bold text-[#1D1917] tracking-tight">
+              Shop by Department
+            </h2>
+            <p className="apple-subhead text-sm text-[#78716C] mt-1.5 font-normal">
+              Curated hardware catalogs and instant production assets.
+            </p>
           </div>
           <Link
             href="/shop"
             onClick={() => {
               if (onSelectCategory) onSelectCategory('all');
             }}
-            className="text-xs font-bold text-[#B5532E] hover:text-[#8F3B1F] hover:underline flex items-center gap-1 bg-transparent border-0 cursor-pointer no-underline"
+            className="text-xs font-semibold text-[#B5532E] hover:text-[#8F3B1F] flex items-center gap-1.5 transition-colors no-underline"
           >
-            <span>View All Categories</span>
-            <i className="fas fa-arrow-right"></i>
+            <span>All Categories</span>
+            <i className="fas fa-arrow-right text-[10px] opacity-75" />
           </Link>
         </div>
 
@@ -87,34 +92,45 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
           {departments.map((cat) => {
             const isSelected = selectedCategory === cat.slug || selectedCategory === cat.id;
             return (
-              <Link
+              <motion.div
                 key={cat.id}
-                href={`/shop?category=${cat.slug || cat.id}`}
-                onClick={() => {
-                  if (onSelectCategory) onSelectCategory(cat.slug || cat.id);
-                }}
-                className={`group p-5 rounded-2xl border transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center text-center cursor-pointer no-underline block ${
-                  isSelected
-                    ? 'bg-[#F6EDE0] border-[#B5532E] shadow-md ring-2 ring-[#B5532E]/20'
-                    : 'bg-[#FAF6F0] hover:bg-white border-[#E7D5BC]/60 hover:border-[#B5532E]/40 shadow-2xs hover:shadow-xl'
-                }`}
+                whileHover={{ y: -3 }}
+                whileTap={{ scale: 0.965 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                className="h-full"
               >
-                <div
-                  className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl mb-3 shadow-2xs transition-colors duration-300 ${
+                <Link
+                  href={`/shop?category=${cat.slug || cat.id}`}
+                  onClick={() => {
+                    if (onSelectCategory) onSelectCategory(cat.slug || cat.id);
+                  }}
+                  className={`group h-full p-5 rounded-2xl border flex flex-col items-center text-center cursor-pointer no-underline block apple-pressable transition-colors ${
                     isSelected
-                      ? 'bg-[#B5532E] text-white'
-                      : 'bg-white group-hover:bg-[#B5532E] text-[#B5532E] group-hover:text-white border border-[#E7D5BC]/60'
+                      ? 'bg-white border-[#B5532E] shadow-sm ring-1 ring-[#B5532E]/30'
+                      : 'bg-white hover:bg-white/90 border-[#EAE3D9] shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-[#B5532E]/40 hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)]'
                   }`}
                 >
-                  <i className={`fas ${cat.icon}`}></i>
-                </div>
-                <h3 className={`text-sm font-bold transition-colors ${isSelected ? 'text-[#B5532E]' : 'text-[#2A2320] group-hover:text-[#B5532E]'}`}>
-                  {cat.name}
-                </h3>
-                <span className="text-[11px] text-[#8C8279] mt-1 capitalize font-medium">
-                  {cat.type} {cat.count !== undefined && cat.count > 0 ? `(${cat.count})` : 'Department'}
-                </span>
-              </Link>
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg mb-3.5 transition-colors ${
+                      isSelected
+                        ? 'bg-[#B5532E] text-white shadow-xs'
+                        : 'bg-[#FAF7F2] text-[#B5532E] group-hover:bg-[#B5532E] group-hover:text-white border border-[#EAE3D9]/60'
+                    }`}
+                  >
+                    <i className={`fas ${cat.icon}`} />
+                  </div>
+                  <h3
+                    className={`text-sm font-semibold tracking-tight transition-colors ${
+                      isSelected ? 'text-[#B5532E]' : 'text-[#1D1917] group-hover:text-[#B5532E]'
+                    }`}
+                  >
+                    {cat.name}
+                  </h3>
+                  <span className="text-[11px] text-[#78716C] mt-1 font-normal">
+                    {cat.type}
+                  </span>
+                </Link>
+              </motion.div>
             );
           })}
         </div>

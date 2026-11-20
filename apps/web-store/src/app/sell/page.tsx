@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'motion/react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { useStore } from '../../context/StoreContext';
@@ -87,15 +88,15 @@ export default function SellOnMangaPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#2A2320]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
       <Header cartCount={cartCount} wishlistCount={wishlistCount} />
 
       <main className="flex-1">
         {/* Local Dev Notice Banner */}
         {isLocalDev && (
-          <div className="bg-[#2A2320] text-[#D9A441] px-4 py-2 text-xs flex items-center justify-between border-b border-[#D9A441]/30">
+          <div className="bg-[#1A1513] text-[#E7D5BC] px-4 py-2 text-xs flex items-center justify-between border-b border-white/10">
             <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
-              <i className="fas fa-code"></i>
+              <i className="fas fa-code text-[#D9A441]"></i>
               <span>
                 <strong>Local Development Mode:</strong> You can also access the standalone Vite Merchant Console at{' '}
                 <a href={DEV_VENDOR_URL} target="_blank" rel="noreferrer" className="underline font-bold text-white hover:text-[#D9A441]">
@@ -106,66 +107,73 @@ export default function SellOnMangaPage() {
           </div>
         )}
 
-        {/* 1. Hero Section */}
-        <section className="relative bg-[#1A1512] text-white py-16 lg:py-24 overflow-hidden border-b border-[#D9A441]/30">
-          <div className="absolute inset-0 bg-radial-at-t from-[#B5532E]/20 via-transparent to-transparent pointer-events-none"></div>
+        {/* 1. Hero Section: Apple Dark Finish */}
+        <section className="relative bg-[#1A1513] text-white py-16 lg:py-24 overflow-hidden border-b border-black/30">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-40"
+            style={{
+              background: 'radial-gradient(ellipse 70% 50% at 50% -15%, rgba(181, 83, 46, 0.28), rgba(26, 21, 19, 0) 80%)',
+            }}
+          />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               <div className="lg:col-span-7 space-y-6">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#B5532E]/20 border border-[#B5532E]/40 text-[#D9A441] text-xs font-bold uppercase tracking-wider">
-                  <i className="fas fa-crown"></i>
-                  <span>Manga Merchant Partner Program</span>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-[#E7D5BC] text-xs font-semibold uppercase tracking-wider">
+                  <i className="fas fa-crown text-[#D9A441]"></i>
+                  <span>Merchant Partner Program</span>
                 </div>
 
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                <h1 className="apple-heading text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.08]">
                   Reach 50,000+ Active Shoppers on{' '}
-                  <span className="text-[#D9A441]">MANGA</span>
+                  <span className="text-[#E7D5BC]">MANGA</span>
                 </h1>
 
-                <p className="text-[#E7D5BC] text-base sm:text-lg leading-relaxed max-w-2xl font-normal">
+                <p className="apple-subhead text-white/70 text-base sm:text-lg leading-relaxed max-w-2xl font-normal">
                   Scale your business across Northern Nigeria and nationwide. Leverage our doorstep pickup logistics,
                   instant escrow payments, and dedicated merchant analytics to grow your revenue.
                 </p>
 
                 {/* Value Highlights */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
-                    <div className="text-2xl font-black text-[#D9A441]">0%</div>
-                    <div className="text-xs text-[#E7D5BC] mt-0.5">Intro Commission (30 Days)</div>
+                  <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
+                    <div className="text-2xl font-bold text-white tracking-tight">0%</div>
+                    <div className="text-xs text-white/60 mt-0.5">Intro Commission (30 Days)</div>
                   </div>
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
-                    <div className="text-2xl font-black text-[#D9A441]">24h</div>
-                    <div className="text-xs text-[#E7D5BC] mt-0.5">Fast Direct Escrow Payouts</div>
+                  <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
+                    <div className="text-2xl font-bold text-white tracking-tight">24h</div>
+                    <div className="text-xs text-white/60 mt-0.5">Fast Escrow Disbursements</div>
                   </div>
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-sm col-span-2 sm:col-span-1">
-                    <div className="text-2xl font-black text-[#D9A441]">Doorstep</div>
-                    <div className="text-xs text-[#E7D5BC] mt-0.5">Free Manga Fleet Pickup</div>
+                  <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-4 backdrop-blur-sm col-span-2 sm:col-span-1">
+                    <div className="text-2xl font-bold text-white tracking-tight">Doorstep</div>
+                    <div className="text-xs text-white/60 mt-0.5">Manga Logistics Pickup</div>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 pt-4">
-                  <a
+                  <motion.a
                     href="#register"
-                    className="px-8 py-3.5 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-sm shadow-lg shadow-[#B5532E]/30 transition-all inline-flex items-center gap-2"
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
+                    className="px-8 py-3.5 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-sm shadow-xs transition-colors inline-flex items-center gap-2 no-underline apple-pressable"
                   >
                     <span>Register Your Store</span>
-                    <i className="fas fa-arrow-down text-xs"></i>
-                  </a>
+                    <i className="fas fa-arrow-down text-xs opacity-75"></i>
+                  </motion.a>
 
                   <Link
                     href="/account/login"
-                    className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-[#E7D5BC] font-semibold text-sm transition-all inline-flex items-center gap-2"
+                    className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm transition-colors inline-flex items-center gap-2 no-underline apple-pressable"
                   >
-                    <span>Existing Merchant Sign In</span>
-                    <i className="fas fa-arrow-right text-xs"></i>
+                    <span>Merchant Sign In</span>
+                    <i className="fas fa-arrow-right text-xs opacity-75"></i>
                   </Link>
                 </div>
               </div>
 
               {/* Hero Graphic / Badge Card */}
               <div className="lg:col-span-5">
-                <div className="bg-gradient-to-br from-[#2A2320] to-[#1A1512] border border-[#D9A441]/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
+                <div className="apple-glass-dark border border-white/15 rounded-3xl p-6 sm:p-8 shadow-xl relative">
                   <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-2xl bg-[#B5532E] flex items-center justify-center text-white text-xl font-black shadow-md">

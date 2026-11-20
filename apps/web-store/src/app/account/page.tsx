@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useStore, PlacedOrder } from '../../context/StoreContext';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -58,28 +59,30 @@ export default function AccountPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+      <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
         <Header cartCount={cartCount} wishlistCount={wishlistCount} />
         <main className="flex-1 container mx-auto px-4 lg:px-8 py-16 flex items-center justify-center">
-          <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-[#E7D5BC] shadow-xl text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-2xl mx-auto mb-4">
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-[#EAE3D9] shadow-xs text-center">
+            <div className="w-14 h-14 rounded-2xl bg-[#FAF7F2] text-[#B5532E] flex items-center justify-center text-xl mx-auto mb-4 border border-[#EAE3D9]">
               <i className="far fa-user"></i>
             </div>
-            <h2 className="text-xl font-black font-display text-[#2A2320] mb-2">
+            <h2 className="apple-heading text-xl font-bold text-[#1D1917] mb-2 tracking-tight">
               Sign In to Your Account
             </h2>
-            <p className="text-xs text-[#8C8279] mb-6 leading-relaxed">
+            <p className="apple-subhead text-xs text-[#78716C] mb-6 leading-relaxed font-normal">
               Sign in with your buyer account to access order tracking, saved delivery addresses, and digital licenses.
             </p>
-            <Link
-              href="/account/login"
-              className="block w-full py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs shadow-md transition-all text-center mb-3"
-            >
-              Sign In to Buyer Account
-            </Link>
+            <motion.div whileTap={{ scale: 0.97 }}>
+              <Link
+                href="/account/login"
+                className="block w-full py-3 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-xs shadow-xs transition-colors text-center mb-3 no-underline apple-pressable"
+              >
+                Sign In to Account
+              </Link>
+            </motion.div>
             <Link
               href="/shop"
-              className="text-xs font-bold text-[#8C8279] hover:text-[#2A2320]"
+              className="text-xs font-semibold text-[#78716C] hover:text-[#1D1917] no-underline"
             >
               ← Continue Shopping
             </Link>
@@ -95,48 +98,46 @@ export default function AccountPage() {
   ).length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
       <Header cartCount={cartCount} wishlistCount={wishlistCount} />
 
       <main className="flex-1 py-10">
         <div className="container mx-auto px-4 lg:px-8">
           
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-xs text-[#8C8279] mb-6">
-            <Link href="/" className="hover:text-[#B5532E]">Home</Link>
+          <div className="flex items-center gap-2 text-xs text-[#78716C] mb-6">
+            <Link href="/" className="hover:text-[#B5532E] no-underline text-[#78716C]">Home</Link>
             <span>/</span>
-            <span className="font-bold text-[#2A2320]">MARKETSQUARE Buyer Account</span>
+            <span className="font-semibold text-[#1D1917]">Buyer Account</span>
           </div>
 
-          {/* User Hero Banner */}
-          <div className="bg-gradient-to-r from-[#2A2320] via-[#8F3B1F] to-[#2A2320] text-white rounded-3xl p-6 sm:p-8 mb-8 shadow-xl relative overflow-hidden">
-            <div className="pointer-events-none absolute -right-10 -bottom-10 w-64 h-64 bg-[#D9A441]/15 rounded-full blur-2xl"></div>
-
+          {/* User Hero Banner: Apple Dark Finish */}
+          <div className="apple-glass-dark rounded-3xl p-6 sm:p-8 mb-8 relative overflow-hidden border border-white/15">
             <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-[#FAF6F0] text-[#B5532E] flex items-center justify-center text-2xl font-black shadow-lg">
+                <div className="w-16 h-16 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl font-bold border border-white/15 shadow-inner">
                   {user.name.charAt(0)}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h1 className="text-xl sm:text-2xl font-black font-display text-white">
+                    <h1 className="apple-heading text-xl sm:text-2xl font-bold text-white tracking-tight">
                       {user.name}
                     </h1>
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#4F6B3A]/30 text-[#D9A441] border border-[#D9A441]/40 text-[10px] font-black uppercase tracking-wider">
-                      {user.role === 'ADMIN' ? 'Platform Administrator (RBAC: ADMIN)' : user.role === 'VENDOR' ? 'Merchant Partner (RBAC: VENDOR)' : 'Verified Buyer (RBAC: BUYER)'}
+                    <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-[#E7D5BC] border border-white/15 text-[10px] font-semibold tracking-wider">
+                      {user.role === 'ADMIN' ? 'Platform Admin' : user.role === 'VENDOR' ? 'Merchant Partner' : 'Verified Buyer'}
                     </span>
                   </div>
-                  <p className="text-xs text-[#E7D5BC] mt-0.5">
+                  <p className="text-xs text-white/60 mt-1 font-normal">
                     {user.email} • {user.phone || '+234 803 123 4567'}
                   </p>
                   {user.role !== 'BUYER' && (
-                    <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-lg text-[11px] text-[#D9A441] border border-[#D9A441]/30">
-                      <i className="fas fa-arrow-up-right-from-square"></i>
+                    <div className="mt-2.5 inline-flex items-center gap-2 px-3 py-1 bg-white/[0.08] rounded-lg text-[11px] text-[#E7D5BC] border border-white/10">
+                      <i className="fas fa-arrow-up-right-from-square text-[10px]"></i>
                       <span>
                         Access your dedicated console:{' '}
                         <Link
                           href={user.role === 'ADMIN' ? '/admin' : '/sell'}
-                          className="underline font-bold text-white hover:text-[#D9A441]"
+                          className="underline font-semibold text-white hover:text-[#E7D5BC]"
                         >
                           {user.role === 'ADMIN' ? 'Platform Operations Hub' : 'Merchant Partner Portal'}
                         </Link>
@@ -147,14 +148,15 @@ export default function AccountPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <button
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.94 }}
                   onClick={logoutCustomer}
-                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-white transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-semibold text-white transition-colors cursor-pointer flex items-center gap-1.5 apple-pressable"
                 >
                   <i className="fas fa-arrow-right-from-bracket text-xs"></i>
                   <span>Sign Out</span>
-                </button>
+                </motion.button>
               </div>
             </div>
 

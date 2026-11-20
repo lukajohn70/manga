@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -77,7 +78,7 @@ export default function CartPage() {
   const deliveryProgress = Math.min(100, Math.round((subtotalNgn / freeDeliveryThreshold) * 100));
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
       <Header
         cartCount={cartCount}
         wishlistCount={wishlistCount}
@@ -94,49 +95,50 @@ export default function CartPage() {
       <main className="flex-1 container mx-auto px-4 lg:px-8 py-8 sm:py-10">
         
         {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-2 text-xs text-[#8C8279] mb-4">
-          <Link href="/" className="hover:text-[#B5532E] transition-colors">Home</Link>
+        <div className="flex items-center gap-2 text-xs text-[#78716C] mb-4">
+          <Link href="/" className="hover:text-[#B5532E] transition-colors no-underline text-[#78716C]">Home</Link>
           <span>/</span>
-          <span className="font-bold text-[#2A2320]">Shopping Cart</span>
+          <span className="font-semibold text-[#1D1917]">Bag & Cart</span>
         </div>
 
-        <div className="flex items-center justify-between pb-4 border-b border-[#E7D5BC] mb-8">
+        <div className="flex items-center justify-between pb-4 border-b border-[#EAE3D9] mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black font-display text-[#2A2320]">
-              Shopping Cart ({cartCount} {cartCount === 1 ? 'item' : 'items'})
+            <h1 className="apple-heading text-2xl sm:text-3xl font-bold text-[#1D1917] tracking-tight">
+              Shopping Bag ({cartCount} {cartCount === 1 ? 'item' : 'items'})
             </h1>
-            <p className="text-xs sm:text-sm text-[#8C8279] mt-0.5">
+            <p className="apple-subhead text-xs sm:text-sm text-[#78716C] mt-0.5 font-normal">
               Review your parcel groupings, adjust quantities, and apply vouchers.
             </p>
           </div>
 
           {cartItems.length > 0 && (
-            <button
+            <motion.button
               type="button"
+              whileTap={{ scale: 0.94 }}
               onClick={clearCart}
-              className="text-xs font-bold text-[#8C8279] hover:text-[#B3261E] transition-colors bg-transparent border-0 cursor-pointer flex items-center gap-1.5"
+              className="text-xs font-semibold text-[#78716C] hover:text-[#B3261E] transition-colors bg-transparent border-0 cursor-pointer flex items-center gap-1.5 apple-pressable"
             >
               <i className="fas fa-trash-alt text-[10px]"></i>
-              <span>Clear Cart</span>
-            </button>
+              <span>Clear Bag</span>
+            </motion.button>
           )}
         </div>
 
         {cartItems.length === 0 ? (
-          <div className="py-20 text-center bg-white rounded-3xl border border-[#E7D5BC] p-8 shadow-2xs max-w-lg mx-auto">
-            <div className="w-20 h-20 rounded-full bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center text-3xl mx-auto mb-4">
+          <div className="py-20 text-center bg-white rounded-3xl border border-[#EAE3D9] p-8 shadow-xs max-w-lg mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-[#FAF7F2] text-[#B5532E] flex items-center justify-center text-2xl mx-auto mb-4 border border-[#EAE3D9]">
               <i className="fas fa-bag-shopping"></i>
             </div>
-            <h3 className="font-display font-black text-xl text-[#2A2320] mb-2">Your Shopping Cart is Empty</h3>
-            <p className="text-xs text-[#8C8279] max-w-sm mx-auto mb-6 leading-relaxed">
+            <h3 className="apple-heading font-bold text-xl text-[#1D1917] mb-2">Your Bag is Empty</h3>
+            <p className="text-xs text-[#78716C] max-w-sm mx-auto mb-6 leading-relaxed">
               Looks like you haven't added anything to your cart yet. Explore authentic smartphones, laptops, audio, and digital licenses.
             </p>
             <Link
               href="/shop"
-              className="px-8 py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-extrabold text-xs transition-colors shadow-sm inline-flex items-center gap-2"
+              className="px-7 py-3 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-xs transition-colors shadow-xs inline-flex items-center gap-2 no-underline apple-pressable"
             >
-              <span>Explore All Products</span>
-              <i className="fas fa-arrow-right text-[10px]"></i>
+              <span>Explore Products</span>
+              <i className="fas fa-arrow-right text-[10px] opacity-75"></i>
             </Link>
           </div>
         ) : (
@@ -352,16 +354,18 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {/* Primary Proceed CTA */}
-                <button
+                {/* Primary Proceed CTA with Spring Touch */}
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
                   onClick={() => router.push('/checkout')}
-                  className="w-full py-4 rounded-xl bg-gradient-to-r from-[#B5532E] to-[#8F3B1F] hover:opacity-95 text-white font-extrabold text-sm transition-all shadow-md flex items-center justify-center gap-2 border-0 cursor-pointer"
+                  className="w-full py-3.5 rounded-xl bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-sm transition-colors shadow-xs flex items-center justify-center gap-2 border-0 cursor-pointer apple-pressable"
                 >
-                  <i className="fas fa-lock text-[#D9A441]"></i>
+                  <i className="fas fa-lock text-[#FAF7F2] text-xs"></i>
                   <span>Proceed to Checkout</span>
-                  <i className="fas fa-arrow-right text-xs"></i>
-                </button>
+                  <i className="fas fa-arrow-right text-xs opacity-75"></i>
+                </motion.button>
 
                 {/* Trust Signals */}
                 <div className="p-3 bg-[#FAF6F0] rounded-xl border border-[#E7D5BC] space-y-2 text-[11px] text-[#8C8279]">

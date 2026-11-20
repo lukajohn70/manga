@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -74,7 +75,7 @@ export default function OfficialStoresPage() {
   } = useStore();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A2320]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1D1917]">
       <Header
         cartCount={cartCount}
         wishlistCount={wishlistCount}
@@ -90,18 +91,18 @@ export default function OfficialStoresPage() {
 
       <main className="flex-1">
         
-        {/* Hero Section */}
-        <div className="bg-[#2A2320] text-white py-14 sm:py-16 border-b border-[#E7D5BC]/30">
+        {/* Hero Section: Apple Dark Surface */}
+        <div className="bg-[#1A1513] text-white py-14 sm:py-18 border-b border-black/30">
           <div className="container mx-auto px-4 lg:px-8 text-center max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-[#D9A441] text-xs font-bold mb-4 border border-white/20">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#E7D5BC] text-xs font-semibold mb-3.5 border border-white/15">
               <i className="fas fa-circle-check text-[#4F6B3A]"></i>
               <span>100% Authentic Guarantee</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black font-display text-white mb-3">
-              MARKETSQUARE Official Mall
+            <h1 className="apple-heading text-3xl sm:text-5xl font-bold tracking-tight text-white mb-3">
+              Official Brand Mall
             </h1>
-            <p className="text-sm sm:text-base text-[#F6EDE0]/80 leading-relaxed max-w-2xl mx-auto">
-              Shop directly from manufacturer-certified authorized distributors. Every purchase is backed by genuine manufacturer warranty, tamper-proof packaging, and 100% verified seller guarantees.
+            <p className="apple-subhead text-sm sm:text-base text-white/70 leading-relaxed max-w-2xl mx-auto font-normal">
+              Direct distribution from manufacturer-certified authorized partners. Backed by genuine manufacturer warranty, tamper-proof packaging, and escrow protection.
             </p>
           </div>
         </div>
@@ -109,49 +110,53 @@ export default function OfficialStoresPage() {
         {/* Brand Grid Container */}
         <div className="container mx-auto px-4 lg:px-8 py-12 sm:py-16">
           
-          <div className="flex items-center justify-between pb-4 border-b border-[#E7D5BC] mb-8">
+          <div className="flex items-center justify-between pb-4 border-b border-[#EAE3D9] mb-8">
             <div>
-              <h2 className="text-xl sm:text-2xl font-black font-display text-[#2A2320]">
+              <h2 className="apple-heading text-xl sm:text-2xl font-bold text-[#1D1917] tracking-tight">
                 Authorized Brand Stores
               </h2>
-              <p className="text-xs text-[#8C8279] mt-0.5">Explore brand catalogs and official warranty terms</p>
+              <p className="apple-subhead text-xs text-[#78716C] mt-0.5 font-normal">Explore brand catalogs and official warranty terms</p>
             </div>
             <Link
               href="/shop"
-              className="text-xs font-bold text-[#B5532E] hover:underline"
+              className="text-xs font-semibold text-[#B5532E] hover:text-[#8F3B1F] no-underline"
             >
-              Browse All Products →
+              Browse Catalog →
             </Link>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {OFFICIAL_BRANDS.map((brand) => (
-              <div
+              <motion.div
                 key={brand.name}
-                className="bg-white rounded-3xl border border-[#E7D5BC] hover:border-[#B5532E]/40 overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                whileHover={{ y: -4 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                className="bg-white rounded-3xl border border-[#EAE3D9] hover:border-[#B5532E]/40 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)] flex flex-col justify-between group"
               >
                 <div>
-                  <div className="relative aspect-[16/9] overflow-hidden bg-[#FAF6F0]">
-                    <img
+                  <div className="relative aspect-[16/9] overflow-hidden bg-[#F5F2EC]">
+                    <motion.img
                       src={brand.image}
                       alt={brand.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      whileHover={{ scale: 1.04 }}
+                      transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+                      className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"></div>
                     <div className="absolute bottom-3 left-4 right-4 text-white">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#D9A441] block">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-[#E7D5BC] block">
                         {brand.badge}
                       </span>
-                      <h3 className="font-display font-black text-lg text-white">{brand.name}</h3>
+                      <h3 className="apple-heading font-bold text-lg text-white">{brand.name}</h3>
                     </div>
                   </div>
 
                   <div className="p-5 space-y-3">
-                    <p className="text-xs text-[#8C8279] leading-relaxed">
+                    <p className="text-xs text-[#78716C] leading-relaxed font-normal">
                       {brand.tagline}
                     </p>
 
-                    <div className="p-2.5 rounded-xl bg-[#FAF6F0] border border-[#E7D5BC] flex items-center gap-2 text-xs text-[#4F6B3A] font-semibold">
+                    <div className="p-2.5 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center gap-2 text-xs text-[#4F6B3A] font-semibold">
                       <i className="fas fa-shield-halved text-xs"></i>
                       <span className="text-[11px]">{brand.warranty}</span>
                     </div>
@@ -161,13 +166,13 @@ export default function OfficialStoresPage() {
                 <div className="p-5 pt-0">
                   <Link
                     href={`/shop?q=${encodeURIComponent(brand.query)}`}
-                    className="w-full py-2.5 rounded-xl bg-[#FAF6F0] hover:bg-[#B5532E] text-[#2A2320] hover:text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 border border-[#E7D5BC] group-hover:border-[#B5532E]"
+                    className="w-full py-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#B5532E] text-[#1D1917] hover:text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2 border border-[#EAE3D9] group-hover:border-[#B5532E] no-underline apple-pressable"
                   >
                     <span>Visit {brand.name} Store</span>
-                    <i className="fas fa-arrow-right text-[10px]"></i>
+                    <i className="fas fa-arrow-right text-[10px] opacity-75"></i>
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 

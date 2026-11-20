@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { RollingNumber } from '@manga/ui';
 
 export interface CartItem {
@@ -86,25 +87,35 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.25 }}
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
-      ></div>
+      />
 
-      {/* Drawer */}
-      <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 overflow-hidden text-[#2A2320]">
+      {/* Drawer: Apple Spring Sheet */}
+      <motion.div
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+        className="relative w-full max-w-md bg-[#FAF7F2] h-full shadow-2xl flex flex-col z-10 overflow-hidden text-[#1D1917]"
+      >
         
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-[#E7D5BC]/60 flex items-center justify-between bg-white">
-          <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-xl bg-[#F6EDE0] text-[#B5532E] flex items-center justify-center font-bold text-sm">
+        <div className="p-4 sm:p-5 border-b border-[#EAE3D9] flex items-center justify-between bg-white">
+          <div className="flex items-center gap-2.5">
+            <span className="w-8 h-8 rounded-xl bg-[#FAF7F2] text-[#B5532E] flex items-center justify-center font-bold text-sm border border-[#EAE3D9]">
               <i className="fas fa-bag-shopping"></i>
             </span>
             <div>
-              <h2 className="font-display font-black text-base sm:text-lg text-[#2A2320] leading-tight">
-                Shopping Cart
+              <h2 className="apple-heading font-bold text-base sm:text-lg text-[#1D1917] leading-tight tracking-tight">
+                Shopping Bag
               </h2>
-              <p className="text-[11px] text-[#8C8279]">
+              <p className="text-[11px] text-[#78716C] font-normal">
                 {items.length} unique item{items.length !== 1 ? 's' : ''} in your parcel
               </p>
             </div>
@@ -112,7 +123,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg text-[#8C8279] hover:text-[#2A2320] hover:bg-[#F6EDE0] flex items-center justify-center transition-colors border-0 bg-transparent cursor-pointer"
+            className="w-8 h-8 rounded-lg text-[#78716C] hover:text-[#1D1917] hover:bg-[#FAF7F2] flex items-center justify-center transition-colors border-0 bg-transparent cursor-pointer apple-pressable"
           >
             <i className="fas fa-times text-sm"></i>
           </button>
@@ -318,24 +329,26 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
             </div>
 
-            <button
+            <motion.button
               type="button"
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
               onClick={onProceedCheckout}
-              className="w-full py-3.5 bg-gradient-to-r from-[#B5532E] to-[#8F3B1F] hover:opacity-95 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 border-0 cursor-pointer"
+              className="w-full py-3.5 bg-[#B5532E] hover:bg-[#A04523] text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 border-0 cursor-pointer apple-pressable"
             >
-              <i className="fas fa-lock text-xs text-[#D9A441]"></i>
-              <span>Proceed to Secure Checkout</span>
-              <i className="fas fa-arrow-right text-xs"></i>
-            </button>
+              <i className="fas fa-lock text-xs text-[#FAF7F2]"></i>
+              <span>Proceed to Checkout</span>
+              <i className="fas fa-arrow-right text-xs opacity-75"></i>
+            </motion.button>
 
-            <div className="flex items-center justify-center gap-2 text-[10px] text-[#8C8279] font-medium">
+            <div className="flex items-center justify-center gap-2 text-[10px] text-[#78716C] font-normal">
               <i className="fas fa-shield-halved text-[#4F6B3A]"></i>
-              <span>256-bit SSL Paystack Secure Payment Guaranteed</span>
+              <span>256-bit SSL Paystack Secure Payment</span>
             </div>
           </div>
         )}
 
-      </div>
+      </motion.div>
     </div>
   );
 };
