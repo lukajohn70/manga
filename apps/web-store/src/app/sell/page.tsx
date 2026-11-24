@@ -186,7 +186,7 @@ export default function SellOnMangaPage() {
                       </motion.a>
 
                       <Link
-                        href="/account/login?portal=merchant"
+                        href="/merchant/login"
                         className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm transition-colors inline-flex items-center gap-2 no-underline apple-pressable"
                       >
                         <span>Merchant Sign In</span>
@@ -523,7 +523,7 @@ export default function SellOnMangaPage() {
                 </p>
                 <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
                   <Link
-                    href="/account/login?portal=merchant"
+                    href="/merchant/login"
                     className="px-6 py-3 rounded-xl bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs shadow-md transition"
                   >
                     Proceed to Merchant Sign In

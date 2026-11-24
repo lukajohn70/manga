@@ -555,7 +555,7 @@ export const Header: React.FC<HeaderProps> = ({
                           <div className="border-t border-[#EAE3D9] my-1"></div>
 
                           <Link
-                            href="/account/login?portal=merchant"
+                            href="/merchant/login"
                             onClick={() => setShowAccountMenu(false)}
                             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#B5532E] hover:bg-[#FAF7F2] font-semibold transition-colors apple-pressable"
                           >

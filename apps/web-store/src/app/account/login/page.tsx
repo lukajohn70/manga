@@ -119,14 +119,9 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const { user, loginCustomer, cartCount, wishlistCount } = useStore();
 
-  const urlPortal = searchParams.get('portal');
-  const urlRole = searchParams.get('role');
   const redirectTarget = searchParams.get('redirect') || '/account';
   const urlToken = searchParams.get('token');
   const urlEmail = searchParams.get('email');
-
-  const isMerchantInitial = urlPortal === 'merchant' || urlRole === 'merchant' || redirectTarget.includes('/sell');
-  const [portalMode, setPortalMode] = useState<'buyer' | 'merchant'>(isMerchantInitial ? 'merchant' : 'buyer');
 
   const initialTab = searchParams.get('tab') === 'register' ? 'register' : 'login';
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'forgot' | 'reset'>(
@@ -172,13 +167,13 @@ function LoginContent() {
     if (user) {
       if (user.role === 'ADMIN') {
         router.push('/admin');
-      } else if (user.role === 'VENDOR' || portalMode === 'merchant') {
-        router.push(redirectTarget !== '/account' ? redirectTarget : '/sell');
+      } else if (user.role === 'VENDOR') {
+        router.push('/sell');
       } else {
         router.push(redirectTarget);
       }
     }
-  }, [user, router, redirectTarget, portalMode]);
+  }, [user, router, redirectTarget]);
 
   // Primary Login
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -211,20 +206,18 @@ function LoginContent() {
         throw new Error(data.message || 'Authentication failed. Please check your credentials.');
       }
 
-      const assignedRole = data.user.role || (portalMode === 'merchant' ? 'VENDOR' : 'BUYER');
-
       loginCustomer(
         data.user.email,
         data.user.name,
         data.user.phone || '+234 800 000 0000',
-        assignedRole,
+        data.user.role || 'BUYER',
         data.token
       );
 
       if (data.user.role === 'ADMIN') {
         router.push('/admin');
-      } else if (assignedRole === 'VENDOR' || portalMode === 'merchant') {
-        router.push(redirectTarget !== '/account' ? redirectTarget : '/sell');
+      } else if (data.user.role === 'VENDOR') {
+        router.push('/sell');
       } else {
         router.push(redirectTarget);
       }
@@ -485,67 +478,21 @@ function LoginContent() {
       <main className="flex-1 py-10 sm:py-16 flex items-center justify-center">
         <div className="container mx-auto px-4 max-w-md w-full">
           <div className="bg-white rounded-3xl border border-[#EAE3D9] shadow-xs p-6 sm:p-8">
-            
-            {/* Persona Switcher: Shopper / Buyer vs Merchant Partner */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] mb-6 text-xs font-semibold text-center">
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.97 }}
-                onClick={() => {
-                  setPortalMode('buyer');
-                  setError(null);
-                  setSuccessMessage(null);
-                }}
-                className={`py-2 px-3 rounded-xl transition-all cursor-pointer border-0 flex items-center justify-center gap-2 apple-pressable ${
-                  portalMode === 'buyer'
-                    ? 'bg-white text-[#1D1917] shadow-xs font-bold border border-[#EAE3D9]'
-                    : 'bg-transparent text-[#78716C] hover:text-[#1D1917]'
-                }`}
-              >
-                <i className="fas fa-bag-shopping text-[11px] text-[#B5532E]"></i>
-                <span>Shopper / Buyer</span>
-              </motion.button>
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.97 }}
-                onClick={() => {
-                  setPortalMode('merchant');
-                  setError(null);
-                  setSuccessMessage(null);
-                }}
-                className={`py-2 px-3 rounded-xl transition-all cursor-pointer border-0 flex items-center justify-center gap-2 apple-pressable ${
-                  portalMode === 'merchant'
-                    ? 'bg-white text-[#B5532E] shadow-xs font-bold border border-[#EAE3D9]'
-                    : 'bg-transparent text-[#78716C] hover:text-[#1D1917]'
-                }`}
-              >
-                <i className="fas fa-store text-[11px] text-[#D9A441]"></i>
-                <span>Merchant Partner</span>
-              </motion.button>
-            </div>
 
             {/* Header / Brand Welcome */}
             <div className="text-center mb-6">
               <div className="w-14 h-14 rounded-2xl bg-[#FAF7F2] text-[#B5532E] flex items-center justify-center text-xl mx-auto mb-3 border border-[#EAE3D9]">
-                <i className={`fas ${portalMode === 'merchant' ? 'fa-store text-[#D9A441]' : 'fa-user-circle'}`}></i>
+                <i className="fas fa-bag-shopping text-[#B5532E]"></i>
               </div>
               <h1 className="apple-heading text-xl sm:text-2xl font-bold text-[#1D1917] tracking-tight">
-                {activeTab === 'login' && (portalMode === 'merchant' ? 'Merchant Partner Sign In' : 'Sign In to Your Account')}
-                {activeTab === 'register' && (portalMode === 'merchant' ? 'Register Your Merchant Store' : 'Create Your Buyer Account')}
-                {activeTab === 'forgot' && (portalMode === 'merchant' ? 'Reset Merchant Password' : 'Reset Your Password')}
+                {activeTab === 'login' && 'Sign In to Your Account'}
+                {activeTab === 'register' && 'Create Your Buyer Account'}
+                {activeTab === 'forgot' && 'Reset Your Password'}
                 {activeTab === 'reset' && 'Set a New Password'}
               </h1>
               <p className="apple-subhead text-xs text-[#78716C] mt-1.5 leading-relaxed font-normal">
-                {activeTab === 'login' && (
-                  portalMode === 'merchant'
-                    ? 'Access your store inventory, fulfill customer orders, and manage escrow disbursements.'
-                    : 'Access your orders, track shipments, and manage your wishlist.'
-                )}
-                {activeTab === 'register' && (
-                  portalMode === 'merchant'
-                    ? 'Partner with Manga to reach verified shoppers with courier pickup and escrow payouts.'
-                    : 'Join Manga for genuine products, escrow buyer protection, and fast delivery.'
-                )}
+                {activeTab === 'login' && 'Access your orders, track shipments, and manage your saved items.'}
+                {activeTab === 'register' && 'Join Manga for genuine products, escrow buyer protection, and fast delivery.'}
                 {activeTab === 'forgot' && 'Enter your email address and we will dispatch a secure password reset link.'}
                 {activeTab === 'reset' && 'Enter your verification token and choose a strong new password.'}
               </p>
@@ -580,7 +527,7 @@ function LoginContent() {
                       : 'bg-transparent text-[#78716C] hover:text-[#1D1917]'
                   }`}
                 >
-                  {portalMode === 'merchant' ? 'Merchant Sign In' : 'Sign In'}
+                  Sign In
                 </motion.button>
                 <motion.button
                   type="button"
@@ -592,24 +539,24 @@ function LoginContent() {
                       : 'bg-transparent text-[#78716C] hover:text-[#1D1917]'
                   }`}
                 >
-                  {portalMode === 'merchant' ? 'Register Store' : 'Create Account'}
+                  Create Account
                 </motion.button>
               </div>
             )}
 
             {/* ======================================================== */}
-            {/* TAB 1: SIGN IN (BUYER / MERCHANT)                        */}
+            {/* TAB 1: SIGN IN (BUYER)                                   */}
             {/* ======================================================== */}
             {activeTab === 'login' && (
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-[#2A2320] mb-1.5">
-                    {portalMode === 'merchant' ? 'Merchant Account Email' : 'Email Address'}
+                    Email Address
                   </label>
                   <input
                     type="email"
                     required
-                    placeholder={portalMode === 'merchant' ? 'e.g. store@business.ng' : 'e.g. buyer@example.com'}
+                    placeholder="e.g. buyer@example.com"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     className="w-full px-4 py-3 bg-[#FAF6F0] border border-[#E7D5BC] rounded-xl text-xs text-[#2A2320] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#B5532E] transition-all"
@@ -652,95 +599,29 @@ function LoginContent() {
                   disabled={loading}
                   className="w-full py-3.5 px-6 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all border-0 cursor-pointer flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
                 >
-                  <i className={`fas ${portalMode === 'merchant' ? 'fa-store text-[#D9A441]' : 'fa-lock text-[#D9A441]'}`}></i>
-                  <span>{loading ? 'Signing In...' : portalMode === 'merchant' ? 'Sign In as Merchant Partner →' : 'Sign In to Account →'}</span>
+                  <i className="fas fa-lock text-[#D9A441]"></i>
+                  <span>{loading ? 'Signing In...' : 'Sign In to Account →'}</span>
                 </button>
 
                 <div className="text-center pt-2 space-y-2">
-                  {portalMode === 'merchant' ? (
-                    <>
-                      <p className="text-xs text-[#8C8279]">
-                        New merchant partner?{' '}
-                        <Link
-                          href="/sell#register"
-                          className="text-[#B5532E] font-bold hover:underline"
-                        >
-                          Register your store on Manga
-                        </Link>
-                      </p>
-                      <p className="text-[11px] text-[#8C8279]">
-                        Looking for shopper orders?{' '}
-                        <button
-                          type="button"
-                          onClick={() => { setPortalMode('buyer'); setError(null); }}
-                          className="text-[#B5532E] font-semibold hover:underline bg-transparent border-0 cursor-pointer p-0"
-                        >
-                          Switch to Shopper Sign In
-                        </button>
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-xs text-[#8C8279]">
-                        New shopper on Manga?{' '}
-                        <button
-                          type="button"
-                          onClick={() => { setActiveTab('register'); setError(null); }}
-                          className="text-[#B5532E] font-bold hover:underline bg-transparent border-0 cursor-pointer"
-                        >
-                          Create an account
-                        </button>
-                      </p>
-                      <p className="text-[11px] text-[#8C8279]">
-                        Selling on Manga?{' '}
-                        <button
-                          type="button"
-                          onClick={() => { setPortalMode('merchant'); setError(null); }}
-                          className="text-[#B5532E] font-semibold hover:underline bg-transparent border-0 cursor-pointer p-0"
-                        >
-                          Merchant Partner Sign In
-                        </button>
-                      </p>
-                    </>
-                  )}
+                  <p className="text-xs text-[#8C8279]">
+                    New shopper on Manga?{' '}
+                    <button
+                      type="button"
+                      onClick={() => { setActiveTab('register'); setError(null); }}
+                      className="text-[#B5532E] font-bold hover:underline bg-transparent border-0 cursor-pointer"
+                    >
+                      Create an account
+                    </button>
+                  </p>
                 </div>
               </form>
             )}
 
             {/* ======================================================== */}
-            {/* TAB 2: REGISTER (MERCHANT PROMPT OR BUYER 2-STEP REG)    */}
+            {/* TAB 2: REGISTER (BUYER 3-STEP REGISTRATION)               */}
             {/* ======================================================== */}
-            {activeTab === 'register' && portalMode === 'merchant' && (
-              <div className="text-center space-y-4 py-2">
-                <div className="w-14 h-14 rounded-2xl bg-amber-50 text-[#B5532E] flex items-center justify-center text-2xl mx-auto border border-amber-200">
-                  <i className="fas fa-store"></i>
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-[#1D1917]">Register Your Business on Manga</h3>
-                  <p className="text-xs text-[#78716C] mt-1.5 leading-relaxed">
-                    Set up your merchant storefront, list your products, and access same-day dispatch logistics with Paystack automated escrow settlements.
-                  </p>
-                </div>
-                <div className="pt-2 flex flex-col gap-2.5">
-                  <Link
-                    href="/sell#register"
-                    className="w-full py-3.5 px-6 bg-[#B5532E] hover:bg-[#8F3B1F] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 no-underline"
-                  >
-                    <span>Proceed to Store Application Form</span>
-                    <i className="fas fa-arrow-right text-[11px]"></i>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('login')}
-                    className="text-xs text-[#78716C] hover:text-[#1D1917] bg-transparent border-0 cursor-pointer py-1 font-semibold"
-                  >
-                    Already registered? <span className="text-[#B5532E] underline">Sign In as Merchant</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'register' && portalMode === 'buyer' && (
+            {activeTab === 'register' && (
               <div>
                 {/* Registration Step Indicator */}
                 <div className="mb-5 flex items-center justify-between text-xs border-b border-[#E7D5BC]/60 pb-3">
@@ -1255,6 +1136,30 @@ function LoginContent() {
               </form>
             )}
 
+          </div>
+
+          {/* Dedicated External Portal Links (Separated from Buyer Flow) */}
+          <div className="mt-6 text-center space-y-2">
+            <p className="text-[11px] text-[#78716C]">
+              Partner or platform operations?
+            </p>
+            <div className="flex items-center justify-center gap-3 text-xs">
+              <Link
+                href="/merchant/login"
+                className="text-[#B5532E] hover:underline font-semibold no-underline inline-flex items-center gap-1.5"
+              >
+                <i className="fas fa-store text-[11px]"></i>
+                <span>Merchant Partner Sign In</span>
+              </Link>
+              <span className="text-[#EAE3D9]">•</span>
+              <Link
+                href="/admin/login"
+                className="text-[#78716C] hover:text-[#1D1917] font-semibold no-underline inline-flex items-center gap-1.5"
+              >
+                <i className="fas fa-shield-halved text-[11px]"></i>
+                <span>Platform Operations</span>
+              </Link>
+            </div>
           </div>
         </div>
       </main>

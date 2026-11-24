@@ -115,6 +115,12 @@
       "namedRegex": "^/admin(?:/)?$"
     },
     {
+      "page": "/admin/login",
+      "regex": "^/admin/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/login(?:/)?$"
+    },
+    {
       "page": "/cart",
       "regex": "^/cart(?:/)?$",
       "routeKeys": {},
@@ -151,6 +157,12 @@
       "namedRegex": "^/interactions(?:/)?$"
     },
     {
+      "page": "/merchant/login",
+      "regex": "^/merchant/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/merchant/login(?:/)?$"
+    },
+    {
       "page": "/official-stores",
       "regex": "^/official\\-stores(?:/)?$",
       "routeKeys": {},
@@ -179,6 +191,12 @@
       "regex": "^/sell(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/sell(?:/)?$"
+    },
+    {
+      "page": "/sell/login",
+      "regex": "^/sell/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sell/login(?:/)?$"
     },
     {
       "page": "/shop",

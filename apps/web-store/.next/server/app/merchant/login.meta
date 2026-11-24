@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/merchant/layout,_N_T_/merchant/login/layout,_N_T_/merchant/login/page,_N_T_/merchant/login"
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/b0641c1020af2eb25cb9ab4c200ada290351986527448e6ce7f82818cefea28c/$/merchant/login",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/merchant/login/page"
+    },
+    "isFallback": false
+  }
+}

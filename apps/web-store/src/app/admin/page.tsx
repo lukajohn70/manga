@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -26,6 +27,7 @@ function getCsrfTokenFromCookie(): string | undefined {
 }
 
 export default function AdminHubPage() {
+  const router = useRouter();
   const { user, loginCustomer, logoutCustomer, cartCount, wishlistCount } = useStore();
   const [diagnostics, setDiagnostics] = useState<SystemDiagnostics | null>(null);
   const [loading, setLoading] = useState(false);
@@ -49,6 +51,13 @@ export default function AdminHubPage() {
   });
 
   const isAdmin = user && user.role === 'ADMIN';
+
+  // Redirect unauthenticated non-admins to dedicated Admin Login
+  useEffect(() => {
+    if (user && user.role !== 'ADMIN') {
+      router.push('/admin/login');
+    }
+  }, [user, router]);
 
   // Fetch telemetry ONLY when authenticated as ADMIN
   useEffect(() => {

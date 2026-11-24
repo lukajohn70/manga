@@ -36,6 +36,7 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+.agents/
 
 # Coverage / Testing
 coverage/

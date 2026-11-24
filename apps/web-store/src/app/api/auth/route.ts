@@ -296,6 +296,69 @@ export async function POST(request: Request) {
       return response;
     }
 
+    // 6b. Action: DEDICATED MERCHANT LOGIN
+    if (action === 'merchant-login') {
+      const loginEmail = (body.email || '').toLowerCase().trim();
+      const rateLimitKey = `merchant_login:${clientIp}:${loginEmail}`;
+      const rateCheck = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
+      if (!rateCheck.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Too many merchant login attempts. Account temporarily locked for ${rateCheck.retryAfterSeconds} seconds.`,
+          },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(rateCheck.retryAfterSeconds) },
+          }
+        );
+      }
+
+      const authRes = await authenticateDbUser(loginEmail, body.password);
+      if (!authRes.success || !authRes.user) {
+        return NextResponse.json(
+          { success: false, message: authRes.message || 'Authentication failed. Please check credentials.' },
+          { status: 401 }
+        );
+      }
+
+      // Strictly verify that the user is a registered Merchant or Admin
+      if (authRes.user.role !== 'VENDOR' && authRes.user.role !== 'ADMIN') {
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'Access restricted: This account is registered as a customer/buyer. Please sign in via the buyer portal or register your store to become a merchant partner.',
+            roleMismatch: true,
+          },
+          { status: 403 }
+        );
+      }
+
+      resetRateLimit(rateLimitKey);
+
+      const sessionToken = createSessionToken(authRes.user);
+      const csrfToken = generateCsrfToken();
+
+      const response = NextResponse.json({
+        success: true,
+        user: authRes.user,
+        token: sessionToken,
+        csrfToken,
+        message: `Welcome back to your merchant console, ${authRes.user.name}!`,
+      });
+
+      response.cookies.set(SESSION_COOKIE_NAME, sessionToken, getSessionCookieOptions());
+      response.cookies.set(CSRF_COOKIE_NAME, csrfToken, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60,
+      });
+
+      return response;
+    }
+
     // 7. Action: PRIMARY LOGIN (Buyers & Merchants)
     const loginEmail = (body.email || '').toLowerCase().trim();
     const rateLimitKey = `login:${clientIp}:${loginEmail}`;

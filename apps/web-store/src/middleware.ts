@@ -62,26 +62,55 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  // 2. Lock Admin pages on the server
+  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const secret = process.env.SESSION_SECRET || process.env.JWT_SECRET || 'manga_default_secure_secret_fallback';
+
+  // 2. Dedicated Admin Operations Routing (Separate from Buyer and Merchant)
   if (pathname.startsWith('/admin')) {
-    const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-    const secret = process.env.SESSION_SECRET || process.env.JWT_SECRET || 'manga_default_secure_secret_fallback';
     const auth = await verifySessionRole(sessionCookie, secret);
 
-    if (!auth.valid || auth.role !== 'ADMIN') {
-      const loginUrl = new URL('/account/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+    // If visiting the dedicated Admin Login page
+    if (pathname === '/admin/login') {
+      // If already authenticated as ADMIN, redirect straight to the Admin Hub
+      if (auth.valid && auth.role === 'ADMIN') {
+        return NextResponse.redirect(new URL('/admin', request.url));
+      }
+      // Otherwise allow viewing the admin login gate
+    } else {
+      // For all protected /admin routes, strictly require ADMIN role
+      if (!auth.valid || auth.role !== 'ADMIN') {
+        const adminLoginUrl = new URL('/admin/login', request.url);
+        if (pathname !== '/admin') {
+          adminLoginUrl.searchParams.set('redirect', pathname);
+        }
+        return NextResponse.redirect(adminLoginUrl);
+      }
     }
   }
 
-  // 3. Lock Customer Account page on the server
+  // 3. Dedicated Merchant Routing (Separate from Buyer and Admin)
+  if (pathname === '/merchant/login' || pathname === '/sell/login') {
+    const auth = await verifySessionRole(sessionCookie, secret);
+    // If already authenticated as VENDOR or ADMIN, redirect straight to Merchant Console
+    if (auth.valid && (auth.role === 'VENDOR' || auth.role === 'ADMIN')) {
+      return NextResponse.redirect(new URL('/sell', request.url));
+    }
+  }
+
+  // 4. Dedicated Customer Account Routing (Buyer Portal)
   if (pathname === '/account') {
-    const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     if (!sessionCookie) {
-      const loginUrl = new URL('/account/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      const buyerLoginUrl = new URL('/account/login', request.url);
+      buyerLoginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(buyerLoginUrl);
+    }
+  }
+
+  // If already authenticated as a BUYER, visiting /account/login redirects to /account (unless custom redirect)
+  if (pathname === '/account/login') {
+    const auth = await verifySessionRole(sessionCookie, secret);
+    if (auth.valid && auth.role === 'BUYER' && !url.searchParams.has('redirect')) {
+      return NextResponse.redirect(new URL('/account', request.url));
     }
   }
 
