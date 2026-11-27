@@ -6,11 +6,17 @@ package-lock.json
 # Build outputs
 dist/
 build/
-.next/
-**/.next/
 out/
 *.tsbuildinfo
 .expo/
+
+# Next.js dynamic runtime caches and traces (keep static production manifests tracked)
+.next/cache/
+**/.next/cache/
+.next/trace
+**/.next/trace
+.next/diagnostics/
+**/.next/diagnostics/
 
 # Environment variables
 .env

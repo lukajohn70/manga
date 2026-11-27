@@ -61,9 +61,9 @@ fi
 # Remove static index.html or index.htm so Passenger handles root traffic
 rm -f "$TARGET/index.html" "$TARGET/index.htm"
 
-# Ensure critical runtime production dependencies (like pg and nodemailer) are installed in target
-if [ ! -d "$TARGET/node_modules/pg" ] || [ ! -d "$TARGET/node_modules/nodemailer" ]; then
-  echo "Installing missing runtime dependencies (including pg and nodemailer) into $TARGET..."
+# Ensure critical runtime production dependencies (like next, react, pg, and nodemailer) are installed in target
+if [ ! -d "$TARGET/node_modules/next" ] || [ ! -d "$TARGET/node_modules/pg" ] || [ ! -d "$TARGET/node_modules/nodemailer" ]; then
+  echo "Installing missing runtime dependencies (including next, pg, and nodemailer) into $TARGET..."
   (cd "$TARGET" && npm install --omit=dev --no-audit --no-fund) || true
 fi
 
@@ -84,6 +84,10 @@ if [ ! -f "$TARGET/.env" ] && [ -f "$TARGET/.env.example" ]; then
   echo "Creating initial .env from .env.example..."
   cp "$TARGET/.env.example" "$TARGET/.env"
 fi
+
+# Maintain clean git repository working tree to prevent cPanel deployment lockups
+git config core.fileMode false 2>/dev/null || true
+git reset --hard HEAD 2>/dev/null || true
 
 echo "✅ Deployment finished successfully for manga.jlm.com.ng"
 exit 0
