@@ -139,12 +139,14 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({
           <div style={{ textAlign: 'center', borderTop: '2px solid #2A2320', paddingTop: '12px' }}>
             <div
               style={{
-                letterSpacing: '5px',
-                fontSize: '26px',
+                letterSpacing: '3px',
+                fontSize: '22px',
                 fontWeight: 900,
-                transform: 'scaleY(1.5)',
+                transform: 'scaleY(1.4)',
                 margin: '8px 0',
                 color: '#2A2320',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
               }}
             >
               ||||| | |||| ||| || |||||| | |||||

@@ -41,11 +41,11 @@ export const SlaTimerBadge: React.FC<SlaTimerBadgeProps> = ({ label, deadlineIso
   const getStyle = () => {
     switch (urgency) {
       case 'breached':
-        return { bg: '#FDF2F2', text: '#B3261E', border: '#F8B4B4' };
+        return { bg: 'var(--status-bad-bg)', text: 'var(--status-bad)', border: 'var(--status-bad-border)' };
       case 'urgent':
-        return { bg: '#FEF7ED', text: '#8F3B1F', border: '#FAD7A0' };
+        return { bg: 'var(--status-warn-bg)', text: 'var(--status-warn)', border: 'var(--status-warn-border)' };
       default:
-        return { bg: '#F0F6EE', text: '#4F6B3A', border: '#C2D6BC' };
+        return { bg: 'var(--status-good-bg)', text: 'var(--status-good)', border: 'var(--status-good-border)' };
     }
   };
 
@@ -53,18 +53,19 @@ export const SlaTimerBadge: React.FC<SlaTimerBadgeProps> = ({ label, deadlineIso
 
   return (
     <div
+      className="tabular-nums"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         gap: '6px',
         padding: '3px 9px',
-        borderRadius: '6px',
+        borderRadius: '999px',
         fontSize: '11px',
-        fontWeight: 600,
+        fontWeight: 700,
         backgroundColor: bg,
         color: text,
         border: `1px solid ${border}`,
-        fontVariantNumeric: 'tabular-nums',
+        whiteSpace: 'nowrap',
       }}
     >
       {urgency === 'urgent' || urgency === 'breached' ? (

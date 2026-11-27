@@ -317,3 +317,327 @@ img, video, canvas, svg {
     border-color: #2A2320 !important;
   }
 }
+
+
+/* =========================================================
+   Manga Customer Interactive Sliding Auth Card
+   ========================================================= */
+
+.auth-page-wrapper {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-container {
+  background-color: #ffffff;
+  border: 1px solid #EAE3D9;
+  border-radius: 28px;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 0 1px 1px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  width: 860px;
+  max-width: 100%;
+  min-height: 540px;
+  transition: all 0.3s ease;
+}
+
+.auth-form-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.auth-form-container form {
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
+  height: 100%;
+  text-align: center;
+  overflow-y: auto;
+}
+
+/* Sign In Panel (Default Left) */
+.auth-sign-in {
+  left: 0;
+  width: 50%;
+  z-index: 2;
+  opacity: 1;
+}
+
+.auth-container.active .auth-sign-in {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Sign Up Panel (Hidden Initially, Slides Right) */
+.auth-sign-up {
+  left: 0;
+  width: 50%;
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.auth-container.active .auth-sign-up {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+  pointer-events: auto;
+  animation: authMove 0.6s;
+}
+
+/* Social Login Icons */
+.auth-social-icons {
+  margin: 14px 0 12px;
+  display: flex;
+  gap: 10px;
+}
+
+.auth-social-btn {
+  border: 1px solid #EAE3D9;
+  border-radius: 12px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 42px;
+  height: 42px;
+  background-color: #FAF7F2;
+  color: #1D1917;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.auth-social-btn:hover {
+  border-color: #B5532E;
+  background-color: rgba(181, 83, 46, 0.1);
+  color: #B5532E;
+  transform: translateY(-1px);
+}
+
+/* Sliding Terracotta/Clay Toggle Container */
+.auth-toggle-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  border-radius: 140px 0 0 90px;
+  z-index: 100;
+}
+
+.auth-container.active .auth-toggle-container {
+  transform: translateX(-100%);
+  border-radius: 0 140px 90px 0;
+}
+
+/* Manga Terracotta & Nok Clay Gradient */
+.auth-toggle {
+  background: linear-gradient(135deg, #b5532e 0%, #d96b43 50%, #8f3b1f 100%);
+  height: 100%;
+  color: #ffffff;
+  position: relative;
+  left: -100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: all 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.25);
+}
+
+.auth-container.active .auth-toggle {
+  transform: translateX(50%);
+}
+
+.auth-toggle-panel {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 36px;
+  text-align: center;
+  top: 0;
+  transform: translateX(0);
+  transition: all 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.auth-toggle-panel h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 800;
+  font-size: 26px;
+  color: #ffffff;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.auth-toggle-panel p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
+}
+
+.auth-toggle-panel button.ghost-btn {
+  background-color: transparent;
+  border: 1.5px solid #ffffff;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 10px 32px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-toggle-panel button.ghost-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.auth-toggle-left {
+  transform: translateX(-200%);
+}
+
+.auth-container.active .auth-toggle-left {
+  transform: translateX(0);
+}
+
+.auth-toggle-right {
+  right: 0;
+  transform: translateX(0);
+}
+
+.auth-container.active .auth-toggle-right {
+  transform: translateX(200%);
+}
+
+/* Inputs & Links in Auth Form */
+.auth-input-group {
+  width: 100%;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: 1px solid #EAE3D9;
+  background-color: #FAF7F2;
+  color: #1D1917;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.auth-input:focus {
+  border-color: #B5532E;
+  box-shadow: 0 0 0 3px rgba(181, 83, 46, 0.15);
+  background-color: #ffffff;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  background-color: #B5532E;
+  color: #ffffff;
+  border: 1px solid #8F3B1F;
+  border-radius: 10px;
+  padding: 11px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(181, 83, 46, 0.25);
+}
+
+.auth-submit-btn:hover {
+  background-color: #9E4321;
+  transform: translateY(-1px);
+}
+
+.auth-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mobile responsive */
+@media (max-width: 720px) {
+  .auth-container {
+    min-height: 640px;
+  }
+  .auth-form-container {
+    width: 100%;
+    height: 62%;
+    top: auto;
+    bottom: 0;
+  }
+  .auth-sign-in, .auth-sign-up {
+    width: 100%;
+  }
+  .auth-container.active .auth-sign-in {
+    transform: translateY(100%);
+  }
+  .auth-container.active .auth-sign-up {
+    transform: translateY(0);
+  }
+  .auth-toggle-container {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 38%;
+    border-radius: 0 0 48px 48px;
+  }
+  .auth-container.active .auth-toggle-container {
+    transform: translateX(0);
+    border-radius: 0 0 48px 48px;
+  }
+  .auth-toggle-panel {
+    padding: 0 20px;
+  }
+  .auth-toggle-panel h1 {
+    font-size: 20px;
+  }
+  .auth-toggle-panel p {
+    font-size: 11.5px;
+    margin-bottom: 12px;
+  }
+  .auth-form-container form {
+    padding: 0 24px;
+  }
+}
+
+
+/* Hide Next.js floating dev indicator badge */
+nextjs-portal,
+[data-nextjs-dev-indicator],
+[data-nextjs-toast-wrapper],
+[data-nextjs-dialog-header],
+button[aria-label="Next.js Dev Indicator"],
+button[data-nextjs-dev-indicator],
+div[data-nextjs-dev-indicator] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

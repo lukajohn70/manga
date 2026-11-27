@@ -117,102 +117,111 @@ export const DisputeCenter: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Header & Filter Controls */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div
+              className="squircle"
               style={{
                 width: '36px',
                 height: '36px',
-                borderRadius: '8px',
-                backgroundColor: '#FDF4ED',
+                backgroundColor: 'var(--accent-primary-glow)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#B5532E',
-                border: '1px solid #F6D6C2',
+                color: 'var(--accent-primary)',
+                border: '1px solid var(--border-accent)',
               }}
             >
-              <Scale size={20} />
+              <Scale size={19} />
             </div>
-            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
+            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'Fraunces, Georgia, serif' }}>
               Marketplace Dispute Mediation Center
             </h2>
           </div>
-          <p style={{ margin: '4px 0 0 46px', color: '#8C8279', fontSize: '13px' }}>
+          <p style={{ margin: '4px 0 0 46px', color: 'var(--text-muted)', fontSize: '12px' }}>
             Audited mediation workflow with verified buyer-merchant evidence bundles and automated escrow disposition.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <Badge variant="warning">
+          <span className="status-pill warn">
             {disputes.filter((d) => d.status === 'opened' || d.status === 'awaiting_evidence').length} Active Inquiries
-          </Badge>
-          <Badge variant="success">Resolution SLA: 48 Hours</Badge>
+          </span>
+          <span className="status-pill good">Resolution SLA: 48 Hours</span>
         </div>
       </div>
 
       {/* Main Table */}
-      <div style={{ backgroundColor: '#FFFFFF', borderRadius: '10px', border: '1px solid #E7D5BC', overflow: 'hidden', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
+      <div className="admin-table-container">
+        <table className="admin-table">
           <thead>
-            <tr style={{ backgroundColor: '#FBF7F0', borderBottom: '1px solid #E7D5BC', color: '#8C8279', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>
-              <th style={{ padding: '12px 16px', fontWeight: 700 }}>Case ID & Order</th>
-              <th style={{ padding: '12px 16px', fontWeight: 700 }}>Claim Type & Amount</th>
-              <th style={{ padding: '12px 16px', fontWeight: 700 }}>Parties Involved</th>
-              <th style={{ padding: '12px 16px', fontWeight: 700 }}>Documentation</th>
-              <th style={{ padding: '12px 16px', fontWeight: 700 }}>Status</th>
-              <th style={{ padding: '12px 16px', fontWeight: 700, textAlign: 'right' }}>Action</th>
+            <tr>
+              <th>Case ID & Order</th>
+              <th>Claim Type & Amount</th>
+              <th>Parties Involved</th>
+              <th>Documentation</th>
+              <th>Status</th>
+              <th style={{ textAlign: 'right' }}>Action</th>
             </tr>
           </thead>
           <tbody>
             {disputes.map((dsp) => (
-              <tr key={dsp.id} style={{ borderBottom: '1px solid #F0E6D8' }}>
-                <td style={{ padding: '14px 16px' }}>
-                  <div style={{ fontWeight: 700, color: '#2A2320' }}>{dsp.id}</div>
-                  <div style={{ fontSize: '12px', color: '#8C8279' }}>Order #{dsp.orderNumber}</div>
+              <tr key={dsp.id}>
+                <td>
+                  <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{dsp.id}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Order #{dsp.orderNumber}</div>
                 </td>
-                <td style={{ padding: '14px 16px' }}>
-                  <div style={{ fontWeight: 600, color: '#2A2320' }}>{dsp.type.replace(/_/g, ' ').toUpperCase()}</div>
-                  <div style={{ fontSize: '13px', color: '#B5532E', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                <td>
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{dsp.type.replace(/_/g, ' ').toUpperCase()}</div>
+                  <div className="tabular-nums" style={{ fontSize: '13px', color: 'var(--accent-primary)', fontWeight: 700 }}>
                     {dsp.claimedAmountFormatted}
                   </div>
                 </td>
-                <td style={{ padding: '14px 16px' }}>
-                  <div style={{ color: '#2A2320' }}><strong>Customer:</strong> {dsp.buyerName}</div>
-                  <div style={{ fontSize: '12px', color: '#8C8279' }}><strong>Merchant:</strong> {dsp.vendorName}</div>
+                <td>
+                  <div style={{ color: 'var(--text-primary)' }}><strong>Customer:</strong> {dsp.buyerName}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}><strong>Merchant:</strong> {dsp.vendorName}</div>
                 </td>
-                <td style={{ padding: '14px 16px' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#FBF7F0', border: '1px solid #E7D5BC', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, color: '#2A2320' }}>
-                    <FileText size={12} color="#B5532E" />
+                <td>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: 'var(--bg-well)', border: '1px solid var(--border-line)', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    <FileText size={12} color="var(--accent-primary)" />
                     {dsp.evidenceCount} Files Attached
                   </span>
                 </td>
-                <td style={{ padding: '14px 16px' }}>
-                  <Badge
-                    variant={
+                <td>
+                  <span
+                    className={`status-pill ${
                       dsp.status === 'opened'
-                        ? 'warning'
+                        ? 'warn'
                         : dsp.status === 'awaiting_evidence'
-                        ? 'neutral'
+                        ? 'info'
                         : dsp.status === 'resolved_buyer_favor'
-                        ? 'error'
-                        : 'success'
-                    }
+                        ? 'bad'
+                        : 'good'
+                    }`}
                   >
                     {dsp.status.replace(/_/g, ' ').toUpperCase()}
-                  </Badge>
+                  </span>
                 </td>
-                <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                  <Button
-                    variant="primary"
-                    size="sm"
+                <td style={{ textAlign: 'right' }}>
+                  <button
+                    type="button"
                     onClick={() => {
                       setSelectedCase(dsp);
                       setDecisionModalOpen(true);
                     }}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      backgroundColor: 'var(--accent-primary)',
+                      color: '#ffffff',
+                      fontSize: '11.5px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
                   >
                     Review & Mediate
-                  </Button>
+                  </button>
                 </td>
               </tr>
             ))}
@@ -223,77 +232,61 @@ export const DisputeCenter: React.FC = () => {
       {/* Mediation & Evidence Bundle Modal */}
       {decisionModalOpen && selectedCase && (
         <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(42, 35, 32, 0.65)',
-            backdropFilter: 'blur(3px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '1.5rem',
-          }}
+          className="modal-backdrop"
+          onClick={() => setDecisionModalOpen(false)}
         >
           <div
-            style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: '12px',
-              width: '100%',
-              maxWidth: '720px',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              padding: '1.75rem',
-              boxShadow: '0 25px 50px -12px rgba(42, 35, 32, 0.25)',
-              border: '1px solid #E7D5BC',
-            }}
+            className="modal-dialog"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '720px', padding: '24px', maxHeight: '90vh', overflowY: 'auto' }}
           >
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E7D5BC', paddingBottom: '14px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-line)', paddingBottom: '14px', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div
+                  className="squircle"
                   style={{
                     width: '36px',
                     height: '36px',
-                    borderRadius: '8px',
-                    backgroundColor: '#FDF4ED',
+                    backgroundColor: 'var(--accent-primary-glow)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#B5532E',
-                    border: '1px solid #F6D6C2',
+                    color: 'var(--accent-primary)',
+                    border: '1px solid var(--border-accent)',
                   }}
                 >
-                  <Scale size={20} />
+                  <Scale size={19} />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'Fraunces, Georgia, serif' }}>
                     Case Adjudication #{selectedCase.id}
                   </h3>
-                  <span style={{ fontSize: '12px', color: '#8C8279' }}>
-                    Order #{selectedCase.orderNumber} • Disputed Value: <strong style={{ color: '#B5532E' }}>{selectedCase.claimedAmountFormatted}</strong>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                    Order #{selectedCase.orderNumber} • Disputed Value: <strong style={{ color: 'var(--accent-primary)' }}>{selectedCase.claimedAmountFormatted}</strong>
                   </span>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setDecisionModalOpen(false)}
                 aria-label="Close dialog"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8C8279', padding: '6px', borderRadius: '6px' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '6px', borderRadius: '6px' }}
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Evidence Bundle Section */}
-            <div style={{ backgroundColor: '#FBF7F0', padding: '1.25rem', borderRadius: '8px', marginBottom: '1.25rem', border: '1px solid #E7D5BC' }}>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '11px', color: '#8C8279', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ backgroundColor: 'var(--bg-well)', padding: '16px', borderRadius: '10px', marginBottom: '16px', border: '1px solid var(--border-line)' }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Verified Evidence Portfolio
               </h4>
-              <div style={{ fontSize: '13px', marginBottom: '6px', color: '#2A2320' }}>
+              <div style={{ fontSize: '13px', marginBottom: '6px', color: 'var(--text-primary)' }}>
                 <strong>Customer Claim:</strong> "{selectedCase.reason}"
               </div>
-              <div style={{ fontSize: '13px', marginBottom: '12px', color: '#2A2320' }}>
-                <strong>Carrier Delivery Record:</strong> {selectedCase.trackingStatus} (Tracking: <code style={{ fontWeight: 600, color: '#B5532E' }}>{selectedCase.trackingNumber}</code>)
+              <div style={{ fontSize: '13px', marginBottom: '12px', color: 'var(--text-primary)' }}>
+                <strong>Carrier Delivery Record:</strong> {selectedCase.trackingStatus} (Tracking: <code style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>{selectedCase.trackingNumber}</code>)
               </div>
 
               {/* Uploaded Evidence Gallery */}
@@ -305,24 +298,24 @@ export const DisputeCenter: React.FC = () => {
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      backgroundColor: '#FFFFFF',
+                      backgroundColor: 'var(--bg-card)',
                       padding: '8px 12px',
                       borderRadius: '6px',
-                      border: '1px solid #E7D5BC',
+                      border: '1px solid var(--border-line)',
                       fontSize: '12px',
                     }}
                   >
                     <div>
-                      <span style={{ fontWeight: 700, textTransform: 'uppercase', marginRight: '6px', color: '#B5532E' }}>
+                      <span style={{ fontWeight: 700, textTransform: 'uppercase', marginRight: '6px', color: 'var(--accent-primary)' }}>
                         [{ev.party} - {ev.kind}]:
                       </span>
-                      <span style={{ color: '#2A2320' }}>{ev.notes}</span>
+                      <span style={{ color: 'var(--text-primary)' }}>{ev.notes}</span>
                     </div>
                     <a
                       href={ev.uri}
                       target="_blank"
                       rel="noreferrer"
-                      style={{ color: '#B5532E', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}
+                      style={{ color: 'var(--accent-primary)', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}
                     >
                       View File <ExternalLink size={12} />
                     </a>
@@ -332,12 +325,12 @@ export const DisputeCenter: React.FC = () => {
             </div>
 
             {/* Adjudication Outcome Decision Radio */}
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#2A2320', marginBottom: '8px' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Select Binding Adjudication Ruling:
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '6px', border: selectedOutcome === 'buyer' ? '1px solid #B3261E' : '1px solid #E7D5BC', cursor: 'pointer', backgroundColor: selectedOutcome === 'buyer' ? '#FDF2F2' : '#FFFFFF' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: selectedOutcome === 'buyer' ? '1px solid var(--status-bad)' : '1px solid var(--border-line)', cursor: 'pointer', backgroundColor: selectedOutcome === 'buyer' ? 'var(--status-bad-bg)' : 'var(--bg-well)' }}>
                   <input
                     type="radio"
                     name="outcome"
@@ -345,25 +338,12 @@ export const DisputeCenter: React.FC = () => {
                     onChange={() => setSelectedOutcome('buyer')}
                   />
                   <div>
-                    <div style={{ fontWeight: 700, color: '#B3261E' }}>Rule in Customer's Favor (Full Merchant Refund)</div>
-                    <div style={{ fontSize: '12px', color: '#8C8279' }}>Releases refund to buyer from merchant balance. Updates merchant compliance score.</div>
+                    <div style={{ fontWeight: 700, color: 'var(--status-bad)' }}>Rule in Customer's Favor (Full Merchant Refund)</div>
+                    <div style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>Releases refund to buyer from merchant balance. Updates merchant compliance score.</div>
                   </div>
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '6px', border: selectedOutcome === 'guarantee' ? '1px solid #D9A441' : '1px solid #E7D5BC', cursor: 'pointer', backgroundColor: selectedOutcome === 'guarantee' ? '#FEF7ED' : '#FFFFFF' }}>
-                  <input
-                    type="radio"
-                    name="outcome"
-                    checked={selectedOutcome === 'guarantee'}
-                    onChange={() => setSelectedOutcome('guarantee')}
-                  />
-                  <div>
-                    <div style={{ fontWeight: 700, color: '#8F3B1F' }}>Settle via Manga Buyer Protection Guarantee</div>
-                    <div style={{ fontSize: '12px', color: '#8C8279' }}>Compensates buyer from platform guarantee reserves when transit damage occurred outside vendor fault.</div>
-                  </div>
-                </label>
-
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '6px', border: selectedOutcome === 'vendor' ? '1px solid #4F6B3A' : '1px solid #E7D5BC', cursor: 'pointer', backgroundColor: selectedOutcome === 'vendor' ? '#F0F6EE' : '#FFFFFF' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: selectedOutcome === 'vendor' ? '1px solid var(--status-good)' : '1px solid var(--border-line)', cursor: 'pointer', backgroundColor: selectedOutcome === 'vendor' ? 'var(--status-good-bg)' : 'var(--bg-well)' }}>
                   <input
                     type="radio"
                     name="outcome"
@@ -371,16 +351,29 @@ export const DisputeCenter: React.FC = () => {
                     onChange={() => setSelectedOutcome('vendor')}
                   />
                   <div>
-                    <div style={{ fontWeight: 700, color: '#4F6B3A' }}>Rule in Merchant's Favor (Dismiss Claim)</div>
-                    <div style={{ fontSize: '12px', color: '#8C8279' }}>Valid proof of delivery verified without defect. Releases withheld payment to merchant.</div>
+                    <div style={{ fontWeight: 700, color: 'var(--status-good)' }}>Rule in Merchant's Favor (Dismiss Claim & Disburse)</div>
+                    <div style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>Affirms fulfillment proof. Escrow funds released to merchant payable account.</div>
+                  </div>
+                </label>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: selectedOutcome === 'guarantee' ? '1px solid var(--accent-gold)' : '1px solid var(--border-line)', cursor: 'pointer', backgroundColor: selectedOutcome === 'guarantee' ? 'var(--accent-gold-soft)' : 'var(--bg-well)' }}>
+                  <input
+                    type="radio"
+                    name="outcome"
+                    checked={selectedOutcome === 'guarantee'}
+                    onChange={() => setSelectedOutcome('guarantee')}
+                  />
+                  <div>
+                    <div style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>Manga Marketsquare Platform Guarantee Settlement</div>
+                    <div style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>Platform covers customer loss under trust policy while merchant is credited.</div>
                   </div>
                 </label>
               </div>
             </div>
 
             {/* Rationale Input */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#2A2320', marginBottom: '6px' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
                 Official Rationale & Policy Reference:
               </label>
               <textarea
@@ -392,28 +385,54 @@ export const DisputeCenter: React.FC = () => {
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #E7D5BC',
-                  fontSize: '13px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-line)',
+                  fontSize: '12.5px',
                   boxSizing: 'border-box',
-                  color: '#2A2320',
-                  backgroundColor: '#FFFFFF',
+                  color: 'var(--text-primary)',
+                  backgroundColor: 'var(--bg-well)',
+                  outline: 'none',
+                  fontFamily: 'inherit',
                 }}
               />
             </div>
 
             {/* Footer Buttons */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <Button variant="ghost" onClick={() => setDecisionModalOpen(false)}>
+              <button
+                type="button"
+                onClick={() => setDecisionModalOpen(false)}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-line)',
+                  backgroundColor: 'var(--bg-card)',
+                  color: 'var(--text-secondary)',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
                 Cancel
-              </Button>
-              <Button
-                variant="primary"
+              </button>
+              <button
+                type="button"
                 disabled={!resolutionRationale.trim()}
                 onClick={handleResolve}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: 'var(--accent-primary)',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: !resolutionRationale.trim() ? 'not-allowed' : 'pointer',
+                  opacity: !resolutionRationale.trim() ? 0.6 : 1,
+                }}
               >
                 Execute Settlement & Close Case
-              </Button>
+              </button>
             </div>
           </div>
         </div>

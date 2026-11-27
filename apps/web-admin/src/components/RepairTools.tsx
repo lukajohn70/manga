@@ -1,6 +1,16 @@
 import * as React from 'react';
-import { Button, Badge } from '@manga/ui';
-import { Wrench, RotateCcw, Package, Search, Scale, FileText, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
+import {
+  Wrench,
+  RotateCcw,
+  Package,
+  Search,
+  Scale,
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  ShieldCheck,
+  Send,
+} from 'lucide-react';
 
 export interface AuditLogItem {
   id: string;
@@ -59,7 +69,7 @@ export const RepairTools: React.FC = () => {
       action: 'REVERSE_LEDGER_TRANSACTION',
       targetType: 'ledger_transaction',
       targetId: 'tx-2291-duplicate-fee',
-      reason: 'Reversing erroneous gateway surcharge posting',
+      reason: 'Dual-verified balance adjustment for duplicated fee posting',
       timestamp: '2 hours ago',
     },
   ]);
@@ -158,64 +168,56 @@ export const RepairTools: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      
       {/* Banner */}
       <div
+        className="admin-card"
         style={{
-          backgroundColor: '#1E1815',
-          color: '#F6EDE0',
-          borderRadius: '10px',
-          padding: '1.25rem 1.5rem',
+          padding: '20px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          boxShadow: '0 4px 12px rgba(42, 35, 32, 0.15)',
-          border: '1px solid #3E3430',
+          flexWrap: 'wrap',
+          gap: '14px',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
+            className="squircle"
             style={{
               width: '38px',
               height: '38px',
-              borderRadius: '8px',
-              backgroundColor: '#FDF4ED',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#B5532E',
+              backgroundColor: 'var(--accent-primary-glow)',
+              color: 'var(--accent-primary)',
             }}
           >
-            <Wrench size={20} />
+            <Wrench size={19} />
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800, fontFamily: 'Fraunces, Georgia, serif', color: '#F6EDE0' }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, fontFamily: 'Fraunces, Georgia, serif', color: 'var(--text-primary)' }}>
               Operational Recovery & Administrative Interventions
             </h3>
-            <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#8C8279' }}>
+            <p style={{ margin: '3px 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
               Dual-control authorized tools for transaction re-delivery, inventory release, search synchronization, and balanced adjustments.
             </p>
           </div>
         </div>
+
         <div style={{ display: 'flex', gap: '8px' }}>
-          <Badge variant="warning">Audit Log Enforced</Badge>
-          <Badge variant="success">Zero Variance Verified</Badge>
+          <span className="status-pill warn">Audit Log Enforced</span>
+          <span className="status-pill good">Zero Variance Verified</span>
         </div>
       </div>
 
       {notification && (
         <div
+          className={`status-pill ${notification.type === 'success' ? 'good' : 'bad'}`}
           style={{
             padding: '12px 16px',
-            borderRadius: '8px',
-            backgroundColor: notification.type === 'success' ? '#F0F6EE' : '#FDF2F2',
-            color: notification.type === 'success' ? '#4F6B3A' : '#B3261E',
-            border: `1px solid ${notification.type === 'success' ? '#C2D6BC' : '#F8B4B4'}`,
-            fontSize: '13px',
+            borderRadius: '10px',
+            fontSize: '12.5px',
             fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
           }}
         >
           {notification.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -224,116 +226,41 @@ export const RepairTools: React.FC = () => {
       )}
 
       {/* Tool Selection Tabs */}
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #E7D5BC', paddingBottom: '8px' }}>
-        <button
-          onClick={() => setActiveTool('outbox')}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: activeTool === 'outbox' ? '#B5532E' : '#FFFFFF',
-            color: activeTool === 'outbox' ? '#FFFFFF' : '#2A2320',
-            fontWeight: 700,
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            borderBottom: activeTool === 'outbox' ? 'none' : '1px solid #E7D5BC',
-          }}
-        >
-          <RotateCcw size={14} /> Replay Notification Event
-        </button>
-        <button
-          onClick={() => setActiveTool('reservation')}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: activeTool === 'reservation' ? '#B5532E' : '#FFFFFF',
-            color: activeTool === 'reservation' ? '#FFFFFF' : '#2A2320',
-            fontWeight: 700,
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            borderBottom: activeTool === 'reservation' ? 'none' : '1px solid #E7D5BC',
-          }}
-        >
-          <Package size={14} /> Release Inventory Hold
-        </button>
-        <button
-          onClick={() => setActiveTool('search')}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: activeTool === 'search' ? '#B5532E' : '#FFFFFF',
-            color: activeTool === 'search' ? '#FFFFFF' : '#2A2320',
-            fontWeight: 700,
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            borderBottom: activeTool === 'search' ? 'none' : '1px solid #E7D5BC',
-          }}
-        >
-          <Search size={14} /> Sync Search Listing
-        </button>
-        <button
-          onClick={() => setActiveTool('ledger')}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: activeTool === 'ledger' ? '#B5532E' : '#FFFFFF',
-            color: activeTool === 'ledger' ? '#FFFFFF' : '#2A2320',
-            fontWeight: 700,
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            borderBottom: activeTool === 'ledger' ? 'none' : '1px solid #E7D5BC',
-          }}
-        >
-          <Scale size={14} /> Dual-Control Balance Adjustment
-        </button>
-        <button
-          onClick={() => setActiveTool('logs')}
-          style={{
-            padding: '8px 14px',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: activeTool === 'logs' ? '#B5532E' : '#FFFFFF',
-            color: activeTool === 'logs' ? '#FFFFFF' : '#2A2320',
-            fontWeight: 700,
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            borderBottom: activeTool === 'logs' ? 'none' : '1px solid #E7D5BC',
-          }}
-        >
-          <FileText size={14} /> Immutable Audit Log ({auditLogs.length})
-        </button>
+      <div className="segmented-control" style={{ alignSelf: 'flex-start', flexWrap: 'wrap' }}>
+        {[
+          { id: 'outbox' as const, label: 'Replay Outbox Event', icon: RotateCcw },
+          { id: 'reservation' as const, label: 'Release Inventory Hold', icon: Package },
+          { id: 'search' as const, label: 'Sync Search Index', icon: Search },
+          { id: 'ledger' as const, label: 'Dual-Control Balance', icon: Scale },
+          { id: 'logs' as const, label: `Audit Trail (${auditLogs.length})`, icon: FileText },
+        ].map((tool) => {
+          const Icon = tool.icon;
+          return (
+            <button
+              key={tool.id}
+              type="button"
+              onClick={() => setActiveTool(tool.id)}
+              className={`segmented-pill ${activeTool === tool.id ? 'active' : ''}`}
+            >
+              <Icon size={14} />
+              <span>{tool.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Outbox Tool Form */}
       {activeTool === 'outbox' && (
-        <div style={{ backgroundColor: '#FFFFFF', padding: '1.75rem', borderRadius: '10px', border: '1px solid #E7D5BC', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-          <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 700, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
+        <div className="admin-card" style={{ padding: '24px' }}>
+          <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'Fraunces, Georgia, serif' }}>
             Event Redelivery & Notification Resend
           </h4>
-          <p style={{ margin: '0 0 1.25rem 0', fontSize: '13px', color: '#8C8279' }}>
+          <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--text-muted)' }}>
             Re-enqueues transaction notifications or order updates that encountered downstream carrier timeout, ensuring reliable customer receipt.
           </p>
-          <form onSubmit={handleReplayOutbox} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '580px' }}>
+          <form onSubmit={handleReplayOutbox} style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '580px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 Event Reference Identifier:
               </label>
               <input
@@ -341,11 +268,11 @@ export const RepairTools: React.FC = () => {
                 value={outboxEventId}
                 onChange={(e) => setOutboxEventId(e.target.value)}
                 placeholder="e.g. evt-4819-order-confirmed"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-line)', backgroundColor: 'var(--bg-well)', color: 'var(--text-primary)', fontSize: '12.5px', outline: 'none' }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 Operational Justification (Logged to Audit Trail):
               </label>
               <textarea
@@ -353,11 +280,25 @@ export const RepairTools: React.FC = () => {
                 onChange={(e) => setOutboxReason(e.target.value)}
                 placeholder="Document why manual redelivery is required..."
                 rows={3}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-line)', backgroundColor: 'var(--bg-well)', color: 'var(--text-primary)', fontSize: '12.5px', outline: 'none', fontFamily: 'inherit' }}
               />
             </div>
             <div>
-              <Button variant="primary">Re-enqueue Event</Button>
+              <button
+                type="submit"
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: 'var(--accent-primary)',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Re-enqueue Event
+              </button>
             </div>
           </form>
         </div>
@@ -365,16 +306,16 @@ export const RepairTools: React.FC = () => {
 
       {/* Reservation Tool Form */}
       {activeTool === 'reservation' && (
-        <div style={{ backgroundColor: '#FFFFFF', padding: '1.75rem', borderRadius: '10px', border: '1px solid #E7D5BC', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-          <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 700, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
+        <div className="admin-card" style={{ padding: '24px' }}>
+          <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'Fraunces, Georgia, serif' }}>
             Release Uncompleted Checkout Inventory Hold
           </h4>
-          <p style={{ margin: '0 0 1.25rem 0', fontSize: '13px', color: '#8C8279' }}>
+          <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--text-muted)' }}>
             Unlocks temporary inventory holds associated with abandoned checkout sessions exceeding the 30-minute window, returning stock to the merchant's live catalog.
           </p>
-          <form onSubmit={handleReleaseReservation} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '580px' }}>
+          <form onSubmit={handleReleaseReservation} style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '580px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 Hold Reference Identifier:
               </label>
               <input
@@ -382,11 +323,11 @@ export const RepairTools: React.FC = () => {
                 value={reservationId}
                 onChange={(e) => setReservationId(e.target.value)}
                 placeholder="e.g. res-8812-cart-abandoned"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-line)', backgroundColor: 'var(--bg-well)', color: 'var(--text-primary)', fontSize: '12.5px', outline: 'none' }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 Confirmation Reason:
               </label>
               <textarea
@@ -394,11 +335,25 @@ export const RepairTools: React.FC = () => {
                 onChange={(e) => setReservationReason(e.target.value)}
                 placeholder="Confirm that the checkout session was abandoned or timed out..."
                 rows={3}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-line)', backgroundColor: 'var(--bg-well)', color: 'var(--text-primary)', fontSize: '12.5px', outline: 'none', fontFamily: 'inherit' }}
               />
             </div>
             <div>
-              <Button variant="secondary" style={{ backgroundColor: '#B3261E', color: '#ffffff' }}>Release Stock to Catalog</Button>
+              <button
+                type="submit"
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: 'var(--status-bad)',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Release Stock to Catalog
+              </button>
             </div>
           </form>
         </div>
@@ -406,16 +361,16 @@ export const RepairTools: React.FC = () => {
 
       {/* Search Refresh Tool Form */}
       {activeTool === 'search' && (
-        <div style={{ backgroundColor: '#FFFFFF', padding: '1.75rem', borderRadius: '10px', border: '1px solid #E7D5BC', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-          <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 700, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
+        <div className="admin-card" style={{ padding: '24px' }}>
+          <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'Fraunces, Georgia, serif' }}>
             Catalog Search Listing Synchronization
           </h4>
-          <p style={{ margin: '0 0 1.25rem 0', fontSize: '13px', color: '#8C8279' }}>
+          <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--text-muted)' }}>
             Synchronizes merchant price updates, stock levels, or specifications with the customer search index for instantaneous discovery.
           </p>
-          <form onSubmit={handleRefreshSearch} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '580px' }}>
+          <form onSubmit={handleRefreshSearch} style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '580px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 Product SKU or Item Identifier:
               </label>
               <input
@@ -423,11 +378,11 @@ export const RepairTools: React.FC = () => {
                 value={searchProductId}
                 onChange={(e) => setSearchProductId(e.target.value)}
                 placeholder="e.g. prod-9941-smart-watch"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-line)', backgroundColor: 'var(--bg-well)', color: 'var(--text-primary)', fontSize: '12.5px', outline: 'none' }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 Sync Reason:
               </label>
               <textarea
@@ -435,11 +390,25 @@ export const RepairTools: React.FC = () => {
                 onChange={(e) => setSearchReason(e.target.value)}
                 placeholder="Document reason for search index re-alignment..."
                 rows={3}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-line)', backgroundColor: 'var(--bg-well)', color: 'var(--text-primary)', fontSize: '12.5px', outline: 'none', fontFamily: 'inherit' }}
               />
             </div>
             <div>
-              <Button variant="primary">Synchronize Listing</Button>
+              <button
+                type="submit"
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: 'var(--accent-primary)',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Synchronize Listing
+              </button>
             </div>
           </form>
         </div>
@@ -447,16 +416,16 @@ export const RepairTools: React.FC = () => {
 
       {/* Ledger Reversal Tool Form */}
       {activeTool === 'ledger' && (
-        <div style={{ backgroundColor: '#FFFFFF', padding: '1.75rem', borderRadius: '10px', border: '1px solid #E7D5BC', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-          <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 700, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
+        <div className="admin-card" style={{ padding: '24px' }}>
+          <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'Fraunces, Georgia, serif' }}>
             Dual-Control Financial Balance Correction
           </h4>
-          <p style={{ margin: '0 0 1.25rem 0', fontSize: '13px', color: '#8C8279' }}>
+          <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--text-muted)' }}>
             Appends an audited balancing adjustment to correct an erroneous posting. Requires dual supervisor sign-off to ensure financial integrity.
           </p>
-          <form onSubmit={handleReverseLedger} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '580px' }}>
+          <form onSubmit={handleReverseLedger} style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '580px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 Transaction Reference:
               </label>
               <input
@@ -464,22 +433,22 @@ export const RepairTools: React.FC = () => {
                 value={ledgerTxId}
                 onChange={(e) => setLedgerTxId(e.target.value)}
                 placeholder="e.g. tx-2291-duplicate-fee"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-line)', backgroundColor: 'var(--bg-well)', color: 'var(--text-primary)', fontSize: '12.5px', outline: 'none' }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 Authorizing Supervisor Email (Dual Verification):
               </label>
               <input
                 type="email"
                 value={ledgerCheckerId}
                 onChange={(e) => setLedgerCheckerId(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-line)', backgroundColor: 'var(--bg-well)', color: 'var(--text-primary)', fontSize: '12.5px', outline: 'none' }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2A2320', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 Financial Explanation & Audit Note:
               </label>
               <textarea
@@ -487,11 +456,25 @@ export const RepairTools: React.FC = () => {
                 onChange={(e) => setLedgerReason(e.target.value)}
                 placeholder="Explain the accounting discrepancy and justification for the adjustment..."
                 rows={3}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E7D5BC', fontSize: '13px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-line)', backgroundColor: 'var(--bg-well)', color: 'var(--text-primary)', fontSize: '12.5px', outline: 'none', fontFamily: 'inherit' }}
               />
             </div>
             <div>
-              <Button variant="secondary" style={{ backgroundColor: '#B3261E', color: '#ffffff' }}>Authorize & Post Balancing Entry</Button>
+              <button
+                type="submit"
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: 'var(--status-bad)',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Authorize & Post Balancing Entry
+              </button>
             </div>
           </form>
         </div>
@@ -499,41 +482,58 @@ export const RepairTools: React.FC = () => {
 
       {/* Forensic Audit Log */}
       {activeTool === 'logs' && (
-        <div style={{ backgroundColor: '#FFFFFF', borderRadius: '10px', border: '1px solid #E7D5BC', overflow: 'hidden', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-          <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #E7D5BC', backgroundColor: '#FBF7F0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileText size={16} color="#B5532E" />
-            <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
+        <div className="admin-table-container">
+          <div
+            style={{
+              padding: '14px 18px',
+              borderBottom: '1px solid var(--border-line)',
+              backgroundColor: 'var(--bg-well)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <FileText size={16} color="var(--accent-primary)" />
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
               Immutable Administrative Audit Trail
-            </h4>
+            </span>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+
+          <table className="admin-table">
             <thead>
-              <tr style={{ backgroundColor: '#FBF7F0', textAlign: 'left', borderBottom: '1px solid #E7D5BC', color: '#8C8279', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                <th style={{ padding: '10px 14px', fontWeight: 700 }}>Log Reference</th>
-                <th style={{ padding: '10px 14px', fontWeight: 700 }}>Action</th>
-                <th style={{ padding: '10px 14px', fontWeight: 700 }}>Target Entity</th>
-                <th style={{ padding: '10px 14px', fontWeight: 700 }}>Authorized Operator</th>
-                <th style={{ padding: '10px 14px', fontWeight: 700 }}>Audit Justification</th>
-                <th style={{ padding: '10px 14px', fontWeight: 700 }}>Time</th>
+              <tr>
+                <th>Log Reference</th>
+                <th>Action</th>
+                <th>Target Entity</th>
+                <th>Authorized Operator</th>
+                <th>Audit Justification</th>
+                <th>Time</th>
               </tr>
             </thead>
             <tbody>
               {auditLogs.map((log) => (
-                <tr key={log.id} style={{ borderBottom: '1px solid #F0E6D8' }}>
-                  <td style={{ padding: '10px 14px', fontFamily: 'monospace', color: '#8C8279' }}>{log.id}</td>
-                  <td style={{ padding: '10px 14px', fontWeight: 600, color: '#2A2320' }}>{log.action}</td>
-                  <td style={{ padding: '10px 14px' }}>
-                    <Badge variant="neutral">{log.targetType}: {log.targetId}</Badge>
+                <tr key={log.id}>
+                  <td>
+                    <span className="tabular-nums" style={{ fontFamily: 'monospace', color: 'var(--text-muted)' }}>
+                      {log.id}
+                    </span>
                   </td>
-                  <td style={{ padding: '10px 14px', color: '#B5532E', fontWeight: 600 }}>{log.actorId}</td>
-                  <td style={{ padding: '10px 14px', color: '#2A2320' }}>{log.reason}</td>
-                  <td style={{ padding: '10px 14px', color: '#8C8279' }}>{log.timestamp}</td>
+                  <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{log.action}</td>
+                  <td>
+                    <span className="status-pill neutral" style={{ fontSize: '10.5px' }}>
+                      {log.targetType}: {log.targetId}
+                    </span>
+                  </td>
+                  <td style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>{log.actorId}</td>
+                  <td style={{ color: 'var(--text-secondary)' }}>{log.reason}</td>
+                  <td style={{ color: 'var(--text-muted)' }}>{log.timestamp}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
     </div>
   );
 };

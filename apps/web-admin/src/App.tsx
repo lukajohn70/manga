@@ -1,92 +1,68 @@
 import * as React from 'react';
-import { Badge, Button } from '@manga/ui';
 import { AuthClient, calculateTotpCode, DEMO_CREDENTIALS } from '@manga/api-client';
 import {
-  LayoutDashboard,
-  Scale,
-  Building2,
-  BookOpen,
-  Wrench,
-  ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
-  FileCheck2,
-  ExternalLink,
   DollarSign,
   TrendingUp,
-  Download,
   Package,
+  Building2,
+  ShieldCheck,
   Truck,
   Ticket,
-  Sparkles,
-  Users,
-  Search,
-  Plus,
-  RefreshCw,
-  Clock,
+  ExternalLink,
   ArrowUpRight,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  Sparkles,
+  RefreshCw,
   Eye,
-  Check,
-  Sliders,
-  Filter,
 } from 'lucide-react';
+
+import { AdminSidebar, AdminTab, NokTriangleIcon } from './components/AdminSidebar.js';
+import { AdminHeader } from './components/AdminHeader.js';
+import { CommandPalette } from './components/CommandPalette.js';
+import { KpiCard } from './components/KpiCard.js';
+import { SplineAreaChart } from './components/SplineAreaChart.js';
+import { OrdersManager } from './components/OrdersManager.js';
+import { AdminOrder } from './components/OrderDrawer.js';
+import { CouponManager, PlatformCoupon } from './components/CouponManager.js';
+import { VendorRegistry, VendorAccreditation } from './components/VendorRegistry.js';
+import { LedgerExplorer } from './components/LedgerExplorer.js';
 import { DisputeCenter } from './components/DisputeCenter.js';
 import { RepairTools } from './components/RepairTools.js';
-
-function NokTriangleIcon({ size = 18, color = '#B5532E' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 3L22 20H2L12 3Z" fill={color} />
-      <circle cx="12" cy="13" r="2.5" fill="#F6EDE0" />
-    </svg>
-  );
-}
-
-interface VendorAccreditation {
-  id: string;
-  businessName: string;
-  cacNumber: string;
-  tinNumber: string;
-  bankAccount: string;
-  tier: 'Tier 1 Premier' | 'Tier 2 Verified' | 'Tier 3 Probation';
-  onTimeRate: string;
-  disputeRate: string;
-  kycStatus: 'verified' | 'pending_review' | 'flagged';
-  hubLocation: string;
-  aiCredits: number;
-}
-
-interface AdminOrder {
-  id: string;
-  orderRef: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  destinationState: string;
-  vendorStore: string;
-  totalNgn: number;
-  itemSummary: string;
-  paymentStatus: 'paid' | 'escrow_held' | 'refunded';
-  trackingStatus: 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  createdAt: string;
-  courier: string;
-}
-
-interface PlatformCoupon {
-  id: string;
-  code: string;
-  discountType: 'percentage' | 'fixed';
-  discountValue: number;
-  minSpendNgn: number;
-  redemptions: number;
-  maxRedemptions: number;
-  isActive: boolean;
-  description: string;
-}
+import { AdminAuthScreen } from './components/AdminAuthScreen.js';
 
 export function App() {
   const authClient = React.useMemo(() => new AuthClient('http://localhost:3003'), []);
 
+  // Theme state: dark (Obsidian Bento) vs light (Warm Clay)
+  const [theme, setTheme] = React.useState<'dark' | 'light'>(() => {
+    try {
+      const saved = localStorage.getItem('manga_admin_theme');
+      return saved === 'light' ? 'light' : 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem('manga_admin_theme', theme);
+    } catch {}
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  // Sidebar collapse state
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState<boolean>(false);
+
+  // Command palette modal state (⌘K)
+  const [commandPaletteOpen, setCommandPaletteOpen] = React.useState<boolean>(false);
+
+  // Session state
   const [adminSession, setAdminSession] = React.useState<{
     email: string;
     role: 'ADMIN';
@@ -105,6 +81,7 @@ export function App() {
     }
   });
 
+  // Auth form states
   const [authStep, setAuthStep] = React.useState<'credentials' | '2fa'>('credentials');
   const [adminEmail, setAdminEmail] = React.useState('admin@manga.ng');
   const [adminPassword, setAdminPassword] = React.useState('');
@@ -116,10 +93,8 @@ export function App() {
   const [adminAuthError, setAdminAuthError] = React.useState<string | null>(null);
   const [authLoading, setAuthLoading] = React.useState(false);
 
-  // Active Tab state: defaults to overview Control Tower
-  const [activeTab, setActiveTab] = React.useState<
-    'overview' | 'disputes' | 'vendors' | 'ledger' | 'repairs'
-  >('overview');
+  // Active navigation tab
+  const [activeTab, setActiveTab] = React.useState<AdminTab>('overview');
 
   // Toast feedback state
   const [toastMessage, setToastMessage] = React.useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -210,17 +185,13 @@ export function App() {
     },
   ]);
 
-  const [orderFilter, setOrderFilter] = React.useState<string>('all');
-  const [orderSearchQuery, setOrderSearchQuery] = React.useState<string>('');
-
-  // Handle Order Status Advance
   const handleUpdateOrderStatus = (orderId: string, newStatus: AdminOrder['trackingStatus']) => {
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, trackingStatus: newStatus } : o))
     );
     const target = orders.find((o) => o.id === orderId);
     showToast(
-      `Order ${target?.orderRef || orderId} advanced to ${newStatus.toUpperCase()}. Notification pushed to customer and merchant.`,
+      `Order ${target?.orderRef || orderId} advanced to ${newStatus.toUpperCase()}. Notification pushed to merchant and customer.`,
       'success'
     );
   };
@@ -262,35 +233,23 @@ export function App() {
     },
   ]);
 
-  const [newCouponCode, setNewCouponCode] = React.useState('');
-  const [newCouponType, setNewCouponType] = React.useState<'percentage' | 'fixed'>('percentage');
-  const [newCouponValue, setNewCouponValue] = React.useState(15);
-  const [newCouponMinSpend, setNewCouponMinSpend] = React.useState(30000);
-  const [newCouponDesc, setNewCouponDesc] = React.useState('');
-
-  const handleCreateCoupon = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCouponCode.trim()) return;
+  const handleCreateCoupon = (coupon: Omit<PlatformCoupon, 'id' | 'redemptions'>) => {
     const newCoupon: PlatformCoupon = {
+      ...coupon,
       id: `cpn-${Date.now()}`,
-      code: newCouponCode.trim().toUpperCase(),
-      discountType: newCouponType,
-      discountValue: Number(newCouponValue),
-      minSpendNgn: Number(newCouponMinSpend),
       redemptions: 0,
-      maxRedemptions: 200,
-      isActive: true,
-      description: newCouponDesc.trim() || `${newCouponValue}${newCouponType === 'percentage' ? '%' : ' NGN'} platform promotional discount`,
     };
     setCoupons([newCoupon, ...coupons]);
-    setNewCouponCode('');
-    setNewCouponDesc('');
-    showToast(`Coupon code ${newCoupon.code} created and published live across storefront!`, 'success');
   };
 
   const handleToggleCoupon = (couponId: string) => {
     setCoupons((prev) =>
       prev.map((c) => (c.id === couponId ? { ...c, isActive: !c.isActive } : c))
+    );
+    const target = coupons.find((c) => c.id === couponId);
+    showToast(
+      `Coupon ${target?.code} is now ${!target?.isActive ? 'ACTIVE' : 'DISABLED'}.`,
+      'info'
     );
   };
 
@@ -354,7 +313,8 @@ export function App() {
     setVendors((prev) =>
       prev.map((v) => (v.id === vendorId ? { ...v, aiCredits: v.aiCredits + amount } : v))
     );
-    showToast(`Granted ${amount} Studio credits to merchant #${vendorId}.`, 'success');
+    const target = vendors.find((v) => v.id === vendorId);
+    showToast(`Granted +${amount} AI Studio Credits to ${target?.businessName}.`, 'success');
   };
 
   const handleAdminLogout = () => {
@@ -362,6 +322,7 @@ export function App() {
     try {
       localStorage.removeItem('manga_admin_session');
     } catch {}
+    showToast('Signed out of Administrator Console.', 'info');
   };
 
   const handleAdminLoginSubmit = async (e: React.FormEvent) => {
@@ -372,11 +333,24 @@ export function App() {
     try {
       const pass = adminPassword || 'AdminPass123!';
       const res = await authClient.login(adminEmail, pass, 'ADMIN');
-      setChallengeToken(res.challengeToken);
-      setTotpSecret(res.totpSecret);
-      setTestOtp(res.testOtp || null);
-      setAuthStep('2fa');
-      setTwoFaCode('');
+
+      if ('require2fa' in res && res.require2fa) {
+        setChallengeToken(res.challengeToken || null);
+        if (res.totpSecret) setTotpSecret(res.totpSecret);
+        if (res.testOtp) setTestOtp(res.testOtp);
+        setAuthStep('2fa');
+      } else if ('token' in res) {
+        const session = {
+          email: res.user.email,
+          role: 'ADMIN' as const,
+          operatorName: res.user.name,
+          token: String((res as any).token),
+        };
+        setAdminSession(session);
+        try {
+          localStorage.setItem('manga_admin_session', JSON.stringify(session));
+        } catch {}
+      }
     } catch (err: any) {
       setAdminAuthError(err.message || 'Authentication failed. Please verify credentials.');
     } finally {
@@ -414,1183 +388,452 @@ export function App() {
     }
   };
 
+  // Keyboard shortcut listener for Command Palette (⌘K) and Sidebar toggle (⌘B)
+  React.useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        setSidebarCollapsed((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
+  // Login view when unauthenticated
   if (!adminSession) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#1E1815', color: '#F6EDE0', fontFamily: 'Inter, -apple-system, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <div style={{ maxWidth: '460px', width: '100%', backgroundColor: '#2A2320', borderRadius: '16px', border: '1px solid #3E3430', padding: '2rem', boxShadow: '0 12px 32px rgba(0, 0, 0, 0.4)', textAlign: 'center' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#1E1815', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', border: '1px solid #3E3430' }}>
-            <NokTriangleIcon size={24} color="#B5532E" />
-          </div>
-          <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: '20px', fontWeight: 800, color: '#F6EDE0', marginBottom: '0.25rem' }}>
-            MANGA MARKETSQUARE Operations Console
-          </h1>
-          <p style={{ fontSize: '11px', color: '#D5C7B8', marginBottom: '1.25rem' }}>
-            OWASP ASVS Level 2 Strict RBAC • Required Role: <strong style={{ color: '#D9A441' }}>ADMIN</strong>
-          </p>
-
-          {adminAuthError && (
-            <div style={{ padding: '10px 12px', backgroundColor: '#3B1817', border: '1px solid #771D1D', borderRadius: '8px', color: '#F87171', fontSize: '11px', marginBottom: '1rem', textAlign: 'left', fontWeight: 600 }}>
-              {adminAuthError}
-            </div>
-          )}
-
-          {authStep === 'credentials' ? (
-            <form onSubmit={handleAdminLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#D5C7B8', marginBottom: '4px' }}>
-                  Administrator Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder="admin@manga.ng"
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #3E3430', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
-                />
-              </div>
-
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 700, color: '#D5C7B8' }}>
-                    Password
-                  </label>
-                  <span style={{ fontSize: '10px', color: '#8C8279' }}>Seed: AdminPass123!</span>
-                </div>
-                <input
-                  type="password"
-                  required
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder="Enter administrator password"
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #3E3430', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
-                />
-              </div>
-
-              <div style={{ padding: '8px 10px', backgroundColor: '#1E1815', borderRadius: '6px', border: '1px dashed #4F382E', fontSize: '10px', color: '#D5C7B8' }}>
-                <span style={{ color: '#D9A441', fontWeight: 700 }}>Role Isolation Notice:</span> Only accounts with role <strong>ADMIN</strong> are granted access. Shopper (BUYER) and Merchant (VENDOR) logins are rejected with 403 Forbidden.
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={authLoading}
-                style={{ width: '100%', backgroundColor: '#B5532E', color: '#FFFFFF', padding: '10px', fontSize: '12px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: authLoading ? 'not-allowed' : 'pointer', marginTop: '0.25rem' }}
-              >
-                {authLoading ? 'Verifying Credentials...' : 'Proceed to 2FA Authentication →'}
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={handleAdminVerify2faSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', textAlign: 'left' }}>
-              <div style={{ padding: '10px', backgroundColor: '#1E1815', borderRadius: '8px', border: '1px solid #3E3430', textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#F6EDE0', marginBottom: '2px' }}>
-                  Two-Factor Authentication (2FA)
-                </div>
-                <div style={{ fontSize: '10px', color: '#8C8279' }}>
-                  Account: <strong style={{ color: '#D9A441' }}>{adminEmail}</strong>
-                </div>
-              </div>
-
-              {/* 2FA Method Switcher */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', backgroundColor: '#1E1815', padding: '4px', borderRadius: '8px' }}>
-                <button
-                  type="button"
-                  onClick={() => { setTwoFaMethod('google_authenticator'); setTwoFaCode(''); }}
-                  style={{
-                    padding: '6px 8px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    borderRadius: '6px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    backgroundColor: twoFaMethod === 'google_authenticator' ? '#B5532E' : 'transparent',
-                    color: twoFaMethod === 'google_authenticator' ? '#FFFFFF' : '#8C8279',
-                  }}
-                >
-                  Authenticator App
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setTwoFaMethod('email'); setTwoFaCode(''); }}
-                  style={{
-                    padding: '6px 8px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    borderRadius: '6px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    backgroundColor: twoFaMethod === 'email' ? '#B5532E' : 'transparent',
-                    color: twoFaMethod === 'email' ? '#FFFFFF' : '#8C8279',
-                  }}
-                >
-                  Email OTP Code
-                </button>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#D5C7B8', marginBottom: '4px' }}>
-                  {twoFaMethod === 'google_authenticator'
-                    ? 'Enter 6-Digit Google Authenticator Code'
-                    : `Enter 6-Digit Code sent to ${adminEmail}`}
-                </label>
-                <input
-                  type="text"
-                  required
-                  maxLength={6}
-                  value={twoFaCode}
-                  onChange={(e) => setTwoFaCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="000000"
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #B5532E', backgroundColor: '#1E1815', color: '#FFFFFF', fontSize: '18px', textAlign: 'center', letterSpacing: '6px', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }}
-                />
-              </div>
-
-              {/* Interactive Helper Pill for instant verification */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', backgroundColor: '#1E1815', borderRadius: '6px', fontSize: '10px', color: '#8C8279' }}>
-                <span>
-                  {twoFaMethod === 'google_authenticator' ? 'Live TOTP:' : 'Active OTP:'}{' '}
-                  <strong style={{ color: '#D9A441' }}>
-                    {twoFaMethod === 'google_authenticator' ? calculateTotpCode(totpSecret) : (testOtp || '882194')}
-                  </strong>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const code = twoFaMethod === 'google_authenticator' ? calculateTotpCode(totpSecret) : (testOtp || '882194');
-                    setTwoFaCode(code);
-                  }}
-                  style={{ background: 'none', border: 'none', color: '#B5532E', cursor: 'pointer', fontSize: '10px', fontWeight: 700 }}
-                >
-                  (Click to Autofill)
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px', marginTop: '0.25rem' }}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setAuthStep('credentials')}
-                  style={{ flex: 1, padding: '9px', fontSize: '11px', color: '#D5C7B8', borderColor: '#3E3430', backgroundColor: 'transparent' }}
-                >
-                  ← Back
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={authLoading || twoFaCode.length !== 6}
-                  style={{ flex: 2, backgroundColor: '#B5532E', color: '#FFFFFF', padding: '9px', fontSize: '11px', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: authLoading || twoFaCode.length !== 6 ? 'not-allowed' : 'pointer' }}
-                >
-                  {authLoading ? 'Verifying 2FA...' : 'Complete Sign In'}
-                </Button>
-              </div>
-            </form>
-          )}
-
-          <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #3E3430', fontSize: '11px', color: '#8C8279' }}>
-            <p style={{ marginBottom: '8px' }}>Manga Customer Storefront</p>
-            <a href="http://localhost:3000" style={{ color: '#D9A441', fontWeight: 700, textDecoration: 'none' }}>
-              ← Return to Customer Storefront (Port 3000)
-            </a>
-          </div>
-        </div>
-      </div>
+      <AdminAuthScreen
+        loginEmail={adminEmail}
+        setLoginEmail={setAdminEmail}
+        loginPassword={adminPassword}
+        setLoginPassword={setAdminPassword}
+        authStep={authStep}
+        setAuthStep={setAuthStep}
+        twoFaMethod={twoFaMethod}
+        setTwoFaMethod={setTwoFaMethod}
+        twoFaCode={twoFaCode}
+        setTwoFaCode={setTwoFaCode}
+        authError={adminAuthError}
+        authLoading={authLoading}
+        onSubmitLogin={handleAdminLoginSubmit}
+        onSubmit2fa={handleAdminVerify2faSubmit}
+        totpSecret={totpSecret}
+        testOtp={testOtp}
+        calculateTotpCode={calculateTotpCode}
+        showToast={showToast}
+      />
     );
   }
 
-  // Filtered orders
-  const displayedOrders = orders.filter((o) => {
-    if (orderFilter !== 'all' && o.trackingStatus !== orderFilter) return false;
-    if (orderSearchQuery) {
-      const q = orderSearchQuery.toLowerCase();
-      return (
-        o.orderRef.toLowerCase().includes(q) ||
-        o.customerName.toLowerCase().includes(q) ||
-        o.vendorStore.toLowerCase().includes(q) ||
-        o.itemSummary.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
-
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#FAF6F0', fontFamily: 'Inter, -apple-system, sans-serif', color: '#2A2320' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: 'var(--bg-app)' }}>
       
       {/* Toast Notification Banner */}
       {toastMessage && (
         <div
+          className={`status-pill ${toastMessage.type === 'success' ? 'good' : toastMessage.type === 'error' ? 'bad' : 'info'}`}
           style={{
             position: 'fixed',
             bottom: '24px',
             right: '24px',
-            backgroundColor: toastMessage.type === 'success' ? '#1E1815' : '#B3261E',
-            color: '#FFFFFF',
-            padding: '12px 20px',
+            padding: '12px 18px',
             borderRadius: '12px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-            fontSize: '12px',
-            fontWeight: 600,
+            boxShadow: 'var(--shadow-lg)',
+            fontSize: '12.5px',
+            fontWeight: 700,
+            zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
-            zIndex: 9999,
-            border: '1px solid #D9A441',
+            gap: '8px',
+            animation: 'slideUpFade 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
-          <CheckCircle2 size={16} color="#D9A441" />
+          <CheckCircle2 size={16} />
           <span>{toastMessage.text}</span>
         </div>
       )}
 
-      {/* Top Admin Bar */}
-      <header
-        style={{
-          backgroundColor: '#1E1815',
-          color: '#F6EDE0',
-          padding: '0.85rem 2rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: '0 4px 12px rgba(42, 35, 32, 0.2)',
-          borderBottom: '1px solid #3E3430',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <NokTriangleIcon size={24} color="#B5532E" />
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span
-                style={{
-                  fontSize: '20px',
-                  fontWeight: 800,
-                  color: '#FAF6F0',
-                  letterSpacing: '0.04em',
-                  fontFamily: 'Fraunces, Georgia, serif',
-                  lineHeight: 1,
-                }}
-              >
-                MANGA
-              </span>
-              <span style={{ fontSize: '8px', fontWeight: 800, color: '#D9A441', letterSpacing: '0.15em', marginTop: '2px' }}>
-                MARKETSQUARE CONTROL TOWER
-              </span>
-            </div>
-          </div>
-          <span style={{ color: '#5A4E47' }}>|</span>
-          <span style={{ fontSize: '13px', color: '#D5C7B8', fontWeight: 500 }}>
-            Marketplace Operations, Courier Dispatch & Governance
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              backgroundColor: '#2A2320',
-              padding: '4px 10px',
-              borderRadius: '6px',
-              fontSize: '11px',
-              color: '#4F6B3A',
-              border: '1px solid #3E3430',
-              fontWeight: 700,
-            }}
-          >
-            <ShieldCheck size={13} color="#4F6B3A" />
-            <span style={{ color: '#F6EDE0' }}>ROLE: ADMIN</span>
-          </div>
-          <Badge variant="warning">MFA Active</Badge>
-          <span style={{ fontSize: '12px', color: '#D5C7B8' }}>
-            Operator: <strong style={{ color: '#F6EDE0' }}>{adminSession.email}</strong>
-          </span>
-
-          <a
-            href="http://localhost:3000"
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              color: '#D9A441',
-              backgroundColor: '#2A2320',
-              border: '1px solid #3E3430',
-              borderRadius: '6px',
-              padding: '5px 10px',
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <span>Storefront</span>
-            <ExternalLink size={11} />
-          </a>
-
-          <a
-            href="http://localhost:3001"
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              color: '#FAF6F0',
-              backgroundColor: '#2A2320',
-              border: '1px solid #3E3430',
-              borderRadius: '6px',
-              padding: '5px 10px',
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <span>Vendor Hub</span>
-            <ExternalLink size={11} />
-          </a>
-
-          <button
-            type="button"
-            onClick={handleAdminLogout}
-            style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              color: '#F87171',
-              backgroundColor: '#2A2320',
-              border: '1px solid #771D1D',
-              borderRadius: '6px',
-              padding: '5px 10px',
-              cursor: 'pointer',
-            }}
-          >
-            Sign Out
-          </button>
-        </div>
-      </header>
-
-      {/* Navigation Sub-header (Tabs with Clear Visual Hierarchy) */}
-      <nav
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #E7D5BC',
-          padding: '0 2rem',
-          display: 'flex',
-          gap: '1.5rem',
-          boxShadow: '0 2px 4px rgba(42, 35, 32, 0.03)',
-        }}
-      >
-        <button
-          onClick={() => setActiveTab('overview')}
-          style={{
-            padding: '14px 4px',
-            border: 'none',
-            background: 'none',
-            fontSize: '13px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            borderBottom: activeTab === 'overview' ? '3px solid #B5532E' : '3px solid transparent',
-            color: activeTab === 'overview' ? '#B5532E' : '#8C8279',
-          }}
-        >
-          <LayoutDashboard size={16} /> Operations Control Tower
-        </button>
-        <button
-          onClick={() => setActiveTab('disputes')}
-          style={{
-            padding: '14px 4px',
-            border: 'none',
-            background: 'none',
-            fontSize: '13px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            borderBottom: activeTab === 'disputes' ? '3px solid #B5532E' : '3px solid transparent',
-            color: activeTab === 'disputes' ? '#B5532E' : '#8C8279',
-          }}
-        >
-          <Scale size={16} /> Dispute Mediation & Evidence
-        </button>
-        <button
-          onClick={() => setActiveTab('vendors')}
-          style={{
-            padding: '14px 4px',
-            border: 'none',
-            background: 'none',
-            fontSize: '13px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            borderBottom: activeTab === 'vendors' ? '3px solid #B5532E' : '3px solid transparent',
-            color: activeTab === 'vendors' ? '#B5532E' : '#8C8279',
-          }}
-        >
-          <Building2 size={16} /> Merchant Accreditation & Tiers
-        </button>
-        <button
-          onClick={() => setActiveTab('ledger')}
-          style={{
-            padding: '14px 4px',
-            border: 'none',
-            background: 'none',
-            fontSize: '13px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            borderBottom: activeTab === 'ledger' ? '3px solid #B5532E' : '3px solid transparent',
-            color: activeTab === 'ledger' ? '#B5532E' : '#8C8279',
-          }}
-        >
-          <BookOpen size={16} /> Financial Ledger & Payouts
-        </button>
-        <button
-          onClick={() => setActiveTab('repairs')}
-          style={{
-            padding: '14px 4px',
-            border: 'none',
-            background: 'none',
-            fontSize: '13px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            borderBottom: activeTab === 'repairs' ? '3px solid #B5532E' : '3px solid transparent',
-            color: activeTab === 'repairs' ? '#B5532E' : '#8C8279',
-          }}
-        >
-          <Wrench size={16} /> Operations & System Recovery
-        </button>
-      </nav>
+      {/* Studio Collapsible Sidebar (Kovra Style) */}
+      <AdminSidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        ordersCount={orders.length}
+        disputesCount={1}
+        merchantsCount={vendors.length}
+        couponsCount={coupons.length}
+        operatorEmail={adminSession.email}
+        onLogout={handleAdminLogout}
+      />
 
       {/* Main Container */}
-      <main style={{ maxWidth: '1320px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         
-        {/* ======================================================== */}
-        {/* TAB 1: OPERATIONS CONTROL TOWER (ZAVORA ARCHITECTURE)    */}
-        {/* ======================================================== */}
-        {activeTab === 'overview' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            
-            {/* Control Tower Headline */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '3px 10px', borderRadius: '999px', backgroundColor: '#F6EDE0', border: '1px solid #E7D5BC', color: '#B5532E', fontSize: '11px', fontWeight: 700, marginBottom: '6px' }}>
-                  <ShieldCheck size={12} color="#B5532E" />
-                  <span>MANGA Central Marketplace Operations Console</span>
-                </div>
-                <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif', letterSpacing: '-0.02em' }}>
-                  Platform Control Tower & Logistics Hub
-                </h1>
-                <p style={{ margin: '4px 0 0', color: '#8C8279', fontSize: '13px' }}>
-                  Real-time GMV settlement, live courier dispatch transitions, and platform voucher governance.
-                </p>
-              </div>
+        {/* Sticky Breadcrumb Header (Kovra Style) */}
+        <AdminHeader
+          activeTab={activeTab}
+          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          onRefresh={() => showToast('Platform metrics refreshed & verified with Providus Escrow pool.', 'info')}
+        />
 
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#FFFFFF', padding: '6px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px', fontWeight: 600, color: '#4F6B3A' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4F6B3A' }}></span>
-                  <span>Providus Escrow Active</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#FFFFFF', padding: '6px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px', fontWeight: 600, color: '#2A2320' }}>
-                  <RefreshCw size={13} color="#8C8279" />
-                  <span>Auto-sync: 30s</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 1. Executive Marketplace Metrics (5 KPI Cards with Zavora High Visual Hierarchy) */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+        {/* Content Body */}
+        <main style={{ flex: 1, padding: '24px 28px', maxWidth: '1600px', width: '100%', margin: '0 auto' }}>
+          
+          {/* TAB 1: OVERVIEW CONTROL TOWER */}
+          {activeTab === 'overview' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
-              <div style={{ backgroundColor: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid #E7D5BC', boxShadow: '0 2px 6px rgba(42, 35, 32, 0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#8C8279', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Gross Merchandise (GMV)
-                  </span>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#FAF6F0', color: '#B5532E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <DollarSign size={16} />
-                  </div>
-                </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  ₦18,450,000
-                </div>
-                <div style={{ fontSize: '11px', color: '#4F6B3A', fontWeight: 600, marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <TrendingUp size={12} />
-                  <span>+14.2% vs last week (Paystack Verified)</span>
-                </div>
-              </div>
-
-              <div style={{ backgroundColor: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid #E7D5BC', boxShadow: '0 2px 6px rgba(42, 35, 32, 0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#8C8279', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Take-Rate Commission (15%)
-                  </span>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#F0F6EE', color: '#4F6B3A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <TrendingUp size={16} />
-                  </div>
-                </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#4F6B3A', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  ₦2,767,500
-                </div>
-                <div style={{ fontSize: '11px', color: '#8C8279', fontWeight: 500, marginTop: '6px' }}>
-                  Platform Net Operating Margin
-                </div>
-              </div>
-
-              <div style={{ backgroundColor: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid #E7D5BC', boxShadow: '0 2px 6px rgba(42, 35, 32, 0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#8C8279', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Total Orders Processed
-                  </span>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#F4F0FF', color: '#6B46C1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Package size={16} />
-                  </div>
-                </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  1,284
-                </div>
-                <div style={{ fontSize: '11px', color: '#2A2320', fontWeight: 600, marginTop: '6px' }}>
-                  1,042 Physical • 242 Digital Licenses
-                </div>
-              </div>
-
-              <div style={{ backgroundColor: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid #E7D5BC', boxShadow: '0 2px 6px rgba(42, 35, 32, 0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#8C8279', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Verified Merchants
-                  </span>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#FEF7ED', color: '#D9A441', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Building2 size={16} />
-                  </div>
-                </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  48
-                </div>
-                <div style={{ fontSize: '11px', color: '#4F6B3A', fontWeight: 600, marginTop: '6px' }}>
-                  100% CAC Audited & Accredited
-                </div>
-              </div>
-
-              <div style={{ backgroundColor: '#FFFFFF', padding: '1.25rem', borderRadius: '14px', border: '1px solid #E7D5BC', boxShadow: '0 2px 6px rgba(42, 35, 32, 0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#8C8279', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Escrow In-Flight
-                  </span>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#FEF2F2', color: '#B3261E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <ShieldCheck size={16} />
-                  </div>
-                </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#B5532E', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  ₦8,320,000
-                </div>
-                <div style={{ fontSize: '11px', color: '#8C8279', fontWeight: 500, marginTop: '6px' }}>
-                  Held in Trust Pending Handover
-                </div>
-              </div>
-
-            </div>
-
-            {/* 2. Courier Dispatch & Order Fulfillment Management (Zavora Style) */}
-            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '14px', border: '1px solid #E7D5BC', padding: '1.5rem', boxShadow: '0 2px 6px rgba(42, 35, 32, 0.04)' }}>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #E7D5BC' }}>
+              {/* Control Tower Headline */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  flexWrap: 'wrap',
+                  gap: '14px',
+                }}
+              >
                 <div>
-                  <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Truck size={20} color="#B5532E" />
-                    <span>Courier Dispatch & Live Order Fulfillment Manager</span>
-                  </h2>
-                  <p style={{ margin: '3px 0 0', color: '#8C8279', fontSize: '12px' }}>
-                    Update live courier tracking milestones, review order payloads, and broadcast delivery events.
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '3px 10px',
+                      borderRadius: '999px',
+                      backgroundColor: 'var(--accent-primary-glow)',
+                      border: '1px solid var(--border-accent)',
+                      color: 'var(--accent-primary)',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      marginBottom: '6px',
+                    }}
+                  >
+                    <ShieldCheck size={12} color="var(--accent-primary)" />
+                    <span>MANGA Central Control Tower & Settlement Governance</span>
+                  </div>
+                  <h1
+                    style={{
+                      margin: 0,
+                      fontSize: '26px',
+                      fontWeight: 800,
+                      color: 'var(--text-primary)',
+                      fontFamily: 'Fraunces, Georgia, serif',
+                      letterSpacing: '-0.025em',
+                      lineHeight: 1.15,
+                    }}
+                  >
+                    Platform Governance, GMV Velocity & Courier Operations
+                  </h1>
+                  <p style={{ margin: '4px 0 0', color: 'var(--text-muted)', fontSize: '13px' }}>
+                    Live double-entry escrow settlement, multi-carrier dispatch progression, and merchant CAC accreditation.
                   </p>
                 </div>
 
-                {/* Filter and Search Bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <div style={{ position: 'relative' }}>
-                    <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8C8279' }} />
-                    <input
-                      type="text"
-                      placeholder="Search order ref, customer, item..."
-                      value={orderSearchQuery}
-                      onChange={(e) => setOrderSearchQuery(e.target.value)}
-                      style={{
-                        padding: '6px 12px 6px 30px',
-                        borderRadius: '8px',
-                        border: '1px solid #E7D5BC',
-                        fontSize: '12px',
-                        outline: 'none',
-                        width: '220px',
-                        backgroundColor: '#FAF6F0',
-                      }}
-                    />
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <div className="status-pill good" style={{ padding: '6px 12px', fontSize: '11.5px' }}>
+                    <span>Providus Escrow Active</span>
                   </div>
-
-                  <div style={{ display: 'flex', backgroundColor: '#FAF6F0', padding: '2px', borderRadius: '8px', border: '1px solid #E7D5BC' }}>
-                    {(['all', 'confirmed', 'processing', 'shipped', 'delivered'] as const).map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => setOrderFilter(status)}
-                        style={{
-                          padding: '4px 10px',
-                          borderRadius: '6px',
-                          border: 'none',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          backgroundColor: orderFilter === status ? '#B5532E' : 'transparent',
-                          color: orderFilter === status ? '#FFFFFF' : '#8C8279',
-                          textTransform: 'capitalize',
-                        }}
-                      >
-                        {status}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Orders Table */}
-              <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ backgroundColor: '#FAF6F0', borderBottom: '1px solid #E7D5BC', color: '#8C8279', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      <th style={{ padding: '10px 14px', fontWeight: 700 }}>Order Ref</th>
-                      <th style={{ padding: '10px 14px', fontWeight: 700 }}>Customer & Destination</th>
-                      <th style={{ padding: '10px 14px', fontWeight: 700 }}>Merchant Entity</th>
-                      <th style={{ padding: '10px 14px', fontWeight: 700 }}>Items & Total</th>
-                      <th style={{ padding: '10px 14px', fontWeight: 700 }}>Payment</th>
-                      <th style={{ padding: '10px 14px', fontWeight: 700 }}>Tracking Milestone</th>
-                      <th style={{ padding: '10px 14px', fontWeight: 700 }}>Quick Milestone Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {displayedOrders.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: '#8C8279', fontStyle: 'italic' }}>
-                          No orders matched the filter criteria.
-                        </td>
-                      </tr>
-                    ) : (
-                      displayedOrders.map((ord) => (
-                        <tr key={ord.id} style={{ borderBottom: '1px solid #F0E6D8' }}>
-                          <td style={{ padding: '12px 14px', fontWeight: 700, fontFamily: 'monospace', color: '#B5532E' }}>
-                            {ord.orderRef}
-                            <div style={{ fontSize: '10px', color: '#8C8279', fontWeight: 400 }}>{ord.createdAt}</div>
-                          </td>
-                          <td style={{ padding: '12px 14px' }}>
-                            <div style={{ fontWeight: 700, color: '#2A2320' }}>{ord.customerName}</div>
-                            <div style={{ fontSize: '11px', color: '#8C8279' }}>{ord.destinationState}</div>
-                            <div style={{ fontSize: '10px', color: '#8C8279', fontFamily: 'monospace' }}>{ord.customerPhone}</div>
-                          </td>
-                          <td style={{ padding: '12px 14px' }}>
-                            <div style={{ fontWeight: 600, color: '#2A2320' }}>{ord.vendorStore}</div>
-                            <div style={{ fontSize: '10px', color: '#4F6B3A' }}>Carrier: {ord.courier}</div>
-                          </td>
-                          <td style={{ padding: '12px 14px' }}>
-                            <div style={{ fontWeight: 800, color: '#2A2320' }}>₦{ord.totalNgn.toLocaleString()}</div>
-                            <div style={{ fontSize: '11px', color: '#8C8279', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {ord.itemSummary}
-                            </div>
-                          </td>
-                          <td style={{ padding: '12px 14px' }}>
-                            <span
-                              style={{
-                                display: 'inline-block',
-                                padding: '3px 8px',
-                                borderRadius: '999px',
-                                fontSize: '10px',
-                                fontWeight: 800,
-                                textTransform: 'uppercase',
-                                backgroundColor: ord.paymentStatus === 'paid' ? '#F0F6EE' : '#FEF7ED',
-                                color: ord.paymentStatus === 'paid' ? '#4F6B3A' : '#D9A441',
-                                border: ord.paymentStatus === 'paid' ? '1px solid #C2D6BC' : '1px solid #FAD7A0',
-                              }}
-                            >
-                              {ord.paymentStatus === 'paid' ? 'Paid (Escrow)' : 'Escrow Held'}
-                            </span>
-                          </td>
-                          <td style={{ padding: '12px 14px' }}>
-                            <span
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                padding: '3px 8px',
-                                borderRadius: '999px',
-                                fontSize: '10px',
-                                fontWeight: 800,
-                                textTransform: 'uppercase',
-                                backgroundColor:
-                                  ord.trackingStatus === 'delivered'
-                                    ? '#F0F6EE'
-                                    : ord.trackingStatus === 'shipped'
-                                    ? '#EFF6FF'
-                                    : ord.trackingStatus === 'processing'
-                                    ? '#FEF7ED'
-                                    : '#FAF6F0',
-                                color:
-                                  ord.trackingStatus === 'delivered'
-                                    ? '#4F6B3A'
-                                    : ord.trackingStatus === 'shipped'
-                                    ? '#1D4ED8'
-                                    : ord.trackingStatus === 'processing'
-                                    ? '#D9A441'
-                                    : '#8C8279',
-                              }}
-                            >
-                              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }}></span>
-                              <span>{ord.trackingStatus}</span>
-                            </span>
-                          </td>
-                          <td style={{ padding: '12px 14px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <select
-                                value={ord.trackingStatus}
-                                onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value as any)}
-                                style={{
-                                  padding: '4px 8px',
-                                  borderRadius: '6px',
-                                  border: '1px solid #E7D5BC',
-                                  fontSize: '11px',
-                                  fontWeight: 600,
-                                  backgroundColor: '#FFFFFF',
-                                  color: '#2A2320',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                <option value="confirmed">Confirmed</option>
-                                <option value="processing">Processing / Packing</option>
-                                <option value="shipped">In Transit (Shipped)</option>
-                                <option value="delivered">Delivered & Signed</option>
-                                <option value="cancelled">Cancelled / Refund</option>
-                              </select>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-            </div>
-
-            {/* 3. Promotional Coupons & Discount Governance (Zavora Style) */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
-              
-              {/* Left: Create Platform Coupon */}
-              <div style={{ backgroundColor: '#FFFFFF', borderRadius: '14px', border: '1px solid #E7D5BC', padding: '1.5rem', boxShadow: '0 2px 6px rgba(42, 35, 32, 0.04)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid #E7D5BC' }}>
-                  <Ticket size={18} color="#B5532E" />
-                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
-                    Issue Promotional Coupon Voucher
-                  </h3>
-                </div>
-
-                <form onSubmit={handleCreateCoupon} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
-                      Coupon Promo Code (e.g. KADUNA2026)
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. NOKSPECIAL15"
-                      value={newCouponCode}
-                      onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
-                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px', outline: 'none', textTransform: 'uppercase', fontWeight: 700 }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
-                        Discount Type
-                      </label>
-                      <select
-                        value={newCouponType}
-                        onChange={(e) => setNewCouponType(e.target.value as any)}
-                        style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px' }}
-                      >
-                        <option value="percentage">Percentage (%)</option>
-                        <option value="fixed">Fixed Amount (₦)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
-                        Discount Value {newCouponType === 'percentage' ? '(%)' : '(₦)'}
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        min="1"
-                        value={newCouponValue}
-                        onChange={(e) => setNewCouponValue(Number(e.target.value))}
-                        style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px' }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
-                      Minimum Order Spend (₦)
-                    </label>
-                    <input
-                      type="number"
-                      value={newCouponMinSpend}
-                      onChange={(e) => setNewCouponMinSpend(Number(e.target.value))}
-                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px' }}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2A2320', marginBottom: '4px' }}>
-                      Description & Terms
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 15% discount for verified buyers on tech accessories"
-                      value={newCouponDesc}
-                      onChange={(e) => setNewCouponDesc(e.target.value)}
-                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #E7D5BC', fontSize: '12px' }}
-                    />
-                  </div>
-
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={() => showToast('Syncing state across worker nodes...', 'info')}
                     style={{
-                      backgroundColor: '#B5532E',
-                      color: '#FFFFFF',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
                       gap: '6px',
-                      marginTop: '4px',
+                      backgroundColor: 'var(--bg-card)',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-line)',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer',
                     }}
                   >
-                    <Plus size={14} />
-                    <span>Publish Coupon to Storefront</span>
+                    <RefreshCw size={13} color="var(--text-muted)" />
+                    <span>Auto-sync: 30s</span>
                   </button>
-                </form>
+                </div>
               </div>
 
-              {/* Right: Active Platform Coupons */}
-              <div style={{ backgroundColor: '#FFFFFF', borderRadius: '14px', border: '1px solid #E7D5BC', padding: '1.5rem', boxShadow: '0 2px 6px rgba(42, 35, 32, 0.04)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid #E7D5BC' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Ticket size={18} color="#4F6B3A" />
-                    <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
-                      Active Platform Coupons ({coupons.length})
-                    </h3>
-                  </div>
-                  <span style={{ fontSize: '11px', color: '#8C8279', fontWeight: 600 }}>Checkout API Synced</span>
+              {/* 4 Executive KPI Cards (Solvik & Kovra Style) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                <KpiCard
+                  title="Gross Merchandise (GMV)"
+                  value="₦18,450,000"
+                  subtitle="Paystack & Providus settled"
+                  trendText="+14.2% vs last week"
+                  trendType="good"
+                  icon={DollarSign}
+                  isHero={true}
+                  sparklineData={[12, 14, 13, 16, 18, 17, 21]}
+                />
+
+                <KpiCard
+                  title="Take-Rate Commission (15%)"
+                  value="₦2,767,500"
+                  subtitle="Platform Net Operating Margin"
+                  trendText="+18.4% MoM"
+                  trendType="good"
+                  icon={TrendingUp}
+                  iconBg="var(--status-good-bg)"
+                  iconColor="var(--status-good)"
+                  sparklineData={[4, 5, 5.5, 6.2, 7, 7.8, 8.5]}
+                />
+
+                <KpiCard
+                  title="Total Orders Processed"
+                  value="1,284"
+                  subtitle="1,042 Physical • 242 Digital"
+                  trendText="+9.8% volume"
+                  trendType="good"
+                  icon={Package}
+                  iconBg="var(--status-info-bg)"
+                  iconColor="var(--status-info)"
+                  sparklineData={[80, 85, 92, 90, 105, 115, 128]}
+                />
+
+                <KpiCard
+                  title="Accredited Merchants"
+                  value={String(vendors.length)}
+                  subtitle="100% CAC Audited & Verified"
+                  trendText="4 Pending Review"
+                  trendType="neutral"
+                  icon={Building2}
+                  iconBg="var(--accent-gold-soft)"
+                  iconColor="var(--accent-gold)"
+                  sparklineData={[36, 40, 42, 44, 46, 47, 48]}
+                />
+              </div>
+
+              {/* 12-Column Bento Grid: Spline Area Chart (8-col) + Operations Panel (4-col) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
+                
+                {/* 8-col Spline Chart */}
+                <div style={{ gridColumn: 'span 2' }}>
+                  <SplineAreaChart />
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {coupons.map((c) => (
-                    <div
-                      key={c.id}
-                      style={{
-                        padding: '12px 14px',
-                        borderRadius: '10px',
-                        border: '1px solid #E7D5BC',
-                        backgroundColor: c.isActive ? '#FAF6F0' : '#F5F5F5',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
+                {/* 4-col Operations & Delivery Metrics Panel */}
+                <div className="admin-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <h3 style={{ margin: '0 0 14px', fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'Fraunces, Georgia, serif' }}>
+                      Marketplace Trust & SLA Breakdown
+                    </h3>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '13px', color: c.isActive ? '#B5532E' : '#8C8279' }}>
-                            {c.code}
-                          </span>
-                          <span
-                            style={{
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              fontSize: '10px',
-                              fontWeight: 700,
-                              backgroundColor: c.discountType === 'percentage' ? '#F0F6EE' : '#EFF6FF',
-                              color: c.discountType === 'percentage' ? '#4F6B3A' : '#1D4ED8',
-                            }}
-                          >
-                            {c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `₦${c.discountValue.toLocaleString()} OFF`}
-                          </span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>On-Time Courier Dispatch</span>
+                          <strong className="tabular-nums" style={{ color: 'var(--status-good)' }}>98.4%</strong>
                         </div>
-                        <p style={{ margin: '3px 0 0', fontSize: '11px', color: '#8C8279' }}>
-                          {c.description} &bull; Min spend: ₦{c.minSpendNgn.toLocaleString()}
-                        </p>
-                        <div style={{ fontSize: '10px', color: '#8C8279', marginTop: '2px' }}>
-                          Redeemed: <strong>{c.redemptions}</strong> / {c.maxRedemptions} uses
+                        <div style={{ height: '6px', borderRadius: '999px', backgroundColor: 'var(--border-line)', overflow: 'hidden' }}>
+                          <div style={{ width: '98.4%', height: '100%', backgroundColor: 'var(--status-good)', borderRadius: '999px' }} />
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => handleToggleCoupon(c.id)}
-                        style={{
-                          padding: '5px 10px',
-                          borderRadius: '6px',
-                          border: '1px solid #E7D5BC',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          backgroundColor: c.isActive ? '#FFFFFF' : '#E5E5E5',
-                          color: c.isActive ? '#4F6B3A' : '#8C8279',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        {c.isActive ? 'Active' : 'Disabled'}
-                      </button>
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Escrow In-Flight Protection</span>
+                          <strong className="tabular-nums" style={{ color: 'var(--accent-primary)' }}>₦8,320,000</strong>
+                        </div>
+                        <div style={{ height: '6px', borderRadius: '999px', backgroundColor: 'var(--border-line)', overflow: 'hidden' }}>
+                          <div style={{ width: '75%', height: '100%', backgroundColor: 'var(--accent-primary)', borderRadius: '999px' }} />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Merchant Dispute Rate</span>
+                          <strong className="tabular-nums" style={{ color: 'var(--status-good)' }}>0.4% (Below 1% target)</strong>
+                        </div>
+                        <div style={{ height: '6px', borderRadius: '999px', backgroundColor: 'var(--border-line)', overflow: 'hidden' }}>
+                          <div style={{ width: '4%', height: '100%', backgroundColor: 'var(--status-good)', borderRadius: '999px' }} />
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-line-subtle)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>Providus Bank Liquidity</span>
+                      <span className="status-pill good" style={{ fontSize: '10px' }}>Balanced</span>
+                    </div>
+                    <div className="tabular-nums" style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>
+                      ₦42,190,450.00
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Recent Orders Preview Card */}
+              <div className="admin-card" style={{ padding: '20px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '14px',
+                    paddingBottom: '10px',
+                    borderBottom: '1px solid var(--border-line)',
+                  }}
+                >
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'Fraunces, Georgia, serif' }}>
+                      Live Courier Dispatches & Shipments
+                    </h3>
+                    <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: 'var(--text-muted)' }}>
+                      Latest customer orders currently routed through regional hubs.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('orders')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--accent-primary)',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <span>View all {orders.length} orders</span>
+                    <ArrowUpRight size={14} />
+                  </button>
+                </div>
+
+                <div className="admin-table-container">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Order Ref</th>
+                        <th>Customer & Route</th>
+                        <th>Merchant</th>
+                        <th>Items & Total</th>
+                        <th>Status</th>
+                        <th style={{ textAlign: 'right' }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders.slice(0, 4).map((ord) => (
+                        <tr key={ord.id}>
+                          <td>
+                            <span className="tabular-nums" style={{ fontWeight: 700, fontFamily: 'monospace', color: 'var(--accent-primary)' }}>
+                              {ord.orderRef}
+                            </span>
+                            <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{ord.createdAt}</div>
+                          </td>
+                          <td>
+                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{ord.customerName}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{ord.destinationState}</div>
+                          </td>
+                          <td>
+                            <div style={{ color: 'var(--text-primary)' }}>{ord.vendorStore}</div>
+                            <div style={{ fontSize: '10.5px', color: 'var(--status-info)' }}>{ord.courier}</div>
+                          </td>
+                          <td>
+                            <div className="tabular-nums" style={{ fontWeight: 800 }}>₦{ord.totalNgn.toLocaleString()}</div>
+                            <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {ord.itemSummary}
+                            </div>
+                          </td>
+                          <td>
+                            <span className={`status-pill ${ord.trackingStatus === 'delivered' ? 'good' : 'info'}`}>
+                              {ord.trackingStatus}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                            <button
+                              type="button"
+                              onClick={() => setActiveTab('orders')}
+                              style={{
+                                padding: '4px 8px',
+                                borderRadius: '6px',
+                                border: '1px solid var(--border-line)',
+                                backgroundColor: 'var(--bg-well)',
+                                color: 'var(--text-primary)',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Manage →
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
             </div>
+          )}
 
-          </div>
-        )}
+          {/* TAB 2: COURIER & ORDERS */}
+          {activeTab === 'orders' && (
+            <OrdersManager
+              orders={orders}
+              onUpdateStatus={handleUpdateOrderStatus}
+              onShowToast={showToast}
+            />
+          )}
 
-        {/* ======================================================== */}
-        {/* TAB 2: DISPUTES MEDIATION & EVIDENCE                     */}
-        {/* ======================================================== */}
-        {activeTab === 'disputes' && <DisputeCenter />}
+          {/* TAB 3: DISPUTE ADJUDICATION CENTER */}
+          {activeTab === 'disputes' && <DisputeCenter />}
 
-        {/* ======================================================== */}
-        {/* TAB 3: MERCHANT ACCREDITATION & TIERS (ZAVORA UPGRADE)   */}
-        {/* ======================================================== */}
-        {activeTab === 'vendors' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  Merchant Accreditation & Compliance Registry
-                </h2>
-                <p style={{ margin: '4px 0 0', color: '#8C8279', fontSize: '13px' }}>
-                  Statutory CAC incorporation audits, TIN compliance, and SLA fulfillment tier allocation.
-                </p>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <Badge variant="success">CAC Verified: 98%</Badge>
-                <Badge variant="neutral">Active Sellers: {vendors.length}</Badge>
-              </div>
-            </div>
+          {/* TAB 4: MERCHANT ACCREDITATION REGISTRY */}
+          {activeTab === 'vendors' && (
+            <VendorRegistry
+              vendors={vendors}
+              onGrantCredits={handleGrantBonusCredits}
+              onShowToast={showToast}
+            />
+          )}
 
-            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E7D5BC', overflow: 'hidden', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#FAF6F0', borderBottom: '1px solid #E7D5BC', color: '#8C8279', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    <th style={{ padding: '12px 16px', fontWeight: 700 }}>Merchant Entity</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 700 }}>Statutory Registrations</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 700 }}>NUBAN Bank Account</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 700 }}>Performance Tier</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 700 }}>AI Studio Balance</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 700, textAlign: 'right' }}>Audit Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {vendors.map((vnd) => (
-                    <tr key={vnd.id} style={{ borderBottom: '1px solid #F0E6D8' }}>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 700, color: '#2A2320' }}>{vnd.businessName}</div>
-                        <div style={{ fontSize: '12px', color: '#8C8279' }}>Hub: {vnd.hubLocation}</div>
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ color: '#2A2320', fontWeight: 600 }}>{vnd.cacNumber}</div>
-                        <div style={{ fontSize: '12px', color: '#8C8279' }}>TIN: {vnd.tinNumber}</div>
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ color: '#2A2320' }}>{vnd.bankAccount}</div>
-                        <span style={{ fontSize: '11px', color: '#4F6B3A', backgroundColor: '#F0F6EE', padding: '2px 6px', borderRadius: '4px' }}>
-                          NIBSS Name Match 100%
-                        </span>
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <Badge
-                          variant={
-                            vnd.tier === 'Tier 1 Premier'
-                              ? 'success'
-                              : vnd.tier === 'Tier 2 Verified'
-                              ? 'neutral'
-                              : 'warning'
-                          }
-                        >
-                          {vnd.tier}
-                        </Badge>
-                        <div style={{ fontSize: '11px', color: '#8C8279', marginTop: '4px' }}>
-                          On-Time: <strong style={{ color: '#4F6B3A' }}>{vnd.onTimeRate}</strong>
-                        </div>
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontWeight: 700, color: '#B5532E', fontSize: '12px' }}>
-                            {vnd.aiCredits} Credits
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleGrantBonusCredits(vnd.id, 10)}
-                            style={{
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              backgroundColor: '#FAF6F0',
-                              border: '1px solid #E7D5BC',
-                              fontSize: '10px',
-                              fontWeight: 700,
-                              cursor: 'pointer',
-                              color: '#2A2320',
-                            }}
-                          >
-                            +10 Grant
-                          </button>
-                        </div>
-                      </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        {vnd.kycStatus === 'verified' ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#4F6B3A', fontWeight: 600, fontSize: '12px' }}>
-                            <CheckCircle2 size={14} /> Accredited
-                          </span>
-                        ) : (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#D9A441', fontWeight: 600, fontSize: '12px' }}>
-                            <AlertCircle size={14} /> Review Required
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+          {/* TAB 5: FINANCIAL LEDGER & SETTLEMENT EXPLORER */}
+          {activeTab === 'ledger' && <LedgerExplorer onShowToast={showToast} />}
 
-        {/* ======================================================== */}
-        {/* TAB 4: FINANCIAL LEDGER & SETTLEMENT EXPLORER            */}
-        {/* ======================================================== */}
-        {activeTab === 'ledger' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  Financial Ledger & Settlement Audit Explorer
-                </h2>
-                <p style={{ margin: '4px 0 0', color: '#8C8279', fontSize: '13px' }}>
-                  Double-entry balanced books, platform escrow protection accounts, and automated NIBSS disbursement batches.
-                </p>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <Button variant="secondary" size="sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Download size={13} /> Export Ledger (CSV)
-                </Button>
-                <Button variant="primary" size="sm" style={{ backgroundColor: '#B5532E', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <RefreshCw size={13} /> Run Ledger Integrity Scan
-                </Button>
-              </div>
-            </div>
+          {/* TAB 6: PROMOS & COUPONS */}
+          {activeTab === 'coupons' && (
+            <CouponManager
+              coupons={coupons}
+              onCreateCoupon={handleCreateCoupon}
+              onToggleCoupon={handleToggleCoupon}
+              onShowToast={showToast}
+            />
+          )}
 
-            {/* 3 Metric Cards for Settlement */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-              <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: '12px', border: '1px solid #E7D5BC', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-                <div style={{ fontSize: '11px', color: '#8C8279', fontWeight: 700, textTransform: 'uppercase' }}>
-                  Total Platform Volume Processed
-                </div>
-                <div style={{ fontSize: '30px', fontWeight: 800, color: '#2A2320', margin: '6px 0', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  ₦18,450,000.00
-                </div>
-                <div style={{ fontSize: '12px', color: '#4F6B3A', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <TrendingUp size={13} /> +14.2% Month-over-Month
-                </div>
-              </div>
+          {/* TAB 7: PLATFORM DIAGNOSTICS & REPAIRS */}
+          {activeTab === 'repairs' && <RepairTools />}
 
-              <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: '12px', border: '1px solid #E7D5BC', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-                <div style={{ fontSize: '11px', color: '#8C8279', fontWeight: 700, textTransform: 'uppercase' }}>
-                  Providus Escrow Vault Pool
-                </div>
-                <div style={{ fontSize: '30px', fontWeight: 800, color: '#B5532E', margin: '6px 0', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  ₦8,320,000.00
-                </div>
-                <div style={{ fontSize: '12px', color: '#8C8279' }}>
-                  Merchant Escrow + Platform Commission Balance
-                </div>
-              </div>
+        </main>
+      </div>
 
-              <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: '12px', border: '1px solid #E7D5BC', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-                <div style={{ fontSize: '11px', color: '#8C8279', fontWeight: 700, textTransform: 'uppercase' }}>
-                  Double-Entry Ledger Variance
-                </div>
-                <div style={{ fontSize: '30px', fontWeight: 800, color: '#4F6B3A', margin: '6px 0', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  ₦0.00
-                </div>
-                <div style={{ fontSize: '12px', color: '#4F6B3A', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <CheckCircle2 size={13} /> Perfect Ledger Equilibrium (0 Variance)
-                </div>
-              </div>
-            </div>
-
-            {/* Recent journal entries table */}
-            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E7D5BC', overflow: 'hidden', boxShadow: '0 2px 4px rgba(42, 35, 32, 0.04)' }}>
-              <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #E7D5BC', backgroundColor: '#FAF6F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#2A2320', fontFamily: 'Fraunces, Georgia, serif' }}>
-                  Audited Journal Transactions (Double-Entry Feed)
-                </h4>
-                <span style={{ fontSize: '11px', color: '#4F6B3A', fontWeight: 600 }}>Cryptographic Hash Chained</span>
-              </div>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E7D5BC', color: '#8C8279', fontSize: '11px', textTransform: 'uppercase' }}>
-                    <th style={{ padding: '10px 16px' }}>Tx Hash / Ref</th>
-                    <th style={{ padding: '10px 16px' }}>Description</th>
-                    <th style={{ padding: '10px 16px' }}>Debit Account</th>
-                    <th style={{ padding: '10px 16px' }}>Credit Account</th>
-                    <th style={{ padding: '10px 16px', textAlign: 'right' }}>Amount (NGN)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style={{ borderBottom: '1px solid #F0E6D8' }}>
-                    <td style={{ padding: '12px 16px', fontFamily: 'monospace', color: '#B5532E' }}>tx-9018-escrow-hold</td>
-                    <td style={{ padding: '12px 16px', color: '#2A2320' }}>Order #MNG-2611-48K2F Checkout Payment</td>
-                    <td style={{ padding: '12px 16px', color: '#8C8279' }}>1010 Providus Operating Pool</td>
-                    <td style={{ padding: '12px 16px', color: '#8C8279' }}>2020 Buyer Escrow Sub-ledger</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#4F6B3A' }}>₦450,000.00</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #F0E6D8' }}>
-                    <td style={{ padding: '12px 16px', fontFamily: 'monospace', color: '#B5532E' }}>tx-9017-escrow-disburse</td>
-                    <td style={{ padding: '12px 16px', color: '#2A2320' }}>Order #MNG-2611-77Z1D Delivery Confirmed</td>
-                    <td style={{ padding: '12px 16px', color: '#8C8279' }}>2020 Buyer Escrow Sub-ledger</td>
-                    <td style={{ padding: '12px 16px', color: '#8C8279' }}>2030 Merchant Payable (Apex)</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#4F6B3A' }}>₦890,000.00</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #F0E6D8' }}>
-                    <td style={{ padding: '12px 16px', fontFamily: 'monospace', color: '#B5532E' }}>tx-9016-fee-recognize</td>
-                    <td style={{ padding: '12px 16px', color: '#2A2320' }}>Platform Take Rate (15% Commission)</td>
-                    <td style={{ padding: '12px 16px', color: '#8C8279' }}>2030 Merchant Payable (Apex)</td>
-                    <td style={{ padding: '12px 16px', color: '#8C8279' }}>4010 Marketplace Fee Revenue</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#2A2320' }}>₦133,500.00</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ======================================================== */}
-        {/* TAB 5: SYSTEM RECOVERY & REPAIR TOOLS                    */}
-        {/* ======================================================== */}
-        {activeTab === 'repairs' && <RepairTools />}
-      </main>
+      {/* Global Command Palette Modal (⌘K) */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onSelectTab={(tab) => {
+          setActiveTab(tab);
+          setCommandPaletteOpen(false);
+        }}
+      />
     </div>
   );
 }
